@@ -64,7 +64,7 @@ const handleInteraction = async (interaction) => {
       await interaction.reply({ content: 'คุณเลือกเมนู รับตราดิสคอร์ด!', ephemeral: true });
       break;
     case 'nuke_server':
-      await interaction.reply({ content: 'คำเตือน: คุณเลือกเมนู Nuke เซิฟเวอร์!', ephemeral: true });
+      await interaction.reply({ content: 'คำเตือน:คุณเลือกเมนู Nuke เซิฟเวอร์!', ephemeral: true });
       break;
     default:
       await interaction.reply({ content: 'ไม่พบคำสั่งสำหรับตัวเลือกนี้', ephemeral: true });

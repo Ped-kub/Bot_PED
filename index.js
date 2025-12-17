@@ -67,7 +67,7 @@ const client = new Client({
 function translatePerms(bitfield) {
     const p = new PermissionsBitField(bitfield);
     const important = [];
-    if (p.has(PermissionsBitField.Flags.Administrator)) important.push('⭐ ผู้ดูแลระบบ');
+    if (p.has(PermissionsBitField.Flags.Administrator)) important.push('⭐ผู้ดูแลระบบ');
     if (p.has(PermissionsBitField.Flags.ManageGuild)) important.push('จัดการเซิร์ฟเวอร์');
     if (p.has(PermissionsBitField.Flags.ManageRoles)) important.push('จัดการยศ');
     if (p.has(PermissionsBitField.Flags.ManageChannels)) important.push('จัดการห้อง');
