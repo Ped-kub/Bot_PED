@@ -20,7 +20,7 @@ const createMenuDropdown = () => {
     .setPlaceholder('เลือกรายการเมนูที่นี่...')
     .addOptions(
       new StringSelectMenuOptionBuilder()
-        .setLabel('ก๊อปอิโมจิ')
+        .setLabel('copyemoji')
         .setDescription('ดึงข้อมูลและก๊อปอิโมจิจากเซิร์ฟเวอร์')
         .setValue('copy_emoji'),
       new StringSelectMenuOptionBuilder()

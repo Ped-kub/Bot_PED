@@ -4,7 +4,7 @@ const { joinVoiceChannel, VoiceConnectionStatus } = require('@discordjs/voice');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('join')
-    .setDescription('ให้บอทเข้าร่วมช่องเสียง')
+    .setDescription('บอทเข้าร่วมช่องเสียง')
     .setDMPermission(false) // ไม่อนุญาตให้ใช้คำสั่งนี้ใน DM
     .addChannelOption(option =>
       option.setName('channel')

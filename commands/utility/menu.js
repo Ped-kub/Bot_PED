@@ -4,7 +4,7 @@ const { createMenuEmbed, createMenuDropdown } = require('../../menuUtils.js'); /
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('menu')
-    .setDescription('แสดงเมนูหลักของบอทพร้อมตัวเลือก Dropdown'),
+    .setDescription('แสดงเมนูของบอทพร้อมตัวเลือก Dropdown'),
   async execute(interaction) {
     const menuEmbed = createMenuEmbed();
     const menuComponents = createMenuDropdown();
