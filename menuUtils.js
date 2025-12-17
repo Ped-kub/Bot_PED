@@ -4,11 +4,11 @@ const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMen
 const createMenuEmbed = () => {
   const embed = new EmbedBuilder()
     .setColor(0x00FF00)
-    .setTitle('🎮 เมนูบอทฟรี - MENU FREE')
+    .setTitle('บริการต่างๆ')
     .setDescription('กรุณาเลือกเมนูที่ต้องการจาก Dropdown ด้านล่าง:')
-    .setImage('URL_TO_YOUR_CHARACTER_IMAGE') // **แทนที่ด้วย URL รูปภาพตัวละครของคุณ**
+    .setImage('https://www.craiyon.com/pt/image/GmCvgfvIQ9u2BXClxXtwuQ') // **แทนที่ด้วย URL รูปภาพตัวละครของคุณ**
     .setTimestamp()
-    .setFooter({ text: '© BOT Copyrights By. LEMON HUB' });
+    .setFooter({ text: '© BOT By. Ped' });
 
   return embed;
 };
@@ -17,24 +17,24 @@ const createMenuEmbed = () => {
 const createMenuDropdown = () => {
   const selectMenu = new StringSelectMenuBuilder()
     .setCustomId('main_menu_select')
-    .setPlaceholder('เลือกรายการเมนูที่นี่...')
+    .setPlaceholder('เลือกบริการได้เลย')
     .addOptions(
       new StringSelectMenuOptionBuilder()
-        .setLabel('copyemoji')
-        .setDescription('ดึงข้อมูลและก๊อปอิโมจิจากเซิร์ฟเวอร์')
-        .setValue('copy_emoji'),
+        .setLabel('จ้างฟาม')
+        .setDescription('จ้างฟามกับทางเรา')
+        .setValue('Farm'),
       new StringSelectMenuOptionBuilder()
-        .setLabel('จอยเซิฟออโต้')
-        .setDescription('ให้บอทเข้าร่วมเซิร์ฟเวอร์อัตโนมัติ')
-        .setValue('join_server'),
+        .setLabel('ซื้อของ')
+        .setDescription('ซื้อของจากพี่ TOJI')
+        .setValue('Item'),
       new StringSelectMenuOptionBuilder()
-        .setLabel('รับตราดิสคอร์ด')
-        .setDescription('รับ Discord Badge พิเศษ (อาจเป็นมุขตลก)')
-        .setValue('get_badge'),
+        .setLabel('ซื้อตระกูล')
+        .setDescription('ซื้อตระกูลจากพี่ TOJI')
+        .setValue('Bloodline'),
       new StringSelectMenuOptionBuilder()
-        .setLabel('Nuke เซิฟเวอร์')
-        .setDescription('ล้างช่องและบทบาททั้งหมดในเซิร์ฟเวอร์ (อันตราย!)')
-        .setValue('nuke_server'),
+        .setLabel('พ่อค้าโตโต้เด็กเย็ดโม้')
+        .setDescription('พ่อค้า โตโต้เด็กเย็ดโม้')
+        .setValue('Trade_1'),
     );
 
   const actionRow = new ActionRowBuilder()
