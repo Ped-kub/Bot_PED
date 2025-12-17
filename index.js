@@ -34,6 +34,11 @@ const BAN_LOG_CHANNEL_ID = '1450466985447002286';
 const UNBAN_LOG_CHANNEL_ID = '1450468042633908224';
 const TOKEN = process.env.BOT_TOKEN;
 const { 
+    createMenuEmbed, 
+    createMenuDropdown, 
+    handleInteraction 
+} = require('./menuUtils.js');
+const { 
     joinVoiceChannel, 
     createAudioPlayer, 
     createAudioResource, 
