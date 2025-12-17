@@ -22,6 +22,7 @@ const {
     Collection,
     EmbedBuilder, 
     AuditLogEvent,
+    MessageFlags,
     time 
 } = require('discord.js');
 
@@ -107,7 +108,7 @@ client.on('interactionCreate', async interaction => {
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
-        await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true });
+        await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', flags: [MessageFlags.Ephemeral] });
     }
 });
 
