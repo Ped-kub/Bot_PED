@@ -17,7 +17,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('บริการต่างๆ')
-            .setDescription('กรุณาเลือกเมนูที่ต้องการจาก Dropdown ด้านล่าง:')
+            .setDescription('เลือกบริการจากด้านล่างได้เลย')
             .setImage('https://www.craiyon.com/pt/image/GmCvgfvIQ9u2BXClxXtwuQ') // **แทนที่ด้วย URL รูปภาพตัวละครของคุณ**
             .setTimestamp()
             .setFooter({ text: '© BOT By. Ped' });
@@ -51,3 +51,4 @@ module.exports = {
         components: [row]
     });
 }}
+
