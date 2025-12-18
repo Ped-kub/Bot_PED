@@ -18,7 +18,7 @@ module.exports = {
     // ข้อมูลแพ็กเกจในหมวด จ้างฟาร์ม
     farmPackages: {
         'farm_lv': { 
-            name: 'ฟาร์มเลเวลLevel 1-100 จุติ 0 ', 
+            name: 'Level 1-100 จุติ 0 ', 
             price: '135 บาท', 
             img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
             emoji: '🆙' 
@@ -26,6 +26,12 @@ module.exports = {
         'farm_boss': { 
             name: 'Level 1-125 จุติ 1', 
             price: '175 บาท', 
+            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            emoji: '🆙' 
+        },
+        'farm_boss': { 
+            name: 'Level 1-150 จุติ 2', 
+            price: '225 บาท', 
             img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
             emoji: '🆙' 
         }
