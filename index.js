@@ -19,9 +19,17 @@ const {
     ActivityType, 
     OnlineStatus, 
     PermissionsBitField, 
+    ChannelType,
+    PermissionFlagsBits,
     Collection,
+    StringSelectMenuBuilder,
     EmbedBuilder, 
     AuditLogEvent,
+    ActionRowBuilder,
+    MessageFlags,
+    StringSelectMenuOptionBuilder,
+    ButtonBuilder, 
+    ButtonStyle,
     time 
 } = require('discord.js');
 
@@ -38,6 +46,7 @@ const {
     createMenuDropdown, 
     handleInteraction 
 } = require('./menuUtils.js');
+const transcripts = require('discord-html-transcripts');
 const { 
     joinVoiceChannel, 
     createAudioPlayer, 
@@ -66,7 +75,7 @@ const client = new Client({
 function translatePerms(bitfield) {
     const p = new PermissionsBitField(bitfield);
     const important = [];
-    if (p.has(PermissionsBitField.Flags.Administrator)) important.push('⭐ ผู้ดูแลระบบ');
+    if (p.has(PermissionsBitField.Flags.Administrator)) important.push('⭐ผู้ดูแลระบบ');
     if (p.has(PermissionsBitField.Flags.ManageGuild)) important.push('จัดการเซิร์ฟเวอร์');
     if (p.has(PermissionsBitField.Flags.ManageRoles)) important.push('จัดการยศ');
     if (p.has(PermissionsBitField.Flags.ManageChannels)) important.push('จัดการห้อง');
@@ -103,11 +112,175 @@ client.on('interactionCreate', async interaction => {
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
+    const isEphemeral = command.ephemeral || false;
+
     try {
+        
+        await interaction.deferReply({ ephemeral: isEphemeral }).catch(err => {
+            console.error("ไม่สามารถ Defer ได้เนื่องจาก Timeout หรือ Interaction หมดอายุ:", err);
+            return; 
+        });
+       
+        if (!interaction.deferred && !interaction.replied) return;
+
         await command.execute(interaction);
+
     } catch (error) {
-        console.error(error);
-        await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true });
+        console.error('เกิดข้อผิดพลาด:', error);
+        
+        try {
+            if (interaction.deferred || interaction.replied) {
+                await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!' });
+            } else {
+                await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true });
+            }
+        } catch (replyError) {
+            console.error('ไม่สามารถส่งข้อความแจ้ง Error ได้:', replyError);
+        }
+    }
+});
+
+client.on('interactionCreate', async interaction => {
+    
+    if (interaction.isButton()) {
+        if (interaction.customId === 'close_room') {
+            // --- ตั้งค่า ID ---
+            const LOG_CHANNEL_ID = 'ใส่_ID_ห้องที่ต้องการให้บอทส่งไฟล์ไป'; // ID ห้องเก็บ Log
+            const STAFF_ROLE_ID = '1443797915230539928';
+            const ALLOWED_USER_IDS = ['1390444294988369971', '774417760281165835', '1056886143754444840'];
+
+            // เช็คสิทธิ์คนกด
+            const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
+            const isAllowedUser = ALLOWED_USER_IDS.includes(interaction.user.id);
+
+            if (!isStaff && !isAllowedUser) {
+                return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้นที่ปิดได้', flags: [MessageFlags.Ephemeral] });
+            }
+
+            try {
+                // 1. แจ้งสถานะเบื้องต้น
+                await interaction.reply({ content: '📥 กำลังบันทึกประวัติการพิมพ์และจะลบห้องใน 5 วินาที...' });
+
+                // 2. สร้างไฟล์ HTML จากประวัติในห้องนี้
+                const attachment = await transcripts.createTranscript(interaction.channel, {
+                    limit: -1, // เอาทุกข้อความ
+                    fileName: `transcript-${interaction.channel.name}.html`,
+                    returnBuffer: false,
+                    saveImages: true // บันทึกรูปภาพในไฟล์ด้วย
+                });
+
+                // 3. ส่งไฟล์ HTML ไปยังห้อง Log ที่กำหนด
+                const logChannel = client.channels.cache.get(LOG_CHANNEL_ID);
+                if (logChannel) {
+                    await logChannel.send({
+                        content: `📑 **ประวัติการสนทนาจากห้อง:** \`${interaction.channel.name}\`\n**ผู้สั่งปิด:** ${interaction.user.tag}`,
+                        files: [attachment]
+                    });
+                }
+
+                // 4. รอสักครู่แล้วลบห้อง
+                setTimeout(async () => {
+                    await interaction.channel.delete().catch(() => {});
+                }, 5000);
+
+            } catch (error) {
+                console.error('ระบบปิดห้องผิดพลาด:', error);
+                if (!interaction.replied) await interaction.reply({ content: '❌ เกิดข้อผิดพลาดในการเซฟประวัติ', flags: [MessageFlags.Ephemeral] });
+            }
+        }
+    }
+
+    if (!interaction.isStringSelectMenu()) return;
+
+     if (interaction.customId === 'room_setup') {
+        const { guild, user, values } = interaction;
+        const selectedValue = values[0];
+
+        try {
+            await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+
+            const IDS = {
+                ROLES: { STAFF_TEAM: '1443797915230539928' },
+                USERS: {
+                    TOJI: '1390444294988369971',
+                    AL: '774417760281165835',
+                    TOTO: '1056886143754444840'
+                }
+            };
+
+            let channelName = '';
+            let targetStaffId = '';
+            let targetRoleId = '';
+            let serviceName = '';
+            let welcomeMessage = '';
+
+            let overwrites = [
+                { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+                { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 1 }
+            ];
+
+            switch (selectedValue) {
+                case 'create_item':
+                    channelName = `🧺-ซื้อของ-${user.username}`;
+                    serviceName = 'ซื้อของ';
+                    targetStaffId = IDS.USERS.TOJI;
+                    welcomeMessage = `👋 สวัสดีครับคุณ ${user}! รอ **พี่ TOJI** มาตอบสักครู่นะครับ`;
+                    overwrites.push(
+                        { id: IDS.USERS.TOJI, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 1 },
+                        { id: IDS.ROLES.STAFF_TEAM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 0 }
+                    );
+                    break;
+
+                case 'create_farm':
+                    channelName = `🎮-จ้างฟาม-${user.username}`;
+                    serviceName = 'จ้างฟาร์ม';
+                    targetRoleId = IDS.ROLES.STAFF_TEAM;
+                    welcomeMessage = `👋 ยินดีต้อนรับครับ ${user}!แจ้งรายละเอียดการ **จ้างฟาร์ม** ให้ทีมงานทราบได้เลยครับ`;
+                    overwrites.push(
+                        { id: IDS.ROLES.STAFF_TEAM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 0 }
+                    );
+                    break;
+
+                case 'create_trade':
+                    channelName = `🙆‍♂️-เทรด-${user.username}`;
+                    serviceName = 'เทรด';
+                    targetStaffId = IDS.USERS.TOTO;
+                    welcomeMessage = `👋 สวัสดีครับ ${user}! สามารถติดต่อ **พ่อค้าโตโต้เด็กเย็ดโม้** ในห้องนี้ได้เลยครับ`;
+                    overwrites.push(
+                        { id: IDS.USERS.TOTO, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 1 }
+                    );
+                    break;
+            }
+ 
+            const channel = await guild.channels.create({
+                name: channelName,
+                type: ChannelType.GuildText,
+                parent: interaction.channel.parentId,
+                permissionOverwrites: overwrites,
+            });
+ 
+            await interaction.editReply({ content: `✅ สร้างห้องสำเร็จ: ${channel}` });
+
+            // สร้างปุ่มปิดห้อง
+            const closeBtn = new ButtonBuilder()
+                .setCustomId('close_room')
+                .setLabel('ปิดห้องนี้')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('🔒');
+
+            const row = new ActionRowBuilder().addComponents(closeBtn);
+
+            await channel.send({ content: welcomeMessage, components: [row] });
+
+            // แจ้งเตือน DM (ทำงานเบื้องหลัง)
+            const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n**บริการ:** ${serviceName}\n**ลูกค้า:** ${user.tag}\n**ห้อง:** ${channel}`;
+            if (targetStaffId) client.users.fetch(targetStaffId).then(s => s.send(notifyMsg)).catch(() => {});
+            if (targetRoleId) guild.members.fetch().then(ms => ms.filter(m => m.roles.cache.has(targetRoleId) && !m.user.bot).forEach(m => m.send(notifyMsg).catch(() => {}))).catch(() => {});
+
+        } catch (error) {
+            console.error('Error:', error);
+            if (interaction.deferred) await interaction.editReply({ content: '❌ ไม่สามารถสร้างห้องได้' });
+        }
     }
 });
 
