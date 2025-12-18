@@ -133,7 +133,7 @@ client.on('interactionCreate', async interaction => {
 
 client.on('interactionCreate', async interaction => {
 
-    const TARGET_CATEGORY_ID = 'ใส่_ID_หมวดหมู่_ของคุณที่นี่';
+    const TARGET_CATEGORY_ID = '1428682337952206848';
 
      if (interaction.isButton()) {
         if (interaction.customId === 'close_room') {
