@@ -103,6 +103,9 @@ if (fs.existsSync(foldersPath)) {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
+    // 1. เรียก deferReply ทันทีที่เริ่มทำงาน (ใส่ ephemeral ถ้าอยากให้เห็นคนเดียว)
+    await interaction.deferReply({ ephemeral: true }).catch(console.error);
+
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
@@ -110,7 +113,10 @@ client.on('interactionCreate', async interaction => {
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
-       await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', flags: [MessageFlags.Ephemeral] });
+        // 2. ใช้ editReply แทน reply เพราะเรา defer ไปแล้ว
+        await interaction.editReply({ 
+            content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', 
+        }).catch(console.error);
     }
 });
 
@@ -119,72 +125,80 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.customId === 'room_setup') {
         const { guild, user, values } = interaction;
-        const selectedValue = values[0]; 
+        const selectedValue = values[0];
 
         await interaction.deferReply({ ephemeral: true });
 
-        // 1. ตรวจสอบ ID และต้องเป็น String เท่านั้น
-        const ROLE_STAFF_ID = '1443797915230539928'; 
-        const FRIEND_USER_ID = '1390444294988369971';
-        const TRADE_USER_ID = '1056886143754444840';
+        // --- 1. แยกกลุ่ม ID ให้ชัดเจน ---
+        const IDS = {
+            ROLES: {
+                STAFF: '1443797915230539928',
+            },
+            USERS: {
+                TOJI: '1390444294988369971',
+                AL: '774417760281165835',
+                TOTO: '1056886143754444840',
+            }
+        };
 
-        // 2. เริ่มต้น overwrites พื้นฐาน (คนสร้างและทุกคน)
+        // --- 2. ตั้งค่าพื้นฐาน (ทุกคนมองไม่เห็น, คนกดสร้างมองเห็น) ---
         let overwrites = [
             {
-                id: guild.id, // @everyone ต้องมีเสมอ
+                id: guild.id, // @everyone
                 deny: [PermissionFlagsBits.ViewChannel],
             },
             {
-                id: user.id, // ID คนกดสร้าง
-                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                id: user.id, // คนกดสั่ง
+                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
             }
         ];
 
         let channelName = '';
 
-        // 3. ฟังก์ชันช่วยเพิ่ม Permission แบบตรวจสอบค่า (ป้องกัน InvalidType)
-        const addPermission = (targetId) => {
-            if (targetId && targetId.length > 10) { // เช็คว่าเป็น ID ที่ดูสมเหตุสมผล
-                overwrites.push({
-                    id: targetId,
-                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages]
-                });
-            }
-        };
-
-        // 4. เลือกประเภทห้อง
+        // --- 3. แยกเงื่อนไขสิทธิ์ตามประเภทห้อง ---
         switch (selectedValue) {
             case 'create_item':
                 channelName = `🧺-ซื้อของ-${user.username}`;
-                addPermission(FRIEND_USER_ID);
+                // เพิ่มเฉพาะ User ID (พี่โทจิ)
+                overwrites.push( 
+                    { id: IDS.USERS.TOJI, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
+                    { id: IDS.ROLES.STAFF, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
+                );
                 break;
 
             case 'create_farm':
                 channelName = `🎮-จ้างฟาม-${user.username}`;
-                addPermission(ROLE_STAFF_ID);
+                // เพิ่มเฉพาะ Role ID (ยศ STAFF)
+                overwrites.push({ 
+                    id: IDS.ROLES.STAFF, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] 
+
+                });
                 break;
 
             case 'create_trade':
                 channelName = `🙆‍♂️-เทรด-${user.username}`;
-                addPermission(TRADE_USER_ID);
+                // เพิ่มเฉพาะ User ID (พ่อค้าโตโต้ และ พี่แอล)
+                overwrites.push(
+                    { id: IDS.USERS.TOTO, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
+                    { id: IDS.ROLES.STAFF, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
+                );
                 break;
         }
 
         try {
-            // ตรวจสอบ overwrites ก่อนส่ง (Debug)
-            // console.log('Current Overwrites:', overwrites);
-
+            // สร้างห้องใน Category เดียวกับที่บอทอยู่
             const channel = await guild.channels.create({
                 name: channelName,
                 type: ChannelType.GuildText,
-                parent: interaction.channel.parentId || null,
+                parent: interaction.channel.parentId,
                 permissionOverwrites: overwrites,
             });
 
-            await interaction.editReply(`✅ สร้างห้องสำเร็จ: ${channel}`);
+            await interaction.editReply(`✅ สร้างห้องสำเร็จ: ${channel}\n👥 ตั้งค่าสิทธิ์แยกบุคคลและยศเรียบร้อย`);
         } catch (error) {
-            console.error('สร้างห้องไม่ได้เพราะ:', error);
-            await interaction.editReply(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+            console.error('พบข้อผิดพลาด:', error);
+            // ตรวจสอบว่าบอทมีสิทธิ์ Manage Roles/Channels หรือไม่
+            await interaction.editReply(`❌ สร้างห้องไม่ได้: ${error.message}`);
         }
     }
 });
