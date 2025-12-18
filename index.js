@@ -115,49 +115,74 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('interactionCreate', async interaction => {
-    // ตรวจสอบว่าเป็นคำสั่งจาก Dropdown หรือไม่
-    if (!interaction.isStringSelectMenu()) return;
+     if (!interaction.isStringSelectMenu()) return;
 
     if (interaction.customId === 'room_setup') {
-        const selection = interaction.values[0];
-        const guild = interaction.guild;
+        const { guild, user, values } = interaction;
+        const selectedValue = values[0]; 
 
-        await interaction.deferReply({ ephemeral: true }); // ป้องกันบอทค้าง (Loading...)
+        await interaction.deferReply({ ephemeral: true });
+
+        // --- ส่วนที่ 1: กำหนด ID ของคนหรือยศที่ต้องการ ---
+        const ROLE_STAFF_ID = '1443797915230539928'; // ID ยศAGM
+        const FRIEND_USER_ID = '1390444294988369971'; // ID พี่โทจิ
+        const CO_OWNER_ID = '774417760281165835';   // ID พี่เเอล
+        const TRADE_USER_ID = '1056886143754444840';  // ID โต้
+
+        let channelName = '';
+        let overwrites = [
+            {
+                id: guild.id, // ปิดการมองเห็นสำหรับทุกคน (@everyone)
+                deny: [PermissionFlagsBits.ViewChannel],
+            },
+            {
+                id: user.id, // ตัวคนกดสร้าง (ให้สิทธิ์จัดการห้องได้ด้วย)
+                allow: [
+                    PermissionFlagsBits.ViewChannel, 
+                    PermissionFlagsBits.SendMessages, 
+                ],
+            }
+        ];
+
+        // --- ส่วนที่ 2: แยกเงื่อนไขสิทธิ์รายบุคคลและรายยศตามประเภทห้อง ---
+        switch (selectedValue) {
+            case 'create_item':
+                channelName = `🧺-ซื้อของ-${interaction.user.username}`;
+                overwrites.push({ 
+                    id: FRIEND_USER_ID, 
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] 
+                });
+                break;
+
+            case 'create_farm':
+                channelName = `🎮-จ้างฟาม-${interaction.user.username}`;
+                overwrites.push({
+                    id: ROLE_STAFF_ID,
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                });
+                break;
+
+            case 'create_trade':
+                 channelName = `🙆‍♂️-พ่อค้าโตโต้เด็กเย็ดโม้-${interaction.user.username}`;
+                overwrites.push({
+                    id: TRADE_USER_ID,
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                });
+                break;
+        }
 
         try {
-            let channelName = '';
-            let channelOptions = {
-                type: ChannelType.GuildText,
-                parent: interaction.channel.parentId, // สร้างไว้ใน Category เดียวกัน
-            };
-
-            if (selection === 'create_item') {
-                channelName = `🧺-ซื้อของ-${interaction.user.username}`;
-            } else if (selection === 'create_farm') {
-                channelName = `🎮-จ้างฟาม-${interaction.user.username}`;
-            } else if (selection === 'create_trade') {
-                channelName = `🙆‍♂️-พ่อค้าโตโต้เด็กเย็ดโม้-${interaction.user.username}`;
-                channelOptions.permissionOverwrites = [
-                    {
-                        id: guild.id, // ทุกคน (@everyone)
-                        deny: [PermissionFlagsBits.ViewChannel],
-                    },
-                    {
-                        id: interaction.user.id, // ผู้ที่กดสร้าง
-                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-                    },
-                ];
-            }
-
             const channel = await guild.channels.create({
                 name: channelName,
-                ...channelOptions
+                type: ChannelType.GuildText,
+                parent: interaction.channel.parentId,
+                permissionOverwrites: overwrites,
             });
 
-            await interaction.editReply(`สร้างห้องเรียบร้อยแล้ว: ${channel}`);
+            await interaction.editReply(`✅ สร้างห้องส่วนตัวสำเร็จ: ${channel}\n👥 สิทธิ์ถูกตั้งค่าแยกตามบุคคลและยศเรียบร้อยแล้ว`);
         } catch (error) {
             console.error(error);
-            await interaction.editReply('เกิดข้อผิดพลาดในการสร้างห้อง!');
+            await interaction.editReply('❌ ไม่สามารถสร้างห้องได้ กรุณาเช็คสิทธิ์ของบอท');
         }
     }
 });
