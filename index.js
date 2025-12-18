@@ -19,6 +19,8 @@ const {
     ActivityType, 
     OnlineStatus, 
     PermissionsBitField, 
+    ChannelType,
+    PermissionFlagsBits,
     Collection,
     EmbedBuilder, 
     AuditLogEvent,
@@ -109,6 +111,54 @@ client.on('interactionCreate', async interaction => {
     } catch (error) {
         console.error(error);
        await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', flags: [MessageFlags.Ephemeral] });
+    }
+});
+
+client.on('interactionCreate', async interaction => {
+    // ตรวจสอบว่าเป็นคำสั่งจาก Dropdown หรือไม่
+    if (!interaction.isStringSelectMenu()) return;
+
+    if (interaction.customId === 'room_setup') {
+        const selection = interaction.values[0];
+        const guild = interaction.guild;
+
+        await interaction.deferReply({ ephemeral: true }); // ป้องกันบอทค้าง (Loading...)
+
+        try {
+            let channelName = '';
+            let channelOptions = {
+                type: ChannelType.GuildText,
+                parent: interaction.channel.parentId, // สร้างไว้ใน Category เดียวกัน
+            };
+
+            if (selection === 'create_chat') {
+                channelName = `💬-คุยทั่วไป-${interaction.user.username}`;
+            } else if (selection === 'create_gaming') {
+                channelName = `🎮-เล่นเกม-${interaction.user.username}`;
+            } else if (selection === 'create_private') {
+                channelName = `🔒-ส่วนตัว-${interaction.user.username}`;
+                channelOptions.permissionOverwrites = [
+                    {
+                        id: guild.id, // ทุกคน (@everyone)
+                        deny: [PermissionFlagsBits.ViewChannel],
+                    },
+                    {
+                        id: interaction.user.id, // ผู้ที่กดสร้าง
+                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                    },
+                ];
+            }
+
+            const channel = await guild.channels.create({
+                name: channelName,
+                ...channelOptions
+            });
+
+            await interaction.editReply(`สร้างห้องเรียบร้อยแล้ว: ${channel}`);
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply('เกิดข้อผิดพลาดในการสร้างห้อง!');
+        }
     }
 });
 
