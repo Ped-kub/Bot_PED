@@ -12,9 +12,11 @@
   "dependencies": {
     "@discordjs/opus": "^0.10.0",
     "@discordjs/rest": "^2.6.0",
+    "@discordjs/voice": "^0.19.0",
     "@snazzah/davey": "^0.1.8",
     "discord-api-types": "^0.38.37",
     "discord-html-transcripts": "^3.2.0",
+    "discord-voip": "^7.1.0",
     "discord.js": "^14.25.1",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
