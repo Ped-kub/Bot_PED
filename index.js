@@ -120,73 +120,50 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+const { PermissionFlagsBits, MessageFlags, ChannelType } = require('discord.js');
+
 client.on('interactionCreate', async interaction => {
     if (!interaction.isStringSelectMenu()) return;
 
     if (interaction.customId === 'room_setup') {
+        // 1. แก้ไข Warning: ใช้ MessageFlags.Ephemeral แทน ephemeral: true
+        await interaction.deferReply({ flags: [MessageFlags.Ephemeral] }).catch(console.error);
+
         const { guild, user, values } = interaction;
         const selectedValue = values[0];
 
-        await interaction.deferReply({ ephemeral: true });
+        const ROLE_STAFF_ID = '1443797915230539928'; 
+        const FRIEND_USER_ID = '1390444294988369971';
+        const TRADE_USER_ID = '1056886143754444840';
 
-        // --- 1. แยกกลุ่ม ID ให้ชัดเจน ---
-        const IDS = {
-            ROLES: {
-                STAFF: '1443797915230539928',
-            },
-            USERS: {
-                TOJI: '1390444294988369971',
-                AL: '774417760281165835',
-                TOTO: '1056886143754444840',
-            }
-        };
-
-        // --- 2. ตั้งค่าพื้นฐาน (ทุกคนมองไม่เห็น, คนกดสร้างมองเห็น) ---
+        let channelName = '';
         let overwrites = [
             {
                 id: guild.id, // @everyone
                 deny: [PermissionFlagsBits.ViewChannel],
             },
             {
-                id: user.id, // คนกดสั่ง
-                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+                id: user.id, // ผู้สร้าง
+                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
             }
         ];
 
-        let channelName = '';
-
-        // --- 3. แยกเงื่อนไขสิทธิ์ตามประเภทห้อง ---
         switch (selectedValue) {
-    case 'create_item':
-        channelName = `🧺-ซื้อของ-${user.username}`;
-        overwrites.push({ 
-            id: FRIEND_USER_ID, 
-            type: 1, // ระบุว่าเป็น USER (Member)
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] 
-        });
-        break;
-
-    case 'create_farm':
-        channelName = `🎮-จ้างฟาม-${user.username}`;
-        overwrites.push({
-            id: ROLE_STAFF_ID,
-            type: 0, // ระบุว่าเป็น ROLE
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-        });
-        break;
-
-    case 'create_trade':
-        channelName = `🙆‍♂️-เทรด-${user.username}`;
-        overwrites.push({
-            id: TRADE_USER_ID,
-            type: 1, // ระบุว่าเป็น USER (Member)
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-        });
-        break;
-}
+            case 'create_item':
+                channelName = `🧺-ซื้อของ-${user.username}`;
+                overwrites.push({ id: FRIEND_USER_ID, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                break;
+            case 'create_farm':
+                channelName = `🎮-จ้างฟาม-${user.username}`;
+                overwrites.push({ id: ROLE_STAFF_ID, type: 0, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                break;
+            case 'create_trade':
+                channelName = `🙆‍♂️-เทรด-${user.username}`;
+                overwrites.push({ id: TRADE_USER_ID, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                break;
+        }
 
         try {
-            // สร้างห้องใน Category เดียวกับที่บอทอยู่
             const channel = await guild.channels.create({
                 name: channelName,
                 type: ChannelType.GuildText,
@@ -194,11 +171,11 @@ client.on('interactionCreate', async interaction => {
                 permissionOverwrites: overwrites,
             });
 
-            await interaction.editReply(`✅ สร้างห้องสำเร็จ: ${channel}\n👥 ตั้งค่าสิทธิ์แยกบุคคลและยศเรียบร้อย`);
+            // ใช้ editReply เพราะเราเรียก deferReply ไปแล้ว
+            await interaction.editReply({ content: `✅ สร้างห้องสำเร็จ: ${channel}` });
         } catch (error) {
-            console.error('พบข้อผิดพลาด:', error);
-            // ตรวจสอบว่าบอทมีสิทธิ์ Manage Roles/Channels หรือไม่
-            await interaction.editReply(`❌ สร้างห้องไม่ได้: ${error.message}`);
+            console.error('Error:', error);
+            await interaction.editReply({ content: '❌ เกิดข้อผิดพลาดในการสร้างห้อง' });
         }
     }
 });
