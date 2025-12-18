@@ -13,12 +13,11 @@ module.exports = {
         .setDescription('สร้างเมนูสำหรับเลือกสร้างห้องอัตโนมัติ')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
-        // ใช้ Embed เดิมของคุณ
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('บริการต่างๆ')
             .setDescription('เลือกบริการจากด้านล่างได้เลย')
-            // แนะนำ: ใช้ลิงก์รูปภาพที่ลงท้ายด้วย .png หรือ .jpg เพื่อให้รูปขึ้นใน Embed
+            // ใช้ลิงก์รูปภาพที่ลงท้ายด้วย .png หรือ .jpg เพื่อให้รูปขึ้นใน Embed
             .setImage('images.craiyon.com') 
             .setTimestamp()
             .setFooter({ text: '© BOT By. Ped' });
@@ -52,3 +51,4 @@ module.exports = {
         });
     }
 };
+
