@@ -1,11 +1,14 @@
 const { 
     SlashCommandBuilder, 
     EmbedBuilder, 
+    AttachmentBuilder,
     ActionRowBuilder, 
     StringSelectMenuBuilder, 
     StringSelectMenuOptionBuilder,
     PermissionFlagsBits 
 } = require('discord.js');
+
+const file = new AttachmentBuilder('./images/Ped.png'); 
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -17,8 +20,7 @@ module.exports = {
             .setColor(0x00FF00)
             .setTitle('บริการต่างๆ')
             .setDescription('เลือกบริการจากด้านล่างได้เลย')
-            // ใช้ลิงก์รูปภาพที่ลงท้ายด้วย .png หรือ .jpg เพื่อให้รูปขึ้นใน Embed
-            .setImage('images.Ped.png') 
+            .setImage('attachment://Ped.png')
             .setTimestamp()
             .setFooter({ text: '© BOT By. Ped' });
 
@@ -47,9 +49,8 @@ module.exports = {
 
         await interaction.reply({
             embeds: [embed],
-            components: [row]
+            components: [row],
+            files: [file] // *** เพิ่มบรรทัดนี้ เพื่อส่งไฟล์รูปขึ้นไปด้วย ***
         });
     }
 };
-
-
