@@ -560,21 +560,41 @@ client.on('ready', () => {
     });
 });
 
+
 client.once('ready', () => {
     console.log(`บอทออนไลน์แล้ว: ${client.user.tag}`);
 
-    const guildId = '1376283535962406942'; // แทนที่ด้วย ID เซิร์ฟเวอร์ของคุณ
-    const channelId = '1428553701076766802'; // แทนที่ด้วย ID ห้องเสียงที่ต้องการให้บอทเข้า
+    const guildId = '1376283535962406942'; // ID เซิร์ฟเวอร์
+    const channelId = '1428553701076766802'; // ID ห้องเสียง
     const guild = client.guilds.cache.get(guildId);
 
     if (guild) {
-        joinVoiceChannel({
-            channelId: channelId,
-            guildId: guild.id,
-            adapterCreator: guild.voiceAdapterCreator,
-            daveEncryption: false,
-        });
-        console.log('บอทเข้าห้องเสียงเรียบร้อยแล้ว');
+        try {
+            const connection = joinVoiceChannel({
+                channelId: channelId,
+                guildId: guild.id,
+                adapterCreator: guild.voiceAdapterCreator,
+                selfDeaf: true, // ปิดการฟัง เพื่อลดการใช้ข้อมูล
+                selfMute: true, // ปิดไมค์บอท
+            });
+
+            // จัดการสถานะเพื่อป้องกัน Error Socket Closed บน Render
+            connection.on(VoiceConnectionStatus.Disconnected, async () => {
+                try {
+                    // หากหลุด ให้พยายามเชื่อมต่อใหม่
+                    await Promise.race([
+                        entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+                        entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+                    ]);
+                } catch (error) {
+                    connection.destroy();
+                }
+            });
+
+            console.log('✅ บอทเข้าไปสแตนด์บายในห้องเสียงแล้ว');
+        } catch (error) {
+            console.error('❌ ไม่สามารถเข้าห้องเสียงได้:', error);
+        }
     }
 });
 
