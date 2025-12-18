@@ -115,7 +115,7 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('interactionCreate', async interaction => {
-     if (!interaction.isStringSelectMenu()) return;
+    if (!interaction.isStringSelectMenu()) return;
 
     if (interaction.customId === 'room_setup') {
         const { guild, user, values } = interaction;
@@ -123,31 +123,28 @@ client.on('interactionCreate', async interaction => {
 
         await interaction.deferReply({ ephemeral: true });
 
-        // --- ส่วนที่ 1: กำหนด ID ของคนหรือยศที่ต้องการ ---
-        const ROLE_STAFF_ID = '1443797915230539928'; // ID ยศAGM
-        const FRIEND_USER_ID = '1390444294988369971'; // ID พี่โทจิ
-        const CO_OWNER_ID = '774417760281165835';   // ID พี่เเอล
-        const TRADE_USER_ID = '1056886143754444840';  // ID โต้
+        // --- ตั้งค่า ID และล้างช่องว่าง (Trim) เพื่อป้องกัน Error ---
+        const ROLE_STAFF_ID = '1443797915230539928'.trim();
+        const FRIEND_USER_ID = '1390444294988369971'.trim();
+        const CO_OWNER_ID = '774417760281165835'.trim();
+        const TRADE_USER_ID = '1056886143754444840'.trim();
 
         let channelName = '';
         let overwrites = [
             {
-                id: guild.id, // ปิดการมองเห็นสำหรับทุกคน (@everyone)
+                id: guild.id, // @everyone
                 deny: [PermissionFlagsBits.ViewChannel],
             },
             {
-                id: user.id, // ตัวคนกดสร้าง (ให้สิทธิ์จัดการห้องได้ด้วย)
-                allow: [
-                    PermissionFlagsBits.ViewChannel, 
-                    PermissionFlagsBits.SendMessages, 
-                ],
+                id: user.id, // ผู้สร้าง
+                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
             }
         ];
 
-        // --- ส่วนที่ 2: แยกเงื่อนไขสิทธิ์รายบุคคลและรายยศตามประเภทห้อง ---
+        // --- แยกเงื่อนไข ---
         switch (selectedValue) {
             case 'create_item':
-                channelName = `🧺-ซื้อของ-${interaction.user.username}`;
+                channelName = `🧺-ซื้อของ-${user.username}`;
                 overwrites.push({ 
                     id: FRIEND_USER_ID, 
                     allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] 
@@ -155,7 +152,7 @@ client.on('interactionCreate', async interaction => {
                 break;
 
             case 'create_farm':
-                channelName = `🎮-จ้างฟาม-${interaction.user.username}`;
+                channelName = `🎮-จ้างฟาม-${user.username}`;
                 overwrites.push({
                     id: ROLE_STAFF_ID,
                     allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
@@ -163,12 +160,17 @@ client.on('interactionCreate', async interaction => {
                 break;
 
             case 'create_trade':
-                 channelName = `🙆‍♂️-พ่อค้าโตโต้เด็กเย็ดโม้-${interaction.user.username}`;
+                channelName = `🙆‍♂️-พ่อค้าโต้-${user.username}`; // แนะนำให้ชื่อสั้นลงเล็กน้อยเพื่อป้องกัน Discord Error
                 overwrites.push({
                     id: TRADE_USER_ID,
                     allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
                 });
                 break;
+        }
+
+        // ตรวจสอบว่ามีชื่อห้องถูกกำหนดหรือไม่
+        if (!channelName) {
+            return await interaction.editReply('❌ ไม่พบประเภทห้องที่เลือก');
         }
 
         try {
@@ -179,10 +181,11 @@ client.on('interactionCreate', async interaction => {
                 permissionOverwrites: overwrites,
             });
 
-            await interaction.editReply(`✅ สร้างห้องส่วนตัวสำเร็จ: ${channel}\n👥 สิทธิ์ถูกตั้งค่าแยกตามบุคคลและยศเรียบร้อยแล้ว`);
+            await interaction.editReply(`✅ สร้างห้องสำเร็จ: ${channel}`);
         } catch (error) {
-            console.error(error);
-            await interaction.editReply('❌ ไม่สามารถสร้างห้องได้ กรุณาเช็คสิทธิ์ของบอท');
+            console.error('สร้างห้องไม่ได้เพราะ:', error);
+            // ถ้า Error ยังเป็น InvalidType แสดงว่า ID ตัวใดตัวหนึ่งใน 4 ตัวนั้นไม่มีอยู่จริงใน Server นี้
+            await interaction.editReply('❌ เกิดข้อผิดพลาดทางเทคนิค (ตรวจสอบสิทธิ์บอทหรือ ID ในโค้ด)');
         }
     }
 });
