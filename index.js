@@ -137,57 +137,92 @@ client.on('interactionCreate', async interaction => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isStringSelectMenu()) return;
 
-    if (interaction.customId === 'room_setup') {
-        // 1. แก้ไข Warning: ใช้ MessageFlags.Ephemeral แทน ephemeral: true
-        await interaction.deferReply({ flags: [MessageFlags.Ephemeral] }).catch(console.error);
-
+     if (interaction.customId === 'room_setup') {
         const { guild, user, values } = interaction;
         const selectedValue = values[0];
 
-        const ROLE_STAFF_ID = '1443797915230539928'; 
-        const FRIEND_USER_ID = '1390444294988369971';
-        const TRADE_USER_ID = '1056886143754444840';
+        try {
+            // 1. ตอบกลับเบื้องต้นแบบ ephemeral (เห็นเฉพาะคนกด) เพื่อขยายเวลาประมวลผล
+            await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
-        let channelName = '';
-        let overwrites = [
-            {
-                id: guild.id, // @everyone
-                deny: [PermissionFlagsBits.ViewChannel],
-            },
-            {
-                id: user.id, // ผู้สร้าง
-                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+            // --- กำหนด ID ต่างๆ ---
+            const IDS = {
+                ROLES: { STAFF_TEAM: '1443797915230539928' },
+                USERS: {
+                    TOJI: '1390444294988369971',
+                    AL: '774417760281165835',
+                    TOTO: '1056886143754444840'
+                }
+            };
+
+            let channelName = '';
+            let targetStaffId = '';
+            let targetRoleId = '';
+            let serviceName = '';
+
+            // --- แยก Logic ตามสิ่งที่เลือก ---
+            switch (selectedValue) {
+                case 'create_item':
+                    channelName = `🧺-ซื้อของ-${user.username}`;
+                    serviceName = 'ซื้อของ';
+                    targetStaffId = IDS.USERS.TOJI;
+                    break;
+                case 'create_farm':
+                    channelName = `🎮-จ้างฟาม-${user.username}`;
+                    serviceName = 'จ้างฟาร์ม';
+                    targetRoleId = IDS.ROLES.STAFF_TEAM;
+                    break;
+                case 'create_trade':
+                    channelName = `🙆‍♂️-เทรด-${user.username}`;
+                    serviceName = 'เทรด';
+                    targetStaffId = IDS.USERS.TOTO;
+                    break;
             }
-        ];
 
-         switch (selectedValue) {
-            case 'create_item':
-                channelName = `🧺-ซื้อของ-${user.username}`;
-                overwrites.push({ id: FRIEND_USER_ID, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
-                break;
-            case 'create_farm':
-                channelName = `🎮-จ้างฟาม-${user.username}`;
-                overwrites.push({ id: ROLE_STAFF_ID, type: 0, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
-                break;
-            case 'create_trade':
-                channelName = `🙆‍♂️-เทรด-${user.username}`;
-                overwrites.push({ id: TRADE_USER_ID, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
-                break;
-        }
-
-         try {
+            // 2. สร้างห้อง
             const channel = await guild.channels.create({
                 name: channelName,
                 type: ChannelType.GuildText,
                 parent: interaction.channel.parentId,
-                permissionOverwrites: overwrites,
+                permissionOverwrites: [
+                    { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+                    { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 1 }
+                ]
             });
 
-            // ใช้ editReply เพราะเราเรียก deferReply ไปแล้ว
+            // 3. แจ้งเตือนผู้กดว่าสร้างเสร็จแล้ว (ตามที่คุณต้องการ)
             await interaction.editReply({ content: `✅ สร้างห้องสำเร็จ: ${channel}` });
+
+            // 4. ระบบแจ้งเตือนทาง DM หา Staff
+            const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n**บริการ:** ${serviceName}\n**ลูกค้า:** ${user.tag}\n**ทางไปห้อง:** ${channel}`;
+
+            // ส่งหาคนเดียว (ถ้ามีระบุ)
+            if (targetStaffId) {
+                try {
+                    const staff = await client.users.fetch(targetStaffId);
+                    await staff.send(notifyMsg);
+                } catch (e) { console.log("ส่ง DM หาบุคคลไม่สำเร็จ"); }
+            }
+
+            // ส่งหาทั้งยศ (ถ้ามีระบุ)
+            if (targetRoleId) {
+                try {
+                    const members = await guild.members.fetch();
+                    const staffWithRole = members.filter(m => m.roles.cache.has(targetRoleId) && !m.user.bot);
+                    staffWithRole.forEach(async (member) => {
+                        try { await member.send(notifyMsg); } catch (e) {}
+                    });
+                } catch (e) { console.error("Fetch members error"); }
+            }
+
+            // 5. ส่งข้อความทักทายไว้ในห้องใหม่
+            await channel.send(`ยินดีต้อนรับ ${user}! ห้อง ${serviceName} ของคุณสร้างเสร็จแล้วครับ`);
+
         } catch (error) {
-            console.error('Error:', error);
-            await interaction.editReply({ content: '❌ เกิดข้อผิดพลาดในการสร้างห้อง' });
+            console.error(error);
+            if (interaction.deferred) {
+                await interaction.editReply({ content: '❌ เกิดข้อผิดพลาดในการสร้างห้อง' });
+            }
         }
     }
 });
