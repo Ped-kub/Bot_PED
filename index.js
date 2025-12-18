@@ -195,7 +195,7 @@ client.on('interactionCreate', async interaction => {
         if (selectedValue === 'create_item') {
             typeName = "🛒 ซื้อของ";
             channelName = `🧺-ซื้อของ-${user.username}`;
-            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ').setImage('attachment://Ped.png');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
                 .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
@@ -204,7 +204,7 @@ client.on('interactionCreate', async interaction => {
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
             channelName = `🎮-จ้างฟาม-${user.username}`;
-            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
+            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ').setImage('attachment://Ped.png');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
                 .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
