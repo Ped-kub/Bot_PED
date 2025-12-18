@@ -131,12 +131,12 @@ client.on('interactionCreate', async interaction => {
                 parent: interaction.channel.parentId, // สร้างไว้ใน Category เดียวกัน
             };
 
-            if (selection === 'create_chat') {
-                channelName = `💬-คุยทั่วไป-${interaction.user.username}`;
-            } else if (selection === 'create_gaming') {
-                channelName = `🎮-เล่นเกม-${interaction.user.username}`;
-            } else if (selection === 'create_private') {
-                channelName = `🔒-ส่วนตัว-${interaction.user.username}`;
+            if (selection === 'create_item') {
+                channelName = `🧺-ซื้อของ-${interaction.user.username}`;
+            } else if (selection === 'create_farm') {
+                channelName = `🎮-จ้างฟาม-${interaction.user.username}`;
+            } else if (selection === 'create_trade') {
+                channelName = `🙆‍♂️-พ่อค้าโตโต้เด็กเย็ดโม้-${interaction.user.username}`;
                 channelOptions.permissionOverwrites = [
                     {
                         id: guild.id, // ทุกคน (@everyone)
