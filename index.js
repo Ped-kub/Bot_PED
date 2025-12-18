@@ -120,8 +120,6 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-const { PermissionFlagsBits, MessageFlags, ChannelType } = require('discord.js');
-
 client.on('interactionCreate', async interaction => {
     if (!interaction.isStringSelectMenu()) return;
 
