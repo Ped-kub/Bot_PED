@@ -25,6 +25,7 @@ const {
     StringSelectMenuBuilder,
     EmbedBuilder, 
     AuditLogEvent,
+    ActionRowBuilder,
     MessageFlags,
     StringSelectMenuOptionBuilder,
     ButtonBuilder, 
