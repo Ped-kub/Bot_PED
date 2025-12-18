@@ -133,11 +133,12 @@ client.on('interactionCreate', async interaction => {
 const { products, farmPackages } = require('./config.js');
 
 client.on('interactionCreate', async interaction => {
-
+    const NOTIFY_ITEM_USERS = ['1390444294988369971']; 
+    const NOTIFY_TRADE_USERS = ['1056886143754444840']; 
     const TARGET_CATEGORY_ID = '1428682337952206848';
     const STAFF_ROLE_ID = '1443797915230539928';
 
-    // --- 1. ระบบจัดการ Select Menu ภายในห้อง (เลือกดูรายละเอียด) ---
+    // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
         let selected = null;
         if (interaction.customId === 'select_product') selected = products[interaction.values[0]];
@@ -183,50 +184,36 @@ client.on('interactionCreate', async interaction => {
         let channelName = '';
         let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
         let components = [];
+        let typeName = ""; // สำหรับใช้ในข้อความแจ้งเตือน DM
 
-        // ตั้งค่าสิทธิ์ (Permission)
         let overwrites = [
             { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
             { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
             { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
         ];
 
-        // กรณีเลือก "ซื้อของ"
         if (selectedValue === 'create_item') {
+            typeName = "🛒 ซื้อของ";
             channelName = `🧺-ซื้อของ-${user.username}`;
             welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
-            
             const menu = new StringSelectMenuBuilder()
-                .setCustomId('select_product')
-                .setPlaceholder('--- เลือกสินค้าที่นี่ ---')
-                .addOptions(Object.keys(products).map(key => ({
-                    label: products[key].name,
-                    value: key,
-                    description: `ราคา: ${products[key].price}`,
-                    emoji: products[key].emoji
-                })));
+                .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
+                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
             components.push(new ActionRowBuilder().addComponents(menu));
         } 
-        // กรณีเลือก "จ้างฟาร์ม"
         else if (selectedValue === 'create_farm') {
+            typeName = "⚔️ จ้างฟาร์ม";
             channelName = `🎮-จ้างฟาม-${user.username}`;
             welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
-            
             const menu = new StringSelectMenuBuilder()
-                .setCustomId('select_farm')
-                .setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
-                .addOptions(Object.keys(farmPackages).map(key => ({
-                    label: farmPackages[key].name,
-                    value: key,
-                    description: `ราคา: ${farmPackages[key].price}`,
-                    emoji: farmPackages[key].emoji
-                })));
+                .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
+                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
             components.push(new ActionRowBuilder().addComponents(menu));
         }
-        // กรณีเลือก "เทรด"
         else if (selectedValue === 'create_trade') {
+            typeName = "🤝 ติดต่อพ่อค้า";
             channelName = `🙆‍♂️-ติดต่อพ่อค้า-${user.username}`;
-            welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับพิมติดต่อพ่อค้าได้เลยนนะครับ');
+            welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับพิมติดต่อพ่อค้าได้เลยนะครับ');
         }
 
         const channel = await guild.channels.create({
@@ -242,12 +229,36 @@ client.on('interactionCreate', async interaction => {
         await channel.send({ content: `👋 สวัสดีครับ ${user}`, embeds: [welcomeEmbed], components: components });
         await interaction.editReply({ content: `✅ สร้างห้องสำเร็จ: ${channel}` });
 
+        // --- ส่วนการแจ้งเตือนทาง DM (เพิ่มใหม่) ---
+        const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
+
+        if (selectedValue === 'create_item') {
+            // แจ้งเตือนคนดูแลซื้อของ (ตาม ID)
+            for (const id of NOTIFY_ITEM_USERS) {
+                const target = await guild.members.fetch(id).catch(() => null);
+                if (target) target.send(notifyMsg).catch(() => {});
+            }
+        } 
+        else if (selectedValue === 'create_trade') {
+            // แจ้งเตือนคนดูแลเทรด (ตาม ID)
+            for (const id of NOTIFY_TRADE_USERS) {
+                const target = await guild.members.fetch(id).catch(() => null);
+                if (target) target.send(notifyMsg).catch(() => {});
+            }
+        }
+        else if (selectedValue === 'create_farm') {
+            // แจ้งเตือนทีมงานฟาร์ม (ตามยศ STAFF_ROLE_ID)
+            const farmStaff = guild.roles.cache.get(STAFF_ROLE_ID)?.members;
+            farmStaff?.forEach(member => {
+                if (!member.user.bot) member.send(notifyMsg).catch(() => {});
+            });
+        }
+
     } catch (error) {
         console.error('Error:', error);
         if (interaction.deferred) await interaction.editReply({ content: '❌ ไม่สามารถสร้างห้องได้' });
     }
 });
-
 
 client.on('roleCreate', async (role) => {
     // รอระบบอัปเดต Audit Log 1 วินาที
