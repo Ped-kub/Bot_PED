@@ -157,33 +157,33 @@ client.on('interactionCreate', async interaction => {
 
         // --- 3. แยกเงื่อนไขสิทธิ์ตามประเภทห้อง ---
         switch (selectedValue) {
-            case 'create_item':
-                channelName = `🧺-ซื้อของ-${user.username}`;
-                // เพิ่มเฉพาะ User ID (พี่โทจิ)
-                overwrites.push( 
-                    { id: IDS.USERS.TOJI, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
-                    { id: IDS.ROLES.STAFF, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
-                );
-                break;
+    case 'create_item':
+        channelName = `🧺-ซื้อของ-${user.username}`;
+        overwrites.push({ 
+            id: FRIEND_USER_ID, 
+            type: 1, // ระบุว่าเป็น USER (Member)
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] 
+        });
+        break;
 
-            case 'create_farm':
-                channelName = `🎮-จ้างฟาม-${user.username}`;
-                // เพิ่มเฉพาะ Role ID (ยศ STAFF)
-                overwrites.push({ 
-                    id: IDS.ROLES.STAFF, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] 
+    case 'create_farm':
+        channelName = `🎮-จ้างฟาม-${user.username}`;
+        overwrites.push({
+            id: ROLE_STAFF_ID,
+            type: 0, // ระบุว่าเป็น ROLE
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+        });
+        break;
 
-                });
-                break;
-
-            case 'create_trade':
-                channelName = `🙆‍♂️-เทรด-${user.username}`;
-                // เพิ่มเฉพาะ User ID (พ่อค้าโตโต้ และ พี่แอล)
-                overwrites.push(
-                    { id: IDS.USERS.TOTO, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
-                    { id: IDS.ROLES.STAFF, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
-                );
-                break;
-        }
+    case 'create_trade':
+        channelName = `🙆‍♂️-เทรด-${user.username}`;
+        overwrites.push({
+            id: TRADE_USER_ID,
+            type: 1, // ระบุว่าเป็น USER (Member)
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+        });
+        break;
+}
 
         try {
             // สร้างห้องใน Category เดียวกับที่บอทอยู่
