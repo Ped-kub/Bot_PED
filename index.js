@@ -106,17 +106,27 @@ client.on('interactionCreate', async interaction => {
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
+    // ตรวจสอบว่าคำสั่งต้องการให้เห็นคนเดียวหรือไม่
     const isEphemeral = command.ephemeral || false;
 
     try {
-        await interaction.deferReply({ ephemeral: isEphemeral });
+        // 1. ตรวจสอบว่ายังไม่ได้ตอบกลับ และพยายาม Defer ภายใน 3 วินาที
+        if (!interaction.deferred && !interaction.replied) {
+            await interaction.deferReply({ ephemeral: isEphemeral });
+        }
         
+        // 2. รันคำสั่ง
         await command.execute(interaction);
+
     } catch (error) {
-        console.error(error);
-        await interaction.editReply({ 
-            content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', 
-        }).catch(console.error);
+        console.error('เกิดข้อผิดพลาด:', error);
+        
+        // 3. ตรวจสอบสถานะก่อนส่งข้อความแจ้ง Error เพื่อไม่ให้บอท Crash
+        if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!' }).catch(() => {});
+        } else {
+            await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true }).catch(() => {});
+        }
     }
 });
 
