@@ -103,17 +103,17 @@ if (fs.existsSync(foldersPath)) {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
-    // 1. เรียก deferReply ทันทีที่เริ่มทำงาน (ใส่ ephemeral ถ้าอยากให้เห็นคนเดียว)
-    await interaction.deferReply({ ephemeral: true }).catch(console.error);
-
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
+    const isEphemeral = command.ephemeral || false;
+
     try {
+        await interaction.deferReply({ ephemeral: isEphemeral });
+        
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
-        // 2. ใช้ editReply แทน reply เพราะเรา defer ไปแล้ว
         await interaction.editReply({ 
             content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', 
         }).catch(console.error);
