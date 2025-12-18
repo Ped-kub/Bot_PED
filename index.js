@@ -132,50 +132,37 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('interactionCreate', async interaction => {
-    if (interaction.isButton()) {
+
+    const TARGET_CATEGORY_ID = 'ใส่_ID_หมวดหมู่_ของคุณที่นี่';
+
+     if (interaction.isButton()) {
         if (interaction.customId === 'close_room') {
-            
-            // --- ตั้งค่า ID ---
-            const LOG_CHANNEL_ID = '1429404249267376259'; // ใส่ ID ห้อง Log จริงๆ ของคุณ
-            const STAFF_ROLE_ID = '1443797915230539928';
-            const ALLOWED_USER_IDS = ['1390444294988369971', '774417760281165835', '1056886143754444840'];
- 
+            // --- กำหนดผู้ที่มีสิทธิ์ปิดห้องได้ ---
+            const STAFF_ROLE_ID = '1443797915230539928'; 
+            const ALLOWED_USER_IDS = [
+                '1390444294988369971', // ID พี่ TOJI
+                '774417760281165835',   // ID พี่แอล
+                '1056886143754444840'  // ID พ่อค้าโตโต้
+            ];
+
+            // ตรวจสอบ: ถ้าไม่มีทั้งยศ Staff และไม่ใช่บุคคลที่กำหนดใน List
             const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
             const isAllowedUser = ALLOWED_USER_IDS.includes(interaction.user.id);
 
             if (!isStaff && !isAllowedUser) {
                 return interaction.reply({ 
-                    content: '❌ เฉพาะทีมงานหรือบุคคลที่ได้รับอนุญาตเท่านั้นที่ปิดได้', 
+                    content: '❌ เฉพาะทีมงานหรือบุคคลที่ได้รับอนุญาตเท่านั้นที่ปิดห้องได้', 
                     flags: [MessageFlags.Ephemeral] 
                 });
             }
 
             try {
-                // แจ้งเตือนก่อนเริ่ม (ใช้ ephemeral เพื่อไม่ให้ติดใน HTML)
-                await interaction.reply({ content: '📥 กำลังบันทึกประวัติการพิมพ์...', flags: [MessageFlags.Ephemeral] });
-
-                // สร้างไฟล์ Transcript
-                const file = await transcripts.createTranscript(interaction.channel, {
-                    limit: -1, 
-                    fileName: `log-${interaction.channel.name}.html`,
-                    poweredBy: false // ปิดลายน้ำ
-                });
-
-                // ส่งไปห้อง Log
-                const logChannel = await client.channels.fetch(LOG_CHANNEL_ID).catch(() => null);
-                if (logChannel) {
-                    await logChannel.send({
-                        content: `📑 **บันทึกประวัติ:** \`${interaction.channel.name}\`\n**ปิดโดย:** ${interaction.user.tag}`,
-                        files: [file]
-                    });
-                }
-
-                // ลบห้องทันทีหลังจากส่ง Log เสร็จ
-                await interaction.channel.delete().catch(() => {});
-
+                await interaction.reply({ content: '🔒 กำลังลบห้องนี้ภายใน 3 วินาที...' });
+                setTimeout(async () => {
+                    await interaction.channel.delete().catch(() => {});
+                }, 3000);
             } catch (error) {
-                console.error('Close Error:', error);
-                // หาก Error 10062 เกิดที่นี่ แสดงว่า Render ทำงานช้าเกินไป
+                console.error('ลบห้องผิดพลาด:', error);
             }
         }
     }
@@ -246,7 +233,7 @@ client.on('interactionCreate', async interaction => {
             const channel = await guild.channels.create({
                 name: channelName,
                 type: ChannelType.GuildText,
-                parent: interaction.channel.parentId,
+                parent: TARGET_CATEGORY_ID,
                 permissionOverwrites: overwrites,
             });
 
