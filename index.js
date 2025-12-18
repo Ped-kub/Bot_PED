@@ -142,8 +142,10 @@ client.on('interactionCreate', async interaction => {
         const selectedValue = values[0];
 
         try {
+            // 1. ตอบกลับทันทีเพื่อขยายเวลา (สำคัญมากสำหรับ Render)
             await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
+            // --- กำหนด ID ต่างๆ ---
             const IDS = {
                 ROLES: { STAFF_TEAM: '1443797915230539928' },
                 USERS: {
@@ -158,7 +160,7 @@ client.on('interactionCreate', async interaction => {
             let targetRoleId = '';
             let serviceName = '';
 
-            // --- ส่วนกำหนดสิทธิ์เริ่มต้น (ปิดทุกคน, เปิดให้คนกด) ---
+            // --- สิทธิ์เริ่มต้น: ปิดทุกคน (@everyone), เปิดให้คนกดสร้าง ---
             let overwrites = [
                 { 
                     id: guild.id, 
@@ -171,16 +173,16 @@ client.on('interactionCreate', async interaction => {
                 }
             ];
 
-            // --- แยกสิทธิ์ตามห้องที่เลือก ---
+            // --- แยกสิทธิ์เฉพาะห้อง ---
             switch (selectedValue) {
                 case 'create_item':
                     channelName = `🧺-ซื้อของ-${user.username}`;
                     serviceName = 'ซื้อของ';
                     targetStaffId = IDS.USERS.TOJI;
-                    // เพิ่มให้ พี่ TOJI เห็นและพิมพ์ได้ในห้องนี้
+                    // ให้ พี่ TOJI และ ยศ STAFF เห็นห้องนี้
                     overwrites.push(
                         { id: IDS.USERS.TOJI, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 1 },
-                        { id: IDS.ROLES.STAFF_TEAM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 0}
+                        { id: IDS.ROLES.STAFF_TEAM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 0 }
                     );
                     break;
 
@@ -188,9 +190,9 @@ client.on('interactionCreate', async interaction => {
                     channelName = `🎮-จ้างฟาม-${user.username}`;
                     serviceName = 'จ้างฟาร์ม';
                     targetRoleId = IDS.ROLES.STAFF_TEAM;
-                    // เพิ่มให้ ยศ STAFF_TEAM เห็นและพิมพ์ได้ในห้องนี้
+                    // ให้เฉพาะ ยศ STAFF เห็นห้องนี้
                     overwrites.push(
-                        { id: IDS.ROLES.STAFF_TEAM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 0}
+                        { id: IDS.ROLES.STAFF_TEAM, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 0 }
                     );
                     break;
 
@@ -198,53 +200,49 @@ client.on('interactionCreate', async interaction => {
                     channelName = `🙆‍♂️-เทรด-${user.username}`;
                     serviceName = 'เทรด';
                     targetStaffId = IDS.USERS.TOTO;
-                    // เพิ่มให้ พ่อค้า TOTO เห็นและพิมพ์ได้ในห้องนี้
-                    overwrites.push({
-                        id: IDS.USERS.TOTO,
-                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-                        type: 1
-                    });
+                    // ให้เฉพาะ พ่อค้า TOTO เห็นห้องนี้ (Staff จะไม่เห็นตามที่คุณต้องการ)
+                    overwrites.push(
+                        { id: IDS.USERS.TOTO, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages], type: 1 }
+                    );
                     break;
             }
 
-            // 2. สร้างห้องพร้อมสิทธิ์ที่ตั้งค่าไว้
+            // 2. สร้างห้อง (พร้อม Permission Overwrites เฉพาะห้อง)
             const channel = await guild.channels.create({
                 name: channelName,
                 type: ChannelType.GuildText,
                 parent: interaction.channel.parentId,
-                permissionOverwrites: overwrites, // ใส่ overwrites ที่เราเตรียมไว้
+                permissionOverwrites: overwrites,
             });
 
-            // 3. แจ้งเตือนผู้กด
+            // 3. แจ้งเตือนผู้กดทันทีว่าสร้างเสร็จ (ลดโอกาสเกิด Error 10062)
             await interaction.editReply({ content: `✅ สร้างห้องสำเร็จ: ${channel}` });
 
-            // 4. ระบบแจ้งเตือนทาง DM (เหมือนเดิม)
+            // 4. ส่งข้อความทักทายในห้องที่สร้างใหม่
+            await channel.send(`ยินดีต้อนรับ ${user}! ห้อง **${serviceName}** ของคุณสร้างเสร็จแล้วครับ กรุณารอการติดต่อกลับสักครู่`);
+
+            // 5. ระบบแจ้งเตือนทาง DM (ทำงานเบื้องหลัง)
             const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n**บริการ:** ${serviceName}\n**ลูกค้า:** ${user.tag}\n**ทางไปห้อง:** ${channel}`;
 
             if (targetStaffId) {
-                try {
-                    const staff = await client.users.fetch(targetStaffId);
-                    await staff.send(notifyMsg);
-                } catch (e) { console.log("ส่ง DM หาบุคคลไม่สำเร็จ"); }
+                client.users.fetch(targetStaffId)
+                    .then(staff => staff.send(notifyMsg))
+                    .catch(() => console.log(`ส่ง DM หาบุคคล (${targetStaffId}) ไม่สำเร็จ`));
             }
 
             if (targetRoleId) {
-                try {
-                    const members = await guild.members.fetch();
-                    const staffWithRole = members.filter(m => m.roles.cache.has(targetRoleId) && !m.user.bot);
-                    staffWithRole.forEach(async (member) => {
-                        try { await member.send(notifyMsg); } catch (e) {}
-                    });
-                } catch (e) { console.error("Fetch members error"); }
+                guild.members.fetch()
+                    .then(members => {
+                        const staffWithRole = members.filter(m => m.roles.cache.has(targetRoleId) && !m.user.bot);
+                        staffWithRole.forEach(member => member.send(notifyMsg).catch(() => {}));
+                    })
+                    .catch(e => console.error("ไม่สามารถ Fetch สมาชิกเพื่อส่ง DM ได้"));
             }
 
-            // 5. ทักทายในห้องใหม่
-            await channel.send(`ยินดีต้อนรับ ${user}! ห้อง ${serviceName} ของคุณสร้างเสร็จแล้วครับ`);
-
         } catch (error) {
-            console.error(error);
-            if (interaction.deferred) {
-                await interaction.editReply({ content: '❌ เกิดข้อผิดพลาดในการสร้างห้อง' });
+            console.error('เกิดข้อผิดพลาด:', error);
+            if (interaction.deferred || interaction.replied) {
+                await interaction.editReply({ content: '❌ ไม่สามารถสร้างห้องได้ โปรดตรวจสอบสิทธิ์บอท' });
             }
         }
     }
