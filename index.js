@@ -101,8 +101,8 @@ if (fs.existsSync(foldersPath)) {
 }
 
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isChatInputCommand()) return;
-
+     if (!interaction.isChatInputCommand()) return;
+ 
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
@@ -156,7 +156,7 @@ client.on('interactionCreate', async interaction => {
             }
         ];
 
-        switch (selectedValue) {
+         switch (selectedValue) {
             case 'create_item':
                 channelName = `🧺-ซื้อของ-${user.username}`;
                 overwrites.push({ id: FRIEND_USER_ID, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
@@ -171,7 +171,7 @@ client.on('interactionCreate', async interaction => {
                 break;
         }
 
-        try {
+         try {
             const channel = await guild.channels.create({
                 name: channelName,
                 type: ChannelType.GuildText,
