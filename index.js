@@ -101,31 +101,35 @@ if (fs.existsSync(foldersPath)) {
 }
 
 client.on('interactionCreate', async interaction => {
-     if (!interaction.isChatInputCommand()) return;
- 
+    if (!interaction.isChatInputCommand()) return;
+
     const command = client.commands.get(interaction.commandName);
     if (!command) return;
 
-    // ตรวจสอบว่าคำสั่งต้องการให้เห็นคนเดียวหรือไม่
     const isEphemeral = command.ephemeral || false;
 
     try {
-        // 1. ตรวจสอบว่ายังไม่ได้ตอบกลับ และพยายาม Defer ภายใน 3 วินาที
-        if (!interaction.deferred && !interaction.replied) {
-            await interaction.deferReply({ ephemeral: isEphemeral });
-        }
         
-        // 2. รันคำสั่ง
+        await interaction.deferReply({ ephemeral: isEphemeral }).catch(err => {
+            console.error("ไม่สามารถ Defer ได้เนื่องจาก Timeout หรือ Interaction หมดอายุ:", err);
+            return; 
+        });
+       
+        if (!interaction.deferred && !interaction.replied) return;
+
         await command.execute(interaction);
 
     } catch (error) {
         console.error('เกิดข้อผิดพลาด:', error);
         
-        // 3. ตรวจสอบสถานะก่อนส่งข้อความแจ้ง Error เพื่อไม่ให้บอท Crash
-        if (interaction.deferred || interaction.replied) {
-            await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!' }).catch(() => {});
-        } else {
-            await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true }).catch(() => {});
+        try {
+            if (interaction.deferred || interaction.replied) {
+                await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!' });
+            } else {
+                await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true });
+            }
+        } catch (replyError) {
+            console.error('ไม่สามารถส่งข้อความแจ้ง Error ได้:', replyError);
         }
     }
 });
