@@ -123,69 +123,68 @@ client.on('interactionCreate', async interaction => {
 
         await interaction.deferReply({ ephemeral: true });
 
-        // --- ตั้งค่า ID และล้างช่องว่าง (Trim) เพื่อป้องกัน Error ---
-        const ROLE_STAFF_ID = '1443797915230539928'.trim();
-        const FRIEND_USER_ID = '1390444294988369971'.trim();
-        const CO_OWNER_ID = '774417760281165835'.trim();
-        const TRADE_USER_ID = '1056886143754444840'.trim();
+        // 1. ตรวจสอบ ID และต้องเป็น String เท่านั้น
+        const ROLE_STAFF_ID = '1443797915230539928'; 
+        const FRIEND_USER_ID = '1390444294988369971';
+        const TRADE_USER_ID = '1056886143754444840';
 
-        let channelName = '';
+        // 2. เริ่มต้น overwrites พื้นฐาน (คนสร้างและทุกคน)
         let overwrites = [
             {
-                id: guild.id, // @everyone
+                id: guild.id, // @everyone ต้องมีเสมอ
                 deny: [PermissionFlagsBits.ViewChannel],
             },
             {
-                id: user.id, // ผู้สร้าง
+                id: user.id, // ID คนกดสร้าง
                 allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
             }
         ];
 
-        // --- แยกเงื่อนไข ---
+        let channelName = '';
+
+        // 3. ฟังก์ชันช่วยเพิ่ม Permission แบบตรวจสอบค่า (ป้องกัน InvalidType)
+        const addPermission = (targetId) => {
+            if (targetId && targetId.length > 10) { // เช็คว่าเป็น ID ที่ดูสมเหตุสมผล
+                overwrites.push({
+                    id: targetId,
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages]
+                });
+            }
+        };
+
+        // 4. เลือกประเภทห้อง
         switch (selectedValue) {
             case 'create_item':
                 channelName = `🧺-ซื้อของ-${user.username}`;
-                overwrites.push({ 
-                    id: FRIEND_USER_ID, 
-                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] 
-                });
+                addPermission(FRIEND_USER_ID);
                 break;
 
             case 'create_farm':
                 channelName = `🎮-จ้างฟาม-${user.username}`;
-                overwrites.push({
-                    id: ROLE_STAFF_ID,
-                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-                });
+                addPermission(ROLE_STAFF_ID);
                 break;
 
             case 'create_trade':
-                channelName = `🙆‍♂️-พ่อค้าโต้-${user.username}`; // แนะนำให้ชื่อสั้นลงเล็กน้อยเพื่อป้องกัน Discord Error
-                overwrites.push({
-                    id: TRADE_USER_ID,
-                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-                });
+                channelName = `🙆‍♂️-เทรด-${user.username}`;
+                addPermission(TRADE_USER_ID);
                 break;
         }
 
-        // ตรวจสอบว่ามีชื่อห้องถูกกำหนดหรือไม่
-        if (!channelName) {
-            return await interaction.editReply('❌ ไม่พบประเภทห้องที่เลือก');
-        }
-
         try {
+            // ตรวจสอบ overwrites ก่อนส่ง (Debug)
+            // console.log('Current Overwrites:', overwrites);
+
             const channel = await guild.channels.create({
                 name: channelName,
                 type: ChannelType.GuildText,
-                parent: interaction.channel.parentId,
+                parent: interaction.channel.parentId || null,
                 permissionOverwrites: overwrites,
             });
 
             await interaction.editReply(`✅ สร้างห้องสำเร็จ: ${channel}`);
         } catch (error) {
             console.error('สร้างห้องไม่ได้เพราะ:', error);
-            // ถ้า Error ยังเป็น InvalidType แสดงว่า ID ตัวใดตัวหนึ่งใน 4 ตัวนั้นไม่มีอยู่จริงใน Server นี้
-            await interaction.editReply('❌ เกิดข้อผิดพลาดทางเทคนิค (ตรวจสอบสิทธิ์บอทหรือ ID ในโค้ด)');
+            await interaction.editReply(`❌ เกิดข้อผิดพลาด: ${error.message}`);
         }
     }
 });
