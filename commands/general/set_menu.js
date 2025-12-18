@@ -18,7 +18,7 @@ module.exports = {
             .setTitle('บริการต่างๆ')
             .setDescription('เลือกบริการจากด้านล่างได้เลย')
             // ใช้ลิงก์รูปภาพที่ลงท้ายด้วย .png หรือ .jpg เพื่อให้รูปขึ้นใน Embed
-            .setImage('images.craiyon.com') 
+            .setImage('images.Ped.png') 
             .setTimestamp()
             .setFooter({ text: '© BOT By. Ped' });
 
@@ -51,4 +51,5 @@ module.exports = {
         });
     }
 };
+
 
