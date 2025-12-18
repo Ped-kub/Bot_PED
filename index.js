@@ -22,9 +22,13 @@ const {
     ChannelType,
     PermissionFlagsBits,
     Collection,
+    StringSelectMenuBuilder,
     EmbedBuilder, 
     AuditLogEvent,
     MessageFlags,
+    StringSelectMenuOptionBuilder,
+    ButtonBuilder, 
+    ButtonStyle,
     time 
 } = require('discord.js');
 
