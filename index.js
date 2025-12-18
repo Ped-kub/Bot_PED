@@ -46,7 +46,6 @@ const {
     createMenuDropdown, 
     handleInteraction 
 } = require('./menuUtils.js');
-const transcripts = require('discord-html-transcripts');
 const { 
     joinVoiceChannel, 
     createAudioPlayer, 
