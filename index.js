@@ -19,6 +19,8 @@ const {
     ActivityType, 
     OnlineStatus, 
     PermissionsBitField, 
+    ChannelType,
+    PermissionFlagsBits,
     Collection,
     EmbedBuilder, 
     AuditLogEvent,
@@ -67,7 +69,7 @@ const client = new Client({
 function translatePerms(bitfield) {
     const p = new PermissionsBitField(bitfield);
     const important = [];
-    if (p.has(PermissionsBitField.Flags.Administrator)) important.push('⭐ ผู้ดูแลระบบ');
+    if (p.has(PermissionsBitField.Flags.Administrator)) important.push('⭐ผู้ดูแลระบบ');
     if (p.has(PermissionsBitField.Flags.ManageGuild)) important.push('จัดการเซิร์ฟเวอร์');
     if (p.has(PermissionsBitField.Flags.ManageRoles)) important.push('จัดการยศ');
     if (p.has(PermissionsBitField.Flags.ManageChannels)) important.push('จัดการห้อง');
@@ -108,7 +110,55 @@ client.on('interactionCreate', async interaction => {
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
-        await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', flags: [MessageFlags.Ephemeral] });
+       await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', flags: [MessageFlags.Ephemeral] });
+    }
+});
+
+client.on('interactionCreate', async interaction => {
+    // ตรวจสอบว่าเป็นคำสั่งจาก Dropdown หรือไม่
+    if (!interaction.isStringSelectMenu()) return;
+
+    if (interaction.customId === 'room_setup') {
+        const selection = interaction.values[0];
+        const guild = interaction.guild;
+
+        await interaction.deferReply({ ephemeral: true }); // ป้องกันบอทค้าง (Loading...)
+
+        try {
+            let channelName = '';
+            let channelOptions = {
+                type: ChannelType.GuildText,
+                parent: interaction.channel.parentId, // สร้างไว้ใน Category เดียวกัน
+            };
+
+            if (selection === 'create_item') {
+                channelName = `🧺-ซื้อของ-${interaction.user.username}`;
+            } else if (selection === 'create_farm') {
+                channelName = `🎮-จ้างฟาม-${interaction.user.username}`;
+            } else if (selection === 'create_trade') {
+                channelName = `🙆‍♂️-พ่อค้าโตโต้เด็กเย็ดโม้-${interaction.user.username}`;
+                channelOptions.permissionOverwrites = [
+                    {
+                        id: guild.id, // ทุกคน (@everyone)
+                        deny: [PermissionFlagsBits.ViewChannel],
+                    },
+                    {
+                        id: interaction.user.id, // ผู้ที่กดสร้าง
+                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                    },
+                ];
+            }
+
+            const channel = await guild.channels.create({
+                name: channelName,
+                ...channelOptions
+            });
+
+            await interaction.editReply(`สร้างห้องเรียบร้อยแล้ว: ${channel}`);
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply('เกิดข้อผิดพลาดในการสร้างห้อง!');
+        }
     }
 });
 
