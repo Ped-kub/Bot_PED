@@ -8,23 +8,23 @@ const {
     PermissionFlagsBits 
 } = require('discord.js');
 
-const file = new AttachmentBuilder('./images/Ped.png'); 
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('set_menu')
         .setDescription('สร้างเมนูสำหรับเลือกสร้างห้องอัตโนมัติ')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
-    async execute(interaction) {
+     async execute(interaction) {
+        const file = new AttachmentBuilder('./images/Ped.png'); 
+
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
             .setTitle('บริการต่างๆ')
             .setDescription('เลือกบริการจากด้านล่างได้เลย')
-            .setImage('attachment://Ped.png')
+            .setImage('attachment://Ped.png') 
             .setTimestamp()
             .setFooter({ text: '© BOT By. Ped' });
 
-        const select = new StringSelectMenuBuilder()
+         const select = new StringSelectMenuBuilder()
             .setCustomId('room_setup')
             .setPlaceholder('เลือกบริการตรงนี้')
             .addOptions(
@@ -47,10 +47,11 @@ module.exports = {
 
         const row = new ActionRowBuilder().addComponents(select);
 
-        await interaction.reply({
+        await interaction.editReply({
             embeds: [embed],
             components: [row],
-            files: [file] // *** เพิ่มบรรทัดนี้ เพื่อส่งไฟล์รูปขึ้นไปด้วย ***
+            files: [file]
         });
     }
 };
+
