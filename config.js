@@ -23,13 +23,13 @@ module.exports = {
             img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
             emoji: '🆙' 
         },
-        'farm_boss': { 
+        'farm_lv1': { 
             name: 'Level 1-125 จุติ 1', 
             price: '175 บาท', 
             img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
             emoji: '🆙' 
         },
-        'farm_boss': { 
+        'farm_lv2': { 
             name: 'Level 1-150 จุติ 2', 
             price: '225 บาท', 
             img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
