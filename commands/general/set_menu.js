@@ -31,17 +31,17 @@ module.exports = {
                     .setLabel('ซื้อของ')
                     .setDescription('ซือของจากพี่ TOJI')
                     .setEmoji('🧺')
-                    .setValue('create_chat'),
+                    .setValue('create_item'),
                 new StringSelectMenuOptionBuilder()
                     .setLabel('จ้างฟาม')
                     .setDescription('จ้างฟามจากทางเรา')
                     .setEmoji('🎮')
-                    .setValue('create_gaming'),
+                    .setValue('create_farm'),
                 new StringSelectMenuOptionBuilder()
                     .setLabel('พ่อค้า 1')
                     .setDescription('ติดต่อพ่อค้าโตโต้เด็กเย็ดโม้')
                     .setEmoji('🙆‍♂️')
-                    .setValue('create_private'),
+                    .setValue('create_trade'),
             );
 
         const row = new ActionRowBuilder().addComponents(select);
@@ -52,3 +52,4 @@ module.exports = {
         });
     },
 };
+
