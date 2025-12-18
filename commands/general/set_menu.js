@@ -46,10 +46,8 @@ module.exports = {
 
         const row = new ActionRowBuilder().addComponents(select);
 
-        await interaction.reply({
-            embeds: [embed],
-            components: [row],
-        });
-    },
-};
-
+        await interaction.editReply({
+        embeds: [embed],
+        components: [row]
+    });
+}}
