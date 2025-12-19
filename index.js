@@ -149,7 +149,9 @@ client.on('interactionCreate', async interaction => {
                 .setTitle(`✨ รายละเอียด: ${selected.name}`)
                 .setColor('#f1c40f')
                 .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
-                .setImage(selected.img);
+                .setImage(selected.img)
+                .setDescription(`${selected.description}`)
+                .setDetails(`${selected.details}`);
 
             return interaction.reply({ embeds: [detailEmbed] });
         }
