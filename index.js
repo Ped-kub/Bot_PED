@@ -79,37 +79,55 @@ function chunkArray(array, size) {
     return result;
 }
 
-function createProductMenu(page = 0) {
-    const PAGE_SIZE = 20;
-    const productEntries = Object.entries(products);
-    const pages = chunkArray(productEntries, PAGE_SIZE);
+const PRODUCT_CATEGORIES = {
+    item: { label: '🧺 ไอเทมทั่วไป' },
+    perk: { label: '⭐ Perk' },
+    titan: { label: '🗿 สกินไททั่น' },
+    skin: { label: '🐲 สกินอาวุธ ' },
+    clan: { label: '🔰 ตระกูล' },
+    rare: { label: '🌲 ไอเทมหายาก' }
+};
 
-    const currentPage = pages[page] ?? pages[0];
-
+function createCategoryMenu() {
     const menu = new StringSelectMenuBuilder()
-        .setCustomId(`select_product_page_${page}`)
-        .setPlaceholder(`เลือกสินค้า (หน้า ${page + 1}/${pages.length})`)
+        .setCustomId('select_product_category')
+        .setPlaceholder('เลือกหมวดสินค้า')
         .addOptions(
-            currentPage.map(([key, item]) => ({
-                label: item.name,
-                value: key,
-                description: `ราคา: ${item.price}`,
-                emoji: item.emoji
+            Object.entries(PRODUCT_CATEGORIES).map(([key, data]) => ({
+                label: data.label,
+                value: key
             }))
         );
 
+    return [new ActionRowBuilder().addComponents(menu)];
+}
+
+function createProductMenuByCategory(category, page = 0) {
+    const PAGE_SIZE = 20;
+
+    const filtered = Object.entries(products)
+        .filter(([, p]) => p.category === category);
+
+    const pages = chunkArray(filtered, PAGE_SIZE);
+    const current = pages[page] ?? pages[0];
+
     const buttons = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-            .setCustomId(`product_prev_${page}`)
+            .setCustomId(`product_prev_${category}_${page}`)
             .setLabel('⬅️ ก่อนหน้า')
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(page === 0),
 
         new ButtonBuilder()
-            .setCustomId(`product_next_${page}`)
+            .setCustomId(`product_next_${category}_${page}`)
             .setLabel('ถัดไป ➡️')
             .setStyle(ButtonStyle.Secondary)
-            .setDisabled(page >= pages.length - 1)
+            .setDisabled(page >= pages.length - 1),
+
+        new ButtonBuilder()
+            .setCustomId('back_to_category')
+            .setLabel('🔙 หมวดสินค้า')
+            .setStyle(ButtonStyle.Danger)
     );
 
     return [
@@ -189,7 +207,7 @@ client.on('interactionCreate', async interaction => {
     if (interaction.isStringSelectMenu()) {
     let selected = null;
 
-    if (interaction.customId.startsWith('select_product')) {
+    if (interaction.customId.startsWith('select_product_')) {
         selected = products[interaction.values[0]];
     }
 
@@ -202,7 +220,38 @@ client.on('interactionCreate', async interaction => {
             .setTitle(`✨ รายละเอียด: ${selected.name}`)
             .setColor('#f1c40f')
             .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
-            .setImage(selected.img);
+            if (selected.images?.length) {
+    detailEmbed.setImage(selected.images[0]);
+
+    if (
+    interaction.isStringSelectMenu() &&
+    interaction.customId === 'select_product_category')   
+    {
+    const category = interaction.values[0];
+    const components = createProductMenuByCategory(category, 0);
+
+        return interaction.update({ components });
+    }
+}
+
+if (
+    interaction.isStringSelectMenu() &&
+    interaction.customId.startsWith('select_product_') &&
+    interaction.customId !== 'select_product_category'
+) {
+    const selected = products[interaction.values[0]];
+    if (!selected) return;
+
+    const detailEmbed = new EmbedBuilder()
+        .setTitle(`✨ รายละเอียด: ${selected.name}`)
+        .setColor('#f1c40f')
+        .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`);
+
+    if (selected.images?.length) {
+        detailEmbed.setImage(selected.images[0]);
+    }
+
+}
 
         return interaction.reply({ embeds: [detailEmbed] });
     }
@@ -224,21 +273,29 @@ client.on('interactionCreate', async interaction => {
         } catch (error) { console.error('ลบห้องผิดพลาด:', error); }
         return;
     }
-    if (interaction.isButton()) {
     if (
+    interaction.isButton() &&
+    (
         interaction.customId.startsWith('product_prev_') ||
         interaction.customId.startsWith('product_next_')
-    ) {
-        const [, direction, pageStr] = interaction.customId.split('_');
-        let page = parseInt(pageStr);
+    )
+) {
+    const [, direction, category, pageStr] = interaction.customId.split('_');
+    let page = parseInt(pageStr);
 
-        if (direction === 'prev') page--;
-        if (direction === 'next') page++;
+    if (direction === 'prev') page--;
+    if (direction === 'next') page++;
 
-        const components = createProductMenu(page);
-
-        return interaction.update({ components });
-    }
+    const components = createProductMenuByCategory(category, page);
+    return interaction.update({ components });
+}
+if (
+    interaction.isButton() &&
+    interaction.customId === 'back_to_category'
+) {
+    return interaction.update({
+        components: createCategoryMenu()
+    });
 }
 
     // --- 3. ระบบจัดการ Select Menu สร้างห้อง (room_setup) ---
@@ -261,17 +318,17 @@ client.on('interactionCreate', async interaction => {
             { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
         ];
 
-        if (selectedValue === 'create_item') {
-            typeName = "🛒 ซื้อของ";
-            channelName = `🧺-ซื้อของ-${user.username}`;
-            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+       if (selectedValue === 'create_item') {
+    typeName = "🛒 ซื้อของ";
+    channelName = `🧺-ซื้อของ-${user.username}`;
+
+            welcomeEmbed
+            .setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI')
+            .setDescription('กรุณาเลือกหมวดสินค้า');
             const menu = new StringSelectMenuBuilder()
-                .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
-                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji, รายละเอียด: products[key].description })));
-            components.push(new ActionRowBuilder().addComponents(menu));
-            
-             const productComponents = createProductMenu(0);
-    components.push(...productComponents);
+            .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
+            .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji, รายละเอียด: products[key].description })));
+            components.push(...createCategoryMenu());
         } 
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
