@@ -71,83 +71,6 @@ const client = new Client({
     ]
 });
 
-function chunkArray(array, size) {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-        result.push(array.slice(i, i + size));
-    }
-    return result;
-}
-
-const PRODUCT_CATEGORIES = {
-    item: { label: '🧺 ไอเทมทั่วไป' },
-    perk: { label: '⭐ Perk' },
-    titan: { label: '🗿 สกินไททั่น' },
-    skin: { label: '🐲 สกินอาวุธ ' },
-    clan: { label: '🔰 ตระกูล' },
-    rare: { label: '🌲 ไอเทมหายาก' }
-};
-
-function createCategoryMenu() {
-    const menu = new StringSelectMenuBuilder()
-        .setCustomId('select_product_category')
-        .setPlaceholder('เลือกหมวดสินค้า')
-        .addOptions(
-            Object.entries(PRODUCT_CATEGORIES).map(([key, data]) => ({
-                label: data.label,
-                value: key
-            }))
-        );
-
-    return [new ActionRowBuilder().addComponents(menu)];
-}
-
-function createProductMenuByCategory(category, page = 0) {
-    const PAGE_SIZE = 20;
-
-    const filtered = Object.entries(products)
-        .filter(([, p]) => p.category === category);
-
-    const pages = chunkArray(filtered, PAGE_SIZE);
-    const current = pages[page] ?? pages[0];
-
-    const menu = new StringSelectMenuBuilder()
-        .setCustomId(`select_product_${category}_${page}`)
-        .setPlaceholder(`เลือกสินค้า (${page + 1}/${pages.length})`)
-        .addOptions(
-            current.map(([key, item]) => ({
-                label: item.name,
-                value: key,
-                description: item.price,
-                emoji: item.emoji
-            }))
-        );
-
-    const buttons = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId(`product_prev_${category}_${page}`)
-            .setLabel('⬅️ ก่อนหน้า')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(page === 0),
-
-        new ButtonBuilder()
-            .setCustomId(`product_next_${category}_${page}`)
-            .setLabel('ถัดไป ➡️')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(page >= pages.length - 1),
-
-        new ButtonBuilder()
-            .setCustomId('back_to_category')
-            .setLabel('🔙 หมวดสินค้า')
-            .setStyle(ButtonStyle.Danger)
-    );
-
-    return [
-        new ActionRowBuilder().addComponents(menu),
-        buttons
-    ];
-}
-
 function translatePerms(bitfield) {
     const p = new PermissionsBitField(bitfield);
     const important = [];
@@ -207,6 +130,64 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+const usedCategories = [
+    ...new Set(Object.values(products).map(p => p.category))
+];
+
+const categoryMenu = new StringSelectMenuBuilder()
+    .setCustomId('select_product_category')
+    .setPlaceholder('📂 เลือกหมวดหมู่สินค้า')
+    .addOptions(
+        usedCategories.map(cat => ({
+            label: PRODUCT_CATEGORIES[cat] || cat,
+            value: cat
+        }))
+    );
+
+components.push(
+    new ActionRowBuilder().addComponents(categoryMenu)
+);
+
+if (
+    interaction.isStringSelectMenu() &&
+    interaction.customId === 'select_product_category'
+) {
+    const { products } = require('./config.js');
+    const selectedCategory = interaction.values[0];
+
+    const filteredProducts = Object.entries(products)
+        .filter(([_, p]) => p.category === selectedCategory);
+
+    if (filteredProducts.length === 0) {
+        return interaction.reply({
+            content: '❌ ไม่มีสินค้าในหมวดนี้',
+            ephemeral: true
+        });
+    }
+
+    const productMenu = new StringSelectMenuBuilder()
+        .setCustomId('select_product')
+        .setPlaceholder('🛒 เลือกสินค้า')
+        .addOptions(
+            filteredProducts.map(([key, p]) => ({
+                label: p.name,
+                value: key,
+                description: p.price,
+                emoji: p.emoji
+            }))
+        );
+
+    const embed = new EmbedBuilder()
+        .setTitle(`📂 หมวดหมู่: ${PRODUCT_CATEGORIES[selectedCategory] || selectedCategory}`)
+        .setColor('#3498db')
+        .setDescription('กรุณาเลือกสินค้าที่ต้องการ');
+
+    return interaction.reply({
+        embeds: [embed],
+        components: [new ActionRowBuilder().addComponents(productMenu)]
+    });
+}
+
 const { products, farmPackages } = require('./config.js');
 
 client.on('interactionCreate', async interaction => {
@@ -217,57 +198,20 @@ client.on('interactionCreate', async interaction => {
 
     // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
-    let selected = null;
+        let selected = null;
+        if (interaction.customId === 'select_product') selected = products[interaction.values[0]];
+        if (interaction.customId === 'select_farm') selected = farmPackages[interaction.values[0]];
 
-    if (interaction.customId.startsWith('select_product_')) {
-        selected = products[interaction.values[0]];
+        if (selected) {
+            const detailEmbed = new EmbedBuilder()
+                .setTitle(`✨ รายละเอียด: ${selected.name}`)
+                .setColor('#f1c40f')
+                .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
+                .setImage(selected.img);
+
+            return interaction.reply({ embeds: [detailEmbed] });
+        }
     }
-
-    if (interaction.customId === 'select_farm') {
-        selected = farmPackages[interaction.values[0]];
-    }
-
-    if (selected) {
-        const detailEmbed = new EmbedBuilder()
-            .setTitle(`✨ รายละเอียด: ${selected.name}`)
-            .setColor('#f1c40f')
-            .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
-            if (selected.images?.length) {
-    detailEmbed.setImage(selected.images[0]);
-
-    if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId === 'select_product_category')   
-    {
-    const category = interaction.values[0];
-    const components = createProductMenuByCategory(category, 0);
-
-        return interaction.update({ components });
-    }
-}
-
-if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId.startsWith('select_product_') &&
-    interaction.customId !== 'select_product_category'
-) {
-    const selected = products[interaction.values[0]];
-    if (!selected) return;
-
-    const detailEmbed = new EmbedBuilder()
-        .setTitle(`✨ รายละเอียด: ${selected.name}`)
-        .setColor('#f1c40f')
-        .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`);
-
-    if (selected.images?.length) {
-        detailEmbed.setImage(selected.images[0]);
-    }
-
-}
-
-        return interaction.reply({ embeds: [detailEmbed] });
-    }
-}
 
     // --- 2. ระบบปุ่มปิดห้อง ---
     if (interaction.isButton() && interaction.customId === 'close_room') {
@@ -285,61 +229,7 @@ if (
         } catch (error) { console.error('ลบห้องผิดพลาด:', error); }
         return;
     }
-    if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId === 'select_product_category'
-) {
-    const category = interaction.values[0];
-    const components = createProductMenuByCategory(category, 0);
-    return interaction.update({ components });
-}
 
-// ===== เลือกสินค้า =====
-if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId.startsWith('select_product_') &&
-    interaction.customId !== 'select_product_category'
-) {
-    const selected = products[interaction.values[0]];
-    if (!selected) return;
-
-    const embed = new EmbedBuilder()
-        .setTitle(`✨ รายละเอียด: ${selected.name}`)
-        .setColor('#f1c40f')
-        .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`);
-
-    if (selected.images?.length) {
-        embed.setImage(selected.images[0]);
-    }
-
-    return interaction.reply({ embeds: [embed] });
-}
-
-// ===== ปุ่มเปลี่ยนหน้า =====
-if (
-    interaction.isButton() &&
-    (
-        interaction.customId.startsWith('product_prev_') ||
-        interaction.customId.startsWith('product_next_')
-    )
-) {
-    const [, direction, category, pageStr] = interaction.customId.split('_');
-    let page = parseInt(pageStr);
-
-    if (direction === 'prev') page--;
-    if (direction === 'next') page++;
-
-    const components = createProductMenuByCategory(category, page);
-    return interaction.update({ components });
-}
-
-// ===== กลับไปเลือกหมวด =====
-if (
-    interaction.isButton() &&
-    interaction.customId === 'back_to_category'
-) {
-    return interaction.update({ components: createCategoryMenu() });
-}
     // --- 3. ระบบจัดการ Select Menu สร้างห้อง (room_setup) ---
     if (!interaction.isStringSelectMenu() || interaction.customId !== 'room_setup') return;
 
@@ -360,23 +250,22 @@ if (
             { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
         ];
 
-           if (selectedValue === 'create_item') {
+        if (selectedValue === 'create_item') {
             typeName = "🛒 ซื้อของ";
             channelName = `🧺-ซื้อของ-${user.username}`;
-
-            welcomeEmbed
-            .setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI')
-            .setDescription('กรุณาเลือกหมวดสินค้า');
-
-    components.push(...createCategoryMenu());
-}
+            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+            const menu = new StringSelectMenuBuilder()
+                .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
+                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
+            components.push(new ActionRowBuilder().addComponents(menu));
+        } 
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
             channelName = `🎮-จ้างฟาม-${user.username}`;
-            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างเพื่อดูรายระเอียดพร้อมราคาครับ');
+            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
-                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji, รายละเอียด: farmPackages[key].description, โปรดอ่านก่อน: farmPackages[key].details })));
+                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
             components.push(new ActionRowBuilder().addComponents(menu));
         }
         else if (selectedValue === 'create_trade') {
