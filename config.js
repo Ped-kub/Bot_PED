@@ -46,79 +46,79 @@ module.exports = {
         'perk_1': { 
             name: 'MAXIMUM FIREPOWER (เพิ่มหอก+4)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            img: 'https://cdn.discordapp.com/attachments/1427818804783616191/1434291562866671738/IMG_46722.png?ex=69466adc&is=6945195c&hm=7545285708839771d7398ab472e890e203e0731a75784f0dff56e817acead7e0&', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_2': { 
-            name: 'ตระกูล Yeager', 
-            price: ' +0  15  บาท  +10   25  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'FOUNDER BLESSING (สายไททัน)', 
+            price: ' +0  15  บาท   +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291562581463070/IMG_46712.png?ex=69466adc&is=6945195c&hm=6089d20613447df5235697876d92a8f53b3453de9bed8b4e0d62efd475d5a23d&format=webp&quality=lossless&', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_3': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'ART OF WAR  (ดาเมจไททัน)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291563231449239/IMG_46732.png?ex=69466adc&is=6945195c&hm=e64ca931cb3088308819bed428c8eeb2ab4dea9d1282150f5d53d42dd13afeb9&format=webp&quality=lossless&', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_4': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'BLACK FLASH ( ดาเมจทุกสาย )', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291563495686174/IMG_46742.png?ex=69466adc&is=6945195c&hm=bba2b0e48c6b45097f56a7036098924b6c9a76277f77b73fdcf5c129d55324f8&=&format=webp&quality=lossless', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_5': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'KENGO (ดาเมจดาบ+หอก)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291563772772372/IMG_46752.png?ex=6945c21c&is=6944709c&hm=68361bca8f2146c3288189f43e6f7be43c4736d5304252a7d2e9c9120a8e0fc6&=&format=webp&quality=lossless', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_6': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'IMMORTAL ( เลือด+ลดดาเมจที่ได้รับ)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564024172606/IMG_46762.png?ex=69466adc&is=6945195c&hm=a536067ea61a2ee1ecbfb4cefa5d5e095f410cd6e85bbc003a9ae1bb2ba69e63&=&format=webp&quality=lossless', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_7': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'ADAPTATION (ต้านทานความเสียหาย)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564259184720/IMG_46772.png?ex=69466adc&is=6945195c&hm=d2c5369f958c51d1eda5f5fd289e4195409cfac58f1cbf0c1f45ad9720b53b1f&format=webp&quality=lossless&', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_8': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'FONT OF INSPIRATION  บัฟบนอากาศ', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564548587570/IMG_46782.png?ex=69466adc&is=6945195c&hm=ba0a6633e3435cc30d78e5a0fbbef64f8743a5b0327974b7de0f618bf574bb62&=&format=webp&quality=lossless', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_9': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'SOULFEED ( มองเห็น+แก๊ส+แข็งแรง)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564804313168/IMG_46792.png?ex=6945c21c&is=6944709c&hm=8996aec10bca286809a8376b006c81279d2282dd044aa97b8fcf08463fc726d0&=&format=webp&quality=lossless', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'perk_10': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'UNPARALLELED STRENGTH (ดาเมจสายดาบ)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291565064491088/Screenshot_Roblox_20251102_0346262.jpg?ex=69466adc&is=6945195c&hm=ada1faeedf2974e5cf18aa45ff24add12a1f8e9835a4e1304f6fbe9a61149136&=&format=webp', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 140k / +10ใช้ทอง 480k '
         },
         'perk_11': { 
-            name: 'ตระกูล Yeager', 
-            price: ' 30  บาท', 
-            img: '', 
-            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
-            description: 'ใช้เพชรเทรด  15 k'
+            name: 'COURAGE CATALYST (ลดคลูดาวต่อการฆ่าไททัน)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: 'https://media.discordapp.net/attachments/1335133761926463589/1451512410451087431/image.png?ex=694671c6&is=69452046&hm=705cab39c8f96dae9513afb824f01299a9019f94dbbf412d6723df15ba1e508d&=&format=webp&quality=lossless', 
+            emoji: '⭐', 
+            description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k '
         },
         'item_mask': { 
             name: 'หน้ากากอิจิโกะ', 
