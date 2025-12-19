@@ -143,7 +143,7 @@ client.on('interactionCreate', async interaction => {
     // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
         let selected = null;
-        if (interaction.customId === 'select_product') selected = products[interaction.values[0]];
+        if (interaction.customId.startsWith('select_product')) {const selectedValue = interaction.values[0];
         if (interaction.customId === 'select_farm') selected = farmPackages[interaction.values[0]];
 
         if (selected) {
@@ -222,11 +222,31 @@ client.on('interactionCreate', async interaction => {
         });
     });
 
-            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI')
+            .setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+
+        const productKeys = Object.keys(products);
+        const chunkSize = 25; // กำหนดให้แบ่งชุดละ 25 รายการ
+
+        for (let i = 0; i < productKeys.length; i += chunkSize) {
+            // ตัดแบ่งข้อมูลเป็นชุดละ 25
+            const currentChunk = productKeys.slice(i, i + chunkSize);
+            const pageNum = Math.floor(i / chunkSize) + 1;
+
             const menu = new StringSelectMenuBuilder()
-                .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
-                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji, รายละเอียด: products[key].description })));
-            components.push(new ActionRowBuilder().addComponents(menu));
+            // ตั้ง CustomId ให้ต่างกันในแต่ละเมนู (เช่น select_product_1, select_product_2)
+            .setCustomId(`select_product_${pageNum}`)
+            .setPlaceholder(`--- เลือกสินค้าชุดที่ ${pageNum} ---`)
+            .addOptions(currentChunk.map(key => ({
+                label: products[key].name,
+                value: key,
+                description: `ราคา: ${products[key].price}`,
+                emoji: products[key].emoji
+            })));
+
+            // เพิ่ม ActionRow ใหม่สำหรับแต่ละเมนู (ใส่ได้สูงสุด 5 Row)
+             components.push(new ActionRowBuilder().addComponents(menu));
+            }
         } 
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
@@ -333,7 +353,7 @@ client.on('interactionCreate', async interaction => {
         console.error('Error:', error);
         if (interaction.deferred) await interaction.editReply({ content: '❌ ไม่สามารถสร้างห้องได้' });
     }
-});
+}});
 
 client.on('roleCreate', async (role) => {
     // รอระบบอัปเดต Audit Log 1 วินาที
