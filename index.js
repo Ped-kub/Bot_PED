@@ -137,6 +137,8 @@ client.on('interactionCreate', async interaction => {
     const NOTIFY_TRADE_USERS = ['1056886143754444840']; 
     const TARGET_CATEGORY_ID = '1428682337952206848';
     const STAFF_ROLE_ID = '1443797915230539928';
+    const TOJI = ['1390444294988369971']; 
+    const TOTO = ['1056886143754444840']; 
 
     // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
@@ -195,6 +197,31 @@ client.on('interactionCreate', async interaction => {
         if (selectedValue === 'create_item') {
             typeName = "🛒 ซื้อของ";
             channelName = `🧺-ซื้อของ-${user.username}`;
+            overwrites = [
+        {
+            // ปิดการมองเห็นสำหรับทุกคนในเซิร์ฟเวอร์
+            id: guild.id, 
+            deny: [PermissionFlagsBits.ViewChannel] 
+        },
+        {
+            // เปิดให้ลูกค้า (คนกด) มองเห็นและพิมพ์ได้
+            id: user.id, 
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] 
+        },
+        {
+            // เปิดให้ Staff Role หลักมองเห็น
+            id: STAFF_ROLE_ID, 
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] 
+        }
+    ];
+
+    TOJI.forEach(staffId => {
+        overwrites.push({
+            id: staffId,
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+        });
+    });
+
             welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
@@ -204,6 +231,30 @@ client.on('interactionCreate', async interaction => {
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
             channelName = `🎮-จ้างฟาม-${user.username}`;
+            overwrites = [
+        {
+            // ปิดการมองเห็นสำหรับทุกคนในเซิร์ฟเวอร์
+            id: guild.id, 
+            deny: [PermissionFlagsBits.ViewChannel] 
+        },
+        {
+            // เปิดให้ลูกค้า (คนกด) มองเห็นและพิมพ์ได้
+            id: user.id, 
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] 
+        },
+        {
+            // เปิดให้ Staff Role หลักมองเห็น
+            id: STAFF_ROLE_ID, 
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] 
+        }
+    ];
+
+    TOJI.forEach(staffId => {
+        overwrites.push({
+            id: staffId,
+            deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+        });
+    });
             welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างเพื่อดูรายระเอียดพร้อมราคาครับ ช่องทางการโอนในรูปเลยครับ').setImage('https://media.discordapp.net/attachments/1133947298628517970/1451492360361082910/image.png?ex=69465f1a&is=69450d9a&hm=11b4191d3f6837d7c9aef6815dd016ac2c53e3e8301e4af1cac9d2fb1877da4a&=&format=webp&quality=lossless&width=711&height=1006');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
@@ -213,6 +264,30 @@ client.on('interactionCreate', async interaction => {
         else if (selectedValue === 'create_trade') {
             typeName = "🤝 ติดต่อพ่อค้า";
             channelName = `🙆‍♂️-ติดต่อพ่อค้า-${user.username}`;
+            overwrites = [
+        {
+            // ปิดการมองเห็นสำหรับทุกคนในเซิร์ฟเวอร์
+            id: guild.id, 
+            deny: [PermissionFlagsBits.ViewChannel] 
+        },
+        {
+            // เปิดให้ลูกค้า (คนกด) มองเห็นและพิมพ์ได้
+            id: user.id, 
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] 
+        },
+        {
+            // เปิดให้ Staff Role หลักมองเห็น
+            id: STAFF_ROLE_ID, 
+            deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] 
+        }
+    ];
+
+    TOTO.forEach(staffId => {
+        overwrites.push({
+            id: staffId,
+            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+        });
+    });
             welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับพิมติดต่อพ่อค้าได้เลยนะครับ');
         }
 
