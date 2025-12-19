@@ -130,6 +130,8 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+const { products, farmPackages } = require('./config.js');
+
 const usedCategories = [
     ...new Set(Object.values(products).map(p => p.category))
 ];
@@ -187,8 +189,6 @@ if (
         components: [new ActionRowBuilder().addComponents(productMenu)]
     });
 }
-
-const { products, farmPackages } = require('./config.js');
 
 client.on('interactionCreate', async interaction => {
     const NOTIFY_ITEM_USERS = ['1390444294988369971']; 
