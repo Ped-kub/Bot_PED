@@ -8,7 +8,6 @@ app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on port ${port}`);
 });
 
-/* ================= DISCORD ================= */
 const {
     Client,
     GatewayIntentBits,
@@ -22,13 +21,6 @@ const {
     ButtonBuilder,
     ButtonStyle
 } = require('discord.js');
-
-/* ====== IMPORT MENU UTILS ====== */
-const {
-    createMenuEmbed,
-    createMenuDropdown,
-    handleInteraction
-} = require('./menuUtils');
 
 const TOKEN = process.env.BOT_TOKEN;
 
@@ -51,15 +43,42 @@ const client = new Client({
 
 client.commands = new Collection();
 
-/* ================= INTERACTION ================= */
+/* ================= SLASH COMMAND SETROOM ================= */
 client.on('interactionCreate', async interaction => {
 
-    /* ===== MAIN MENU (menuUtils.js) ===== */
-    if (interaction.isStringSelectMenu() && interaction.customId === 'main_menu_select') {
-        return handleInteraction(interaction);
+    if (interaction.isChatInputCommand() && interaction.commandName === 'setroom') {
+
+        // ต้องตอบรับก่อน (กัน application did not respond)
+        await interaction.deferReply({ ephemeral: true });
+
+        const embed = new EmbedBuilder()
+            .setColor('#3498db')
+            .setTitle('📂 สร้างห้องบริการ')
+            .setDescription('กรุณาเลือกประเภทห้องที่ต้องการ');
+
+        const row = new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId('room_setup')
+                .setPlaceholder('เลือกประเภทห้อง')
+                .addOptions(
+                    { label: 'ซื้อของ', value: 'create_item', emoji: '🧺' },
+                    { label: 'จ้างฟาร์ม', value: 'create_farm', emoji: '🎮' },
+                    { label: 'ติดต่อพ่อค้า', value: 'create_trade', emoji: '🤝' }
+                )
+        );
+
+        // ส่งเมนูลงห้อง
+        await interaction.channel.send({
+            embeds: [embed],
+            components: [row]
+        });
+
+        // ลบ reply → ผู้ใช้จะไม่เห็นอะไรเด้ง
+        await interaction.deleteReply();
+        return;
     }
 
-    /* ================= PRODUCT / FARM SELECT ================= */
+    /* ================= SELECT PRODUCT / FARM ================= */
     if (
         interaction.isStringSelectMenu() &&
         (interaction.customId === 'select_product' ||
@@ -224,7 +243,6 @@ ${selected.details ?? ''}`
     }
 });
 
-/* ================= READY ================= */
 client.once('ready', () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
     client.user.setActivity('ThapxkornAX', {
