@@ -196,14 +196,14 @@ module.exports = {
         'titan_jotun_armor': { 
             name: 'JöTUNN (เกาะน้ำแข็ง) ', 
             price: '225฿', 
-            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721946493139/IMG_5076.png?ex=69467965&is=694527e5&hm=f5b80616ca25aec243346e096e15ca39d37187a8b65d4522d051e4584ce713e1&=&format=webp&quality=lossless'], 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721946493139/IMG_5076.png?ex=69467965&is=694527e5&hm=f5b80616ca25aec243346e096e15ca39d37187a8b65d4522d051e4584ce713e1&=&format=webp&quality=lossless', 
             emoji: '🥶',
             category: 'titan'
         },
         'titan_aren_oni': { 
             name: 'เอเรนโอนิ', 
             price: '500฿', 
-            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721644765264/IMG_5075.png?ex=69467965&is=694527e5&hm=9e0fd1ed476112e2f1731ec82027ff61d7b92023a0ebbbb60aa677311bf8a994&=&format=webp&quality=lossless'],
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721644765264/IMG_5075.png?ex=69467965&is=694527e5&hm=9e0fd1ed476112e2f1731ec82027ff61d7b92023a0ebbbb60aa677311bf8a994&=&format=webp&quality=lossless', 
             emoji: '☯️',
             category: 'titan'
         },
@@ -216,7 +216,7 @@ module.exports = {
         'https://media.discordapp.net/attachments/1427818804783616191/1435756912086876171/IMG_5067.png?ex=6945d0d2&is=69447f52&hm=4e467b71fda4eb1d1ca2447a48a445d10ac9a281ad8898073c5308bbf869fffb&=&format=webp&quality=lossless'
     ], 
             emoji: '🐲',
-            category: 'titan'
+            category: 'rare'
         },
     },
 
@@ -225,7 +225,7 @@ module.exports = {
         'farm_lv': { 
             name: 'Level 1-100 จุติ 0 ', 
             price: '135 บาท', 
-            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
+            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
             emoji: '🆙', 
             description: 'บริการฟาร์มเลเวลสำหรับตัวละครเริ่มต้น ตั้งแต่เลเวล 1 ถึง 100 ในจุติ 0 ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
