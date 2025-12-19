@@ -4,7 +4,7 @@ module.exports = {
         'item_1': { 
             name: 'คำภีร์   ', 
             price: 'เล่มละ 0.5 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1427818804783616191/1434278067110674607/IMG_46612.png?ex=69465e4a&is=69450cca&hm=ac525ad2ef0206029facb8625d43b2c0ddcbe69f16daf3a63e1ae080113b887c&', 
+            images: ['https://cdn.discordapp.com/attachments/1427818804783616191/1434278067110674607/IMG_46612.png?ex=69465e4a&is=69450cca&hm=ac525ad2ef0206029facb8625d43b2c0ddcbe69f16daf3a63e1ae080113b887c&'], 
             emoji: '📜', 
             description: 'ใช้ทองเทรด   13000/1 อัน',
             category: 'item'
@@ -12,7 +12,7 @@ module.exports = {
         'item_2': { 
             name: 'กุญแจ', 
             price: 'ดอกละ 1 บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434278066883924009/IMG_46693.png?ex=69450cca&is=6943bb4a&hm=0e6a2b69659fcf93b9f13d901861f7e99635b412707af2638dcedd0b5954108b&format=webp&quality=lossless&', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434278066883924009/IMG_46693.png?ex=69450cca&is=6943bb4a&hm=0e6a2b69659fcf93b9f13d901861f7e99635b412707af2638dcedd0b5954108b&format=webp&quality=lossless&'], 
             emoji: '🗝️', 
             description: 'ใช้ทองเทรด  30000/1 อัน',
             category: 'item'
@@ -20,7 +20,7 @@ module.exports = {
         'helos': { 
             name: 'ตระกูล Helos', 
             price: ' 950  บาท', 
-            img: 'https://media.discordapp.net/attachments/1133947298628517970/1451502311640924241/image.png?ex=6946685e&is=694516de&hm=8621d0aaf958b607699b4b114b9e95587671ef5262fb1538f14f6898df667f5f&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1133947298628517970/1451502311640924241/image.png?ex=6946685e&is=694516de&hm=8621d0aaf958b607699b4b114b9e95587671ef5262fb1538f14f6898df667f5f&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k',
             category: 'clan'
@@ -28,7 +28,7 @@ module.exports = {
         'fritz': { 
             name: 'ตระกูล Fritz', 
             price: ' 550  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434280912140632267/IMG_4246.png?ex=694660f1&is=69450f71&hm=e4f6b903f845a5f92d8c82f5e533dbbb680bdda064efcd08f40d3f8807daf970&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434280912140632267/IMG_4246.png?ex=694660f1&is=69450f71&hm=e4f6b903f845a5f92d8c82f5e533dbbb680bdda064efcd08f40d3f8807daf970&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k',
             category: 'clan'
@@ -36,7 +36,7 @@ module.exports = {
         'ackermen': { 
             name: 'ตระกูล Ackermen', 
             price: ' 35  บาท', 
-            img: 'https://media.discordapp.net/attachments/1133947298628517970/1451503181841301595/image.png?ex=6946692e&is=694517ae&hm=68c7a014dda4ca7addffd99e1ef2b58efa006405867db2510264de46e48baf48&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1133947298628517970/1451503181841301595/image.png?ex=6946692e&is=694517ae&hm=68c7a014dda4ca7addffd99e1ef2b58efa006405867db2510264de46e48baf48&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  15 k',
             category: 'clan'
@@ -44,7 +44,7 @@ module.exports = {
         'yeager': { 
             name: 'ตระกูล Yeager', 
             price: ' 30  บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451503116678725682/image.png?ex=6946691e&is=6945179e&hm=a15b4c3e58bc1705307ab28a97ac05f6e42c613d82444947d9703069b6de10eb', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451503116678725682/image.png?ex=6946691e&is=6945179e&hm=a15b4c3e58bc1705307ab28a97ac05f6e42c613d82444947d9703069b6de10eb'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  15 k',
             category: 'clan'
@@ -52,7 +52,7 @@ module.exports = {
         'perk_1': { 
             name: 'MAXIMUM FIREPOWER (เพิ่มหอก+4)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1427818804783616191/1434291562866671738/IMG_46722.png?ex=69466adc&is=6945195c&hm=7545285708839771d7398ab472e890e203e0731a75784f0dff56e817acead7e0&', 
+            images: ['https://cdn.discordapp.com/attachments/1427818804783616191/1434291562866671738/IMG_46722.png?ex=69466adc&is=6945195c&hm=7545285708839771d7398ab472e890e203e0731a75784f0dff56e817acead7e0&'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -60,7 +60,7 @@ module.exports = {
         'perk_2': { 
             name: 'FOUNDER BLESSING (สายไททัน)', 
             price: ' +0  15  บาท   +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291562581463070/IMG_46712.png?ex=69466adc&is=6945195c&hm=6089d20613447df5235697876d92a8f53b3453de9bed8b4e0d62efd475d5a23d&format=webp&quality=lossless&', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291562581463070/IMG_46712.png?ex=69466adc&is=6945195c&hm=6089d20613447df5235697876d92a8f53b3453de9bed8b4e0d62efd475d5a23d&format=webp&quality=lossless&'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -68,7 +68,7 @@ module.exports = {
         'perk_3': { 
             name: 'ART OF WAR  (ดาเมจไททัน)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291563231449239/IMG_46732.png?ex=69466adc&is=6945195c&hm=e64ca931cb3088308819bed428c8eeb2ab4dea9d1282150f5d53d42dd13afeb9&format=webp&quality=lossless&', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291563231449239/IMG_46732.png?ex=69466adc&is=6945195c&hm=e64ca931cb3088308819bed428c8eeb2ab4dea9d1282150f5d53d42dd13afeb9&format=webp&quality=lossless&'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -76,7 +76,7 @@ module.exports = {
         'perk_4': { 
             name: 'BLACK FLASH ( ดาเมจทุกสาย )', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291563495686174/IMG_46742.png?ex=69466adc&is=6945195c&hm=bba2b0e48c6b45097f56a7036098924b6c9a76277f77b73fdcf5c129d55324f8&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291563495686174/IMG_46742.png?ex=69466adc&is=6945195c&hm=bba2b0e48c6b45097f56a7036098924b6c9a76277f77b73fdcf5c129d55324f8&=&format=webp&quality=lossless'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -84,7 +84,7 @@ module.exports = {
         'perk_5': { 
             name: 'KENGO (ดาเมจดาบ+หอก)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291563772772372/IMG_46752.png?ex=6945c21c&is=6944709c&hm=68361bca8f2146c3288189f43e6f7be43c4736d5304252a7d2e9c9120a8e0fc6&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291563772772372/IMG_46752.png?ex=6945c21c&is=6944709c&hm=68361bca8f2146c3288189f43e6f7be43c4736d5304252a7d2e9c9120a8e0fc6&=&format=webp&quality=lossless'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -92,7 +92,7 @@ module.exports = {
         'perk_6': { 
             name: 'IMMORTAL ( เลือด+ลดดาเมจที่ได้รับ)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564024172606/IMG_46762.png?ex=69466adc&is=6945195c&hm=a536067ea61a2ee1ecbfb4cefa5d5e095f410cd6e85bbc003a9ae1bb2ba69e63&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291564024172606/IMG_46762.png?ex=69466adc&is=6945195c&hm=a536067ea61a2ee1ecbfb4cefa5d5e095f410cd6e85bbc003a9ae1bb2ba69e63&=&format=webp&quality=lossless'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -100,7 +100,7 @@ module.exports = {
         'perk_7': { 
             name: 'ADAPTATION (ต้านทานความเสียหาย)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564259184720/IMG_46772.png?ex=69466adc&is=6945195c&hm=d2c5369f958c51d1eda5f5fd289e4195409cfac58f1cbf0c1f45ad9720b53b1f&format=webp&quality=lossless&', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291564259184720/IMG_46772.png?ex=69466adc&is=6945195c&hm=d2c5369f958c51d1eda5f5fd289e4195409cfac58f1cbf0c1f45ad9720b53b1f&format=webp&quality=lossless&'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -108,7 +108,7 @@ module.exports = {
         'perk_8': { 
             name: 'FONT OF INSPIRATION  บัฟบนอากาศ', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564548587570/IMG_46782.png?ex=69466adc&is=6945195c&hm=ba0a6633e3435cc30d78e5a0fbbef64f8743a5b0327974b7de0f618bf574bb62&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291564548587570/IMG_46782.png?ex=69466adc&is=6945195c&hm=ba0a6633e3435cc30d78e5a0fbbef64f8743a5b0327974b7de0f618bf574bb62&=&format=webp&quality=lossless'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -116,7 +116,7 @@ module.exports = {
         'perk_9': { 
             name: 'SOULFEED ( มองเห็น+แก๊ส+แข็งแรง)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291564804313168/IMG_46792.png?ex=6945c21c&is=6944709c&hm=8996aec10bca286809a8376b006c81279d2282dd044aa97b8fcf08463fc726d0&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291564804313168/IMG_46792.png?ex=6945c21c&is=6944709c&hm=8996aec10bca286809a8376b006c81279d2282dd044aa97b8fcf08463fc726d0&=&format=webp&quality=lossless'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -124,7 +124,7 @@ module.exports = {
         'perk_10': { 
             name: 'UNPARALLELED STRENGTH (ดาเมจสายดาบ)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434291565064491088/Screenshot_Roblox_20251102_0346262.jpg?ex=69466adc&is=6945195c&hm=ada1faeedf2974e5cf18aa45ff24add12a1f8e9835a4e1304f6fbe9a61149136&=&format=webp', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1434291565064491088/Screenshot_Roblox_20251102_0346262.jpg?ex=69466adc&is=6945195c&hm=ada1faeedf2974e5cf18aa45ff24add12a1f8e9835a4e1304f6fbe9a61149136&=&format=webp'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 140k / +10ใช้ทอง 480k ',
             category: 'perk'
@@ -132,7 +132,7 @@ module.exports = {
         'perk_11': { 
             name: 'COURAGE CATALYST (ลดคลูดาวต่อการฆ่าไททัน)', 
             price: ' +0  15  บาท  +10   25  บาท', 
-            img: 'https://media.discordapp.net/attachments/1335133761926463589/1451512410451087431/image.png?ex=694671c6&is=69452046&hm=705cab39c8f96dae9513afb824f01299a9019f94dbbf412d6723df15ba1e508d&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1335133761926463589/1451512410451087431/image.png?ex=694671c6&is=69452046&hm=705cab39c8f96dae9513afb824f01299a9019f94dbbf412d6723df15ba1e508d&=&format=webp&quality=lossless'], 
             emoji: '⭐', 
             description: ' +0ใช้ทองเทรด 380k / +10ใช้ทอง 960k ',
             category: 'perk'
@@ -140,70 +140,70 @@ module.exports = {
         'item_mask': { 
             name: 'หน้ากากอิจิโกะ', 
             price: '100฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720377823242/IMG_5101.png?ex=694527e5&is=6943d665&hm=d878ef372d9220552f7093c2c70697d97d43ef674416f68dd6125e56ae444127&format=webp&quality=lossless&', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756720377823242/IMG_5101.png?ex=694527e5&is=6943d665&hm=d878ef372d9220552f7093c2c70697d97d43ef674416f68dd6125e56ae444127&format=webp&quality=lossless&'], 
             emoji: '🎭',
             category: 'rare'
         },
         'item_shirt': { 
             name: 'ชุดกัปตันขาว', 
             price: '450฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720667365468/IMG_5059.png?ex=69467965&is=694527e5&hm=cb4d50252db9bc81da321e1eb4642b957432f5b14397a3f7cb50ebcc5cfc0cd5&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756720667365468/IMG_5059.png?ex=69467965&is=694527e5&hm=cb4d50252db9bc81da321e1eb4642b957432f5b14397a3f7cb50ebcc5cfc0cd5&=&format=webp&quality=lossless'], 
             emoji: '👚',
             category: 'rare'
         },
         'item_maho': { 
             name: 'มโหรากา', 
             price: '700฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720923349092/IMG_5058.png?ex=69467965&is=694527e5&hm=ac177ab606d0f5ba5bb8503ebab55855fd0b959605daac52577854a3d2c6e15f&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756720923349092/IMG_5058.png?ex=69467965&is=694527e5&hm=ac177ab606d0f5ba5bb8503ebab55855fd0b959605daac52577854a3d2c6e15f&=&format=webp&quality=lossless'], 
             emoji: '🔅',
             category: 'rare'
         },
         'item_sclye': { 
             name: 'เคียว', 
             price: '95 ฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721174741052/IMG_5060.png?ex=69467965&is=694527e5&hm=ff38cd0e7a9c31852ea7feacc8263da47ec5d82b259422c4d41c812fdc9efecf&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721174741052/IMG_5060.png?ex=69467965&is=694527e5&hm=ff38cd0e7a9c31852ea7feacc8263da47ec5d82b259422c4d41c812fdc9efecf&=&format=webp&quality=lossless'], 
             emoji: '👿',
             category: 'rare'
         },
         'item_drop': { 
             name: 'ของดรอปจากกล่องปัจจุบัน', 
             price: 'อย่างละ 50฿', 
-            img: 'https://media.discordapp.net/attachments/1133947298628517970/1451522899004620923/42d8394e-f349-47d9-aa61-2ac293283123.png?ex=69467b8b&is=69452a0b&hm=9ee0e13b637914e0a93d5f0b5399cfc3779400a5109534e3aa329447ffa781fc&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1133947298628517970/1451522899004620923/42d8394e-f349-47d9-aa61-2ac293283123.png?ex=69467b8b&is=69452a0b&hm=9ee0e13b637914e0a93d5f0b5399cfc3779400a5109534e3aa329447ffa781fc&=&format=webp&quality=lossless'], 
             emoji: '🫟',
             category: 'rare'
         },
         'titan_black_annie': { 
             name: 'แอนนี่ดำ', 
             price: '50฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756722185699378/IMG_5077.png?ex=69467965&is=694527e5&hm=afed5615a30c8105df6a1fae78e35ff698fe9d3958775a27e648a99e691d99bf&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756722185699378/IMG_5077.png?ex=69467965&is=694527e5&hm=afed5615a30c8105df6a1fae78e35ff698fe9d3958775a27e648a99e691d99bf&=&format=webp&quality=lossless'], 
             emoji: '⬛',
             category: 'titan'
         },
         'titan_maid_annie': { 
             name: 'แอนนี่เมจ ', 
             price: '100฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721413951548/IMG_5057.png?ex=69467965&is=694527e5&hm=85b440ca5997e7088265b41fb95e80979a41c3201dea7166b565b1e1ca39d9ee&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721413951548/IMG_5057.png?ex=69467965&is=694527e5&hm=85b440ca5997e7088265b41fb95e80979a41c3201dea7166b565b1e1ca39d9ee&=&format=webp&quality=lossless'], 
             emoji: '🐈‍⬛',
             category: 'titan'
         },
         'titan_green_armor': { 
             name: 'เกาะเขียว ', 
             price: '50฿', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451525048421580842/1000.png?ex=69467d8b&is=69452c0b&hm=72b189274647ac19c2e63a523f50a783d816e9b881da206a01d21ff5e7dacbf8&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451525048421580842/1000.png?ex=69467d8b&is=69452c0b&hm=72b189274647ac19c2e63a523f50a783d816e9b881da206a01d21ff5e7dacbf8&'], 
             emoji: '🗿',
             category: 'titan'
         },
         'titan_jotun_armor': { 
             name: 'JöTUNN (เกาะน้ำแข็ง) ', 
             price: '225฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721946493139/IMG_5076.png?ex=69467965&is=694527e5&hm=f5b80616ca25aec243346e096e15ca39d37187a8b65d4522d051e4584ce713e1&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721946493139/IMG_5076.png?ex=69467965&is=694527e5&hm=f5b80616ca25aec243346e096e15ca39d37187a8b65d4522d051e4584ce713e1&=&format=webp&quality=lossless'], 
             emoji: '🥶',
             category: 'titan'
         },
         'titan_aren_oni': { 
             name: 'เอเรนโอนิ', 
             price: '500฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721644765264/IMG_5075.png?ex=69467965&is=694527e5&hm=9e0fd1ed476112e2f1731ec82027ff61d7b92023a0ebbbb60aa677311bf8a994&=&format=webp&quality=lossless', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721644765264/IMG_5075.png?ex=69467965&is=694527e5&hm=9e0fd1ed476112e2f1731ec82027ff61d7b92023a0ebbbb60aa677311bf8a994&=&format=webp&quality=lossless'], 
             emoji: '☯️',
             category: 'titan'
         },
@@ -225,7 +225,7 @@ module.exports = {
         'farm_lv': { 
             name: 'Level 1-100 จุติ 0 ', 
             price: '135 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'],
             emoji: '🆙', 
             description: 'บริการฟาร์มเลเวลสำหรับตัวละครเริ่มต้น ตั้งแต่เลเวล 1 ถึง 100 ในจุติ 0 ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -233,7 +233,7 @@ module.exports = {
         'farm_lv1': { 
             name: 'Level 1-125 จุติ 1', 
             price: '175 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            iimages: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
             emoji: '🆙',
             description: 'บริการฟาร์มเลเวล ตั้งแต่เลเวล 1 ถึง 125 ในจุติ 1 ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า' 
@@ -241,7 +241,7 @@ module.exports = {
         'farm_lv2': { 
             name: 'Level 1-150 จุติ 2', 
             price: '225 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
             emoji: '🆙',
             description: 'บริการฟาร์มเลเวล ตั้งแต่เลเวล 1 ถึง 150 ในจุติ 2 ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -249,7 +249,7 @@ module.exports = {
         'farm_lv3': { 
             name: 'Level 1-175 จุติ 3',
             price: '275 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
             emoji: '🆙',
             description: 'บริการฟาร์มเลเวล ตั้งแต่เลเวล 1 ถึง 175 ในจุติ 3 ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -257,7 +257,7 @@ module.exports = {
         'farm_lv4': { 
             name: 'Level 1-200 จุติ 4',
             price: '300 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
             emoji: '🆙',
             description: 'บริการฟาร์มเลเวล ตั้งแต่เลเวล 1 ถึง 200 ในจุติ 4 ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -265,7 +265,7 @@ module.exports = {
         'farm_Max': { 
             name: 'เหมาจุติ 0-4',
             price: '550 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
             emoji: '🆙',
             description: 'บริการฟาร์มเลเวล ตั้งแต่เลเวล 1 ในจุติ 1 ถึง เลเวล 200 ในจุติ 4 ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -273,7 +273,7 @@ module.exports = {
         'skin_sword': { 
             name: 'สกินดาบ Nighfall',
             price: '400 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451491110386925589/latest.png?ex=69465df0&is=69450c70&hm=7d255897420e18822720295cacb332695b0092ff86ac0c9d25d990763645a437&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451491110386925589/latest.png?ex=69465df0&is=69450c70&hm=7d255897420e18822720295cacb332695b0092ff86ac0c9d25d990763645a437&'], 
             emoji: '🗡️',
             description: 'บริการหาสกินดาบ Nighfall',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -281,7 +281,7 @@ module.exports = {
         'Level': { 
             name: 'Level ฟามเเบบเเยกเวล',
             price: 'เวลละ 2 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
             emoji: '🆙',
             description: 'เป็นการฟามเเยกเวล ถ้าหากฟาร์มแยกเวลมากกว่า 50 ขึ้นไปนับเป็นราคาเหมาจุติ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -289,7 +289,7 @@ module.exports = {
         'Gold': { 
             name: 'Gold / ฟามทอง',
             price: 'ทอง 1 M = 10 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451493602751545374/latest.png?ex=69466042&is=69450ec2&hm=23f2011a9f40c9347109f96d7582ebeeaf156c25527e0776f8a349194992d9b6&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451493602751545374/latest.png?ex=69466042&is=69450ec2&hm=23f2011a9f40c9347109f96d7582ebeeaf156c25527e0776f8a349194992d9b6&'], 
             emoji: '🪙',
             description: 'อุปกรณ์แรงค์ขั้นต่ำ A+ ถ้าไม่ถึงคิดเพิ่ม',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -297,7 +297,7 @@ module.exports = {
         'Spear': { 
             name: 'เควสหอก / มงกุฏ',
             price: 'เหมาทุกเควส 60 บาท , แยกเควส 20 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&'], 
             emoji: '👑',
             description: 'อุปกรณ์แรงค์ขั้นต่ำ A+ ถ้าไม่ถึงคิดเพิ่ม',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -305,7 +305,7 @@ module.exports = {
         'weapon': { 
             name: 'ฟาร์มอุปกรณ์ ดาบ,หอก',
             price: 'E-S 60 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&'], 
             emoji: '⚔️',
             description: 'ฟามอุปกรณ์ E-S 60 บาท ',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -313,7 +313,7 @@ module.exports = {
         'raid': { 
             name: 'แบกเรท/มิชชั่น',
             price: 'เกมละ 1 / 0.25 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&'], 
             emoji: '🎖️',
             description: 'แบกเรท/มิชชั่น เกมละ 1 บาท/0.25 บาท',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -321,7 +321,7 @@ module.exports = {
         'injection': { 
             name: 'หาเข็ม',
             price: 'เลือกได้ 1 เข็ม 200 บาท', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1446638733771411516/IMG_4667.png?ex=6945da4f&is=694488cf&hm=9803b0b0a6fd516d49a05e477c8fd87b2be3c7c5947408694ce8f56825d86f86&format=webp&quality=lossless&', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1446638733771411516/IMG_4667.png?ex=6945da4f&is=694488cf&hm=9803b0b0a6fd516d49a05e477c8fd87b2be3c7c5947408694ce8f56825d86f86&format=webp&quality=lossless&'], 
             emoji: '💉',
             description: 'เข็มไททั่นเอเรน ไททั่นเเอนนี่ ไททั่นเกราะ ต้องมีกุญแจมากกว่า 20 ดอก ขึ้นไป',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
@@ -329,7 +329,7 @@ module.exports = {
         'titan': { 
             name: 'ฟาร์มเวลไททัน',
             price: '200 บาท', 
-            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&', 
+            images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451495971186802812/1000.png?ex=69466277&is=694510f7&hm=812318bc10d82354369c0a24bbb8001f9f3cfebde12973cb1cefb71360c0b78f&'], 
             emoji: '👿',
             description: 'ฟามเลเวลไททั่น',
             details: 'รบกวนลูกค้าเปลี่ยนเป็นเมลแดงด้วยครับ เพื่อให้ง่ายต่อการเข้ารหัสลูกค้า'
