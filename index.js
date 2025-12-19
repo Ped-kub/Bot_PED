@@ -154,50 +154,6 @@ const categoryMenu = new StringSelectMenuBuilder()
         }))
     );
 
-components.push(
-    new ActionRowBuilder().addComponents(categoryMenu)
-);
-
-if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId === 'select_product_category'
-) {
-    const { products } = require('./config.js');
-    const selectedCategory = interaction.values[0];
-
-    const filteredProducts = Object.entries(products)
-        .filter(([_, p]) => p.category === selectedCategory);
-
-    if (filteredProducts.length === 0) {
-        return interaction.reply({
-            content: '❌ ไม่มีสินค้าในหมวดนี้',
-            ephemeral: true
-        });
-    }
-
-    const productMenu = new StringSelectMenuBuilder()
-        .setCustomId('select_product')
-        .setPlaceholder('🛒 เลือกสินค้า')
-        .addOptions(
-            filteredProducts.map(([key, p]) => ({
-                label: p.name,
-                value: key,
-                description: p.price,
-                emoji: p.emoji
-            }))
-        );
-
-    const embed = new EmbedBuilder()
-        .setTitle(`📂 หมวดหมู่: ${PRODUCT_CATEGORIES[selectedCategory] || selectedCategory}`)
-        .setColor('#3498db')
-        .setDescription('กรุณาเลือกสินค้าที่ต้องการ');
-
-    return interaction.reply({
-        embeds: [embed],
-        components: [new ActionRowBuilder().addComponents(productMenu)]
-    });
-}
-
 client.on('interactionCreate', async interaction => {
     const NOTIFY_ITEM_USERS = ['1390444294988369971']; 
     const NOTIFY_TRADE_USERS = ['1056886143754444840']; 
@@ -207,6 +163,10 @@ client.on('interactionCreate', async interaction => {
     // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
         let selected = null;
+        if (
+    interaction.isStringSelectMenu() &&
+    interaction.customId === 'select_product_category'
+) 
         if (interaction.customId === 'select_product') selected = products[interaction.values[0]];
         if (interaction.customId === 'select_farm') selected = farmPackages[interaction.values[0]];
 
@@ -259,13 +219,22 @@ client.on('interactionCreate', async interaction => {
         ];
 
         if (selectedValue === 'create_item') {
-            typeName = "🛒 ซื้อของ";
-            channelName = `🧺-ซื้อของ-${user.username}`;
-            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
-            const menu = new StringSelectMenuBuilder()
-                .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
-                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
-            components.push(new ActionRowBuilder().addComponents(menu));
+
+    let components = [];
+
+    const categoryMenu = new StringSelectMenuBuilder()
+        .setCustomId('select_product_category')
+        .setPlaceholder('📂 เลือกหมวดหมู่สินค้า')
+        .addOptions(
+            usedCategories.map(cat => ({
+                label: PRODUCT_CATEGORIES[cat] || cat,
+                value: cat
+            }))
+        );
+
+    components.push(
+        new ActionRowBuilder().addComponents(categoryMenu)
+    );
         } 
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
