@@ -195,19 +195,19 @@ client.on('interactionCreate', async interaction => {
         if (selectedValue === 'create_item') {
             typeName = "🛒 ซื้อของ";
             channelName = `🧺-ซื้อของ-${user.username}`;
-            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ').setImage('attachment://Ped.png');
+            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
-                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
+                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji, รายละเอียด: products[key].description })));
             components.push(new ActionRowBuilder().addComponents(menu));
         } 
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
             channelName = `🎮-จ้างฟาม-${user.username}`;
-            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ').setImage('attachment://Ped.png');
+            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างเพื่อดูรายระเอียดพร้อมราคาครับ ช่องทางการโอนในรูปเลยครับ').setImage('https://media.discordapp.net/attachments/1133947298628517970/1451492360361082910/image.png?ex=69465f1a&is=69450d9a&hm=11b4191d3f6837d7c9aef6815dd016ac2c53e3e8301e4af1cac9d2fb1877da4a&=&format=webp&quality=lossless&width=711&height=1006');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
-                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
+                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji, รายละเอียด: farmPackages[key].description, สิ่งที่ต้องทำก่อนจ้างฟาม: farmPackages[key].details })));
             components.push(new ActionRowBuilder().addComponents(menu));
         }
         else if (selectedValue === 'create_trade') {
