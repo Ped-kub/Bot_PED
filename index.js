@@ -163,10 +163,7 @@ client.on('interactionCreate', async interaction => {
     // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
         let selected = null;
-        if (
-    interaction.isStringSelectMenu() &&
-    interaction.customId === 'select_product_category'
-) 
+
         if (interaction.customId === 'select_product') selected = products[interaction.values[0]];
         if (interaction.customId === 'select_farm') selected = farmPackages[interaction.values[0]];
 
@@ -176,7 +173,22 @@ client.on('interactionCreate', async interaction => {
                 .setColor('#f1c40f')
                 .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
                 .setImage(selected.img);
+            const menu = new StringSelectMenuBuilder()
+        .setCustomId('select_product')
+        .setPlaceholder('เลือกสินค้า')
+        .addOptions(
+            filtered.map(([key, p]) => ({
+                label: p.name,
+                value: key,
+                description: p.price,
+                emoji: p.emoji
+            }))
+        );
 
+    return interaction.editReply({
+        content: '📦 เลือกสินค้า',
+        components: [new ActionRowBuilder().addComponents(menu)]
+    });
             return interaction.reply({ embeds: [detailEmbed] });
         }
     }
@@ -219,8 +231,11 @@ client.on('interactionCreate', async interaction => {
         ];
 
         if (selectedValue === 'create_item') {
-
-    let components = [];
+    typeName = "🛒 ซื้อของ";
+    channelName = `🛒-ซื้อของ-${user.username}`;
+    welcomeEmbed
+        .setTitle('🛒 ห้องซื้อของ')
+        .setDescription('กรุณาเลือกหมวดหมู่สินค้าที่ต้องการด้านล่าง');
 
     const categoryMenu = new StringSelectMenuBuilder()
         .setCustomId('select_product_category')
@@ -232,11 +247,9 @@ client.on('interactionCreate', async interaction => {
             }))
         );
 
-    components.push(
-        new ActionRowBuilder().addComponents(categoryMenu)
-    );
-        } 
-        else if (selectedValue === 'create_farm') {
+    components.push(new ActionRowBuilder().addComponents(categoryMenu));
+}
+            else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
             channelName = `🎮-จ้างฟาม-${user.username}`;
             welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
