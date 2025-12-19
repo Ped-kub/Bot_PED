@@ -2,17 +2,131 @@ module.exports = {
     // ข้อมูลสินค้าในหมวด ซื้อของ
     products: {
         'item_1': { 
-            name: 'หน้ากากอิจิโกะ', 
-            price: '100฿', 
-            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720377823242/IMG_5101.png?ex=694527e5&is=6943d665&hm=d878ef372d9220552f7093c2c70697d97d43ef674416f68dd6125e56ae444127&format=webp&quality=lossless&', 
-            emoji: '🎭' 
+            name: 'คำภีร์   ', 
+            price: 'เล่มละ 0.5 บาท', 
+            img: 'https://cdn.discordapp.com/attachments/1427818804783616191/1434278067110674607/IMG_46612.png?ex=69465e4a&is=69450cca&hm=ac525ad2ef0206029facb8625d43b2c0ddcbe69f16daf3a63e1ae080113b887c&', 
+            emoji: '📜', 
+            description: 'ใช้ทองเทรด   13000/1 อัน'
         },
         'item_2': { 
             name: 'กุญแจ', 
             price: 'ดอกละ 1 บาท', 
             img: 'https://media.discordapp.net/attachments/1427818804783616191/1434278066883924009/IMG_46693.png?ex=69450cca&is=6943bb4a&hm=0e6a2b69659fcf93b9f13d901861f7e99635b412707af2638dcedd0b5954108b&format=webp&quality=lossless&', 
-            emoji: '🗝️' 
-        }
+            emoji: '🗝️', 
+            description: 'ใช้ทองเทรด  30000/1 อัน'
+        },
+        'helos': { 
+            name: 'ตระกูล Helos', 
+            price: ' 950  บาท', 
+            img: 'https://media.discordapp.net/attachments/1133947298628517970/1451502311640924241/image.png?ex=6946685e&is=694516de&hm=8621d0aaf958b607699b4b114b9e95587671ef5262fb1538f14f6898df667f5f&=&format=webp&quality=lossless', 
+            emoji: '💎', 
+            description: 'ใช้เพชรเทรด  50 k'
+        },
+        'fritz': { 
+            name: 'ตระกูล Fritz', 
+            price: ' 550  บาท', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1434280912140632267/IMG_4246.png?ex=694660f1&is=69450f71&hm=e4f6b903f845a5f92d8c82f5e533dbbb680bdda064efcd08f40d3f8807daf970&=&format=webp&quality=lossless', 
+            emoji: '💎', 
+            description: 'ใช้เพชรเทรด  50 k'
+        },
+        'ackermen': { 
+            name: 'ตระกูล Ackermen', 
+            price: ' 35  บาท', 
+            img: 'https://media.discordapp.net/attachments/1133947298628517970/1451503181841301595/image.png?ex=6946692e&is=694517ae&hm=68c7a014dda4ca7addffd99e1ef2b58efa006405867db2510264de46e48baf48&=&format=webp&quality=lossless', 
+            emoji: '💎', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'yeager': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451503116678725682/image.png?ex=6946691e&is=6945179e&hm=a15b4c3e58bc1705307ab28a97ac05f6e42c613d82444947d9703069b6de10eb', 
+            emoji: '💎', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_1': { 
+            name: 'MAXIMUM FIREPOWER (เพิ่มหอก+4)', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_2': { 
+            name: 'ตระกูล Yeager', 
+            price: ' +0  15  บาท  +10   25  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_3': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_4': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_5': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_6': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_7': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_8': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_9': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_10': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'perk_11': { 
+            name: 'ตระกูล Yeager', 
+            price: ' 30  บาท', 
+            img: '', 
+            emoji: 'https://cdn.discordapp.com/emojis/1393157046085484664.webp?size=44', 
+            description: 'ใช้เพชรเทรด  15 k'
+        },
+        'item_mask': { 
+            name: 'หน้ากากอิจิโกะ', 
+            price: '100฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720377823242/IMG_5101.png?ex=694527e5&is=6943d665&hm=d878ef372d9220552f7093c2c70697d97d43ef674416f68dd6125e56ae444127&format=webp&quality=lossless&', 
+            emoji: '🎭' 
+        },
+        
     },
 
     // ข้อมูลแพ็กเกจในหมวด จ้างฟาร์ม
