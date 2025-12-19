@@ -126,7 +126,70 @@ module.exports = {
             img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720377823242/IMG_5101.png?ex=694527e5&is=6943d665&hm=d878ef372d9220552f7093c2c70697d97d43ef674416f68dd6125e56ae444127&format=webp&quality=lossless&', 
             emoji: '🎭' 
         },
-        
+        'item_shirt': { 
+            name: 'ชุดกัปตันขาว', 
+            price: '450฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720667365468/IMG_5059.png?ex=69467965&is=694527e5&hm=cb4d50252db9bc81da321e1eb4642b957432f5b14397a3f7cb50ebcc5cfc0cd5&=&format=webp&quality=lossless', 
+            emoji: '👚' 
+        },
+        'item_maho': { 
+            name: 'มโหรากา', 
+            price: '700฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756720923349092/IMG_5058.png?ex=69467965&is=694527e5&hm=ac177ab606d0f5ba5bb8503ebab55855fd0b959605daac52577854a3d2c6e15f&=&format=webp&quality=lossless', 
+            emoji: '🔅' 
+        },
+        'item_sclye': { 
+            name: 'เคียว', 
+            price: '95 ฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721174741052/IMG_5060.png?ex=69467965&is=694527e5&hm=ff38cd0e7a9c31852ea7feacc8263da47ec5d82b259422c4d41c812fdc9efecf&=&format=webp&quality=lossless', 
+            emoji: '👿' 
+        },
+        'item_drop': { 
+            name: 'ของดรอปจากกล่องปัจจุบัน', 
+            price: 'อย่างละ 50฿', 
+            img: 'https://media.discordapp.net/attachments/1133947298628517970/1451522899004620923/42d8394e-f349-47d9-aa61-2ac293283123.png?ex=69467b8b&is=69452a0b&hm=9ee0e13b637914e0a93d5f0b5399cfc3779400a5109534e3aa329447ffa781fc&=&format=webp&quality=lossless', 
+            emoji: '🫟' 
+        },
+        'titan_black_annie': { 
+            name: 'แอนนี่ดำ', 
+            price: '50฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756722185699378/IMG_5077.png?ex=69467965&is=694527e5&hm=afed5615a30c8105df6a1fae78e35ff698fe9d3958775a27e648a99e691d99bf&=&format=webp&quality=lossless', 
+            emoji: '⬛' 
+        },
+        'titan_maid_annie': { 
+            name: 'แอนนี่เมจ ', 
+            price: '100฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721413951548/IMG_5057.png?ex=69467965&is=694527e5&hm=85b440ca5997e7088265b41fb95e80979a41c3201dea7166b565b1e1ca39d9ee&=&format=webp&quality=lossless', 
+            emoji: '🐈‍⬛' 
+        },
+        'titan_green_armor': { 
+            name: 'เกาะเขียว ', 
+            price: '50฿', 
+            img: 'https://cdn.discordapp.com/attachments/1133947298628517970/1451525048421580842/1000.png?ex=69467d8b&is=69452c0b&hm=72b189274647ac19c2e63a523f50a783d816e9b881da206a01d21ff5e7dacbf8&', 
+            emoji: '🗿' 
+        },
+        'titan_jotun_armor': { 
+            name: 'JöTUNN (เกาะน้ำแข็ง) ', 
+            price: '225฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721946493139/IMG_5076.png?ex=69467965&is=694527e5&hm=f5b80616ca25aec243346e096e15ca39d37187a8b65d4522d051e4584ce713e1&=&format=webp&quality=lossless', 
+            emoji: '🥶' 
+        },
+        'titan_aren_oni': { 
+            name: 'เอเรนโอนิ', 
+            price: '500฿', 
+            img: 'https://media.discordapp.net/attachments/1427818804783616191/1435756721644765264/IMG_5075.png?ex=69467965&is=694527e5&hm=9e0fd1ed476112e2f1731ec82027ff61d7b92023a0ebbbb60aa677311bf8a994&=&format=webp&quality=lossless', 
+            emoji: '☯️' 
+        },
+        'skin_sword_dragon': { 
+            name: 'เซ็ตดาบมังกร', 
+            price: '150฿', 
+            images: [
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756910400770148/IMG_5065.png?ex=6945d0d2&is=69447f52&hm=3176e462784c530f3e9962273369ced94b767ae35d1c1447eb82c31122a14eff&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756911382495382/IMG_5066.png?ex=69467992&is=69452812&hm=c2d271888860926a59d640a1fe26d98c22b8226b0131d8708242f5972976d465&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756912086876171/IMG_5067.png?ex=6945d0d2&is=69447f52&hm=4e467b71fda4eb1d1ca2447a48a445d10ac9a281ad8898073c5308bbf869fffb&=&format=webp&quality=lossless'
+    ], 
+            emoji: '🐲' 
+        },
     },
 
     // ข้อมูลแพ็กเกจในหมวด จ้างฟาร์ม
