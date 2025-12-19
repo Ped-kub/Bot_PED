@@ -139,6 +139,13 @@ client.on('interactionCreate', async interaction => {
     const STAFF_ROLE_ID = '1443797915230539928';
     const TOJI = ['1390444294988369971']; 
     const TOTO = ['1056886143754444840']; 
+    const productKeys = Object.keys(products);
+    const itemsPerPage = 25;
+    const totalPages = Math.ceil(productKeys.length / itemsPerPage);
+    const currentPage = 1; // เริ่มต้นหน้า 1
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const currentItems = productKeys.slice(start, start + itemsPerPage);
 
     // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
@@ -158,21 +165,66 @@ client.on('interactionCreate', async interaction => {
     }
 
     // --- 2. ระบบปุ่มปิดห้อง ---
-    if (interaction.isButton() && interaction.customId === 'close_room') {
-        const ALLOWED_USER_IDS = ['1390444294988369971', '774417760281165835', '1056886143754444840'];
-        const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
-        const isAllowedUser = ALLOWED_USER_IDS.includes(interaction.user.id);
+   if (interaction.isButton() && interaction.customId.startsWith('shop_page_')) {
+    const page = parseInt(interaction.customId.split('_')[2]);
+    if (isNaN(page)) return;
 
-        if (!isStaff && !isAllowedUser) {
-            return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้นที่ปิดห้องได้', flags: [MessageFlags.Ephemeral] });
-        }
+    const productKeys = Object.keys(products);
+    const itemsPerPage = 25;
+    const totalPages = Math.ceil(productKeys.length / itemsPerPage);
 
-        try {
-            await interaction.reply({ content: '🔒 กำลังลบห้องนี้ภายใน 3 วินาที...' });
-            setTimeout(async () => { await interaction.channel.delete().catch(() => {}); }, 3000);
-        } catch (error) { console.error('ลบห้องผิดพลาด:', error); }
-        return;
+    if (page < 1 || page > totalPages) {
+        return interaction.reply({
+            content: '❌ ไม่พบหน้านี้',
+            ephemeral: true
+        });
     }
+
+    const start = (page - 1) * itemsPerPage;
+    const currentItems = productKeys.slice(start, start + itemsPerPage);
+
+    // Select Menu ใหม่
+    const menu = new StringSelectMenuBuilder()
+        .setCustomId('select_product')
+        .setPlaceholder(`--- เลือกสินค้า (หน้า ${page}/${totalPages}) ---`)
+        .addOptions(
+            currentItems.map(key => ({
+                label: products[key].name,
+                value: key,
+                description: `ราคา: ${products[key].price}`,
+                emoji: products[key].emoji
+            }))
+        );
+
+    // ปุ่มเปลี่ยนหน้าใหม่
+    const buttons = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId(`shop_page_${page - 1}`)
+            .setLabel('⬅️ ก่อนหน้า')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page === 1),
+        new ButtonBuilder()
+            .setCustomId(`shop_page_${page + 1}`)
+            .setLabel('ถัดไป ➡️')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page === totalPages)
+    );
+
+    // ปุ่มปิดห้อง
+    const closeBtn = new ButtonBuilder()
+        .setCustomId('close_room')
+        .setLabel('ปิดห้องนี้')
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji('🔒');
+
+    await interaction.update({
+        components: [
+            new ActionRowBuilder().addComponents(menu),
+            buttons,
+            new ActionRowBuilder().addComponents(closeBtn)
+        ]
+    });
+}
 
     // --- 3. ระบบจัดการ Select Menu สร้างห้อง (room_setup) ---
     if (!interaction.isStringSelectMenu() || interaction.customId !== 'room_setup') return;
@@ -225,28 +277,33 @@ client.on('interactionCreate', async interaction => {
             welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI')
             .setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
 
-        const productKeys = Object.keys(products);
-        const chunkSize = 25; // กำหนดให้แบ่งชุดละ 25 รายการ
+        const menu = new StringSelectMenuBuilder()
+    .setCustomId('select_product')
+    .setPlaceholder(`--- เลือกสินค้า (หน้า ${currentPage}/${totalPages}) ---`)
+    .addOptions(currentItems.map(key => ({
+        label: products[key].name,
+        value: key,
+        description: `ราคา: ${products[key].price}`,
+        emoji: products[key].emoji
+    })));
 
-        for (let i = 0; i < productKeys.length; i += chunkSize) {
-            // ตัดแบ่งข้อมูลเป็นชุดละ 25
-            const currentChunk = productKeys.slice(i, i + chunkSize);
-            const pageNum = Math.floor(i / chunkSize) + 1;
+// 2. สร้างปุ่มเปลี่ยนหน้า
+const buttons = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+        .setCustomId(`shop_page_${currentPage - 1}`)
+        .setLabel('⬅️ ก่อนหน้า')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(currentPage === 1),
+    new ButtonBuilder()
+        .setCustomId(`shop_page_${currentPage + 1}`)
+        .setLabel('ถัดไป ➡️')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(currentPage === totalPages)
+);
 
-            const menu = new StringSelectMenuBuilder()
-            // ตั้ง CustomId ให้ต่างกันในแต่ละเมนู (เช่น select_product_1, select_product_2)
-            .setCustomId(`select_product_${pageNum}`)
-            .setPlaceholder(`--- เลือกสินค้าชุดที่ ${pageNum} ---`)
-            .addOptions(currentChunk.map(key => ({
-                label: products[key].name,
-                value: key,
-                description: `ราคา: ${products[key].price}`,
-                emoji: products[key].emoji
-            })));
-
-            // เพิ่ม ActionRow ใหม่สำหรับแต่ละเมนู (ใส่ได้สูงสุด 5 Row)
-             components.push(new ActionRowBuilder().addComponents(menu));
-            }
+// เพิ่มเข้าไปใน components array
+components.push(new ActionRowBuilder().addComponents(menu));
+components.push(buttons);
         } 
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
