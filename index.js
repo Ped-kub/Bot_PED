@@ -132,6 +132,14 @@ client.on('interactionCreate', async interaction => {
 
 const { products, farmPackages } = require('./config.js');
 
+const PRODUCT_CATEGORIES = {
+    item: '📦 ไอเทมทั่วไป',
+    clan: '💎 ตระกูล',
+    perk: '⭐ Perk',
+    rare: '🎭 ไอเทมหายาก',
+    titan: '👿 Titan / Skin'
+};
+
 const usedCategories = [
     ...new Set(Object.values(products).map(p => p.category))
 ];
