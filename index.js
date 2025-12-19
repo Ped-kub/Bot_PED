@@ -8,6 +8,7 @@ app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on port ${port}`);
 });
 
+/* ================= DISCORD ================= */
 const {
     Client,
     GatewayIntentBits,
@@ -21,6 +22,13 @@ const {
     ButtonBuilder,
     ButtonStyle
 } = require('discord.js');
+
+/* ====== IMPORT MENU UTILS ====== */
+const {
+    createMenuEmbed,
+    createMenuDropdown,
+    handleInteraction
+} = require('./menuUtils');
 
 const TOKEN = process.env.BOT_TOKEN;
 
@@ -43,7 +51,13 @@ const client = new Client({
 
 client.commands = new Collection();
 
+/* ================= INTERACTION ================= */
 client.on('interactionCreate', async interaction => {
+
+    /* ===== MAIN MENU (menuUtils.js) ===== */
+    if (interaction.isStringSelectMenu() && interaction.customId === 'main_menu_select') {
+        return handleInteraction(interaction);
+    }
 
     /* ================= PRODUCT / FARM SELECT ================= */
     if (
@@ -210,6 +224,7 @@ ${selected.details ?? ''}`
     }
 });
 
+/* ================= READY ================= */
 client.once('ready', () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
     client.user.setActivity('ThapxkornAX', {
