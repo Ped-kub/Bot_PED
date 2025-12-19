@@ -71,6 +71,53 @@ const client = new Client({
     ]
 });
 
+function chunkArray(array, size) {
+    const result = [];
+    for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+    }
+    return result;
+}
+
+function createProductMenu(page = 0) {
+    const PAGE_SIZE = 20;
+    const productEntries = Object.entries(products);
+    const pages = chunkArray(productEntries, PAGE_SIZE);
+
+    const currentPage = pages[page] ?? pages[0];
+
+    const menu = new StringSelectMenuBuilder()
+        .setCustomId(`select_product_page_${page}`)
+        .setPlaceholder(`เลือกสินค้า (หน้า ${page + 1}/${pages.length})`)
+        .addOptions(
+            currentPage.map(([key, item]) => ({
+                label: item.name,
+                value: key,
+                description: `ราคา: ${item.price}`,
+                emoji: item.emoji
+            }))
+        );
+
+    const buttons = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId(`product_prev_${page}`)
+            .setLabel('⬅️ ก่อนหน้า')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page === 0),
+
+        new ButtonBuilder()
+            .setCustomId(`product_next_${page}`)
+            .setLabel('ถัดไป ➡️')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page >= pages.length - 1)
+    );
+
+    return [
+        new ActionRowBuilder().addComponents(menu),
+        buttons
+    ];
+}
+
 function translatePerms(bitfield) {
     const p = new PermissionsBitField(bitfield);
     const important = [];
@@ -137,93 +184,61 @@ client.on('interactionCreate', async interaction => {
     const NOTIFY_TRADE_USERS = ['1056886143754444840']; 
     const TARGET_CATEGORY_ID = '1428682337952206848';
     const STAFF_ROLE_ID = '1443797915230539928';
-    const TOJI = ['1390444294988369971']; 
-    const TOTO = ['1056886143754444840']; 
-    const productKeys = Object.keys(products);
-    const itemsPerPage = 25;
-    const totalPages = Math.ceil(productKeys.length / itemsPerPage);
-    const currentPage = 1; // เริ่มต้นหน้า 1
-
-    const start = (currentPage - 1) * itemsPerPage;
-    const currentItems = productKeys.slice(start, start + itemsPerPage);
 
     // --- 1. ระบบจัดการ Select Menu ภายในห้อง ---
     if (interaction.isStringSelectMenu()) {
-        let selected = null;
-        if (interaction.customId.startsWith('select_product')) {const selectedValue = interaction.values[0];
-        if (interaction.customId === 'select_farm') selected = farmPackages[interaction.values[0]];
+    let selected = null;
 
-        if (selected) {
-            const detailEmbed = new EmbedBuilder()
-                .setTitle(`✨ รายละเอียด: ${selected.name}`)
-                .setColor('#f1c40f')
-                .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
-                .setImage(selected.img);
-
-            return interaction.reply({ embeds: [detailEmbed] });
-        }
+    if (interaction.customId.startsWith('select_product')) {
+        selected = products[interaction.values[0]];
     }
+
+    if (interaction.customId === 'select_farm') {
+        selected = farmPackages[interaction.values[0]];
+    }
+
+    if (selected) {
+        const detailEmbed = new EmbedBuilder()
+            .setTitle(`✨ รายละเอียด: ${selected.name}`)
+            .setColor('#f1c40f')
+            .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
+            .setImage(selected.img);
+
+        return interaction.reply({ embeds: [detailEmbed] });
+    }
+}
 
     // --- 2. ระบบปุ่มปิดห้อง ---
-   if (interaction.isButton() && interaction.customId.startsWith('shop_page_')) {
-    const page = parseInt(interaction.customId.split('_')[2]);
-    if (isNaN(page)) return;
+    if (interaction.isButton() && interaction.customId === 'close_room') {
+        const ALLOWED_USER_IDS = ['1390444294988369971', '774417760281165835', '1056886143754444840'];
+        const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
+        const isAllowedUser = ALLOWED_USER_IDS.includes(interaction.user.id);
 
-    const productKeys = Object.keys(products);
-    const itemsPerPage = 25;
-    const totalPages = Math.ceil(productKeys.length / itemsPerPage);
+        if (!isStaff && !isAllowedUser) {
+            return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้นที่ปิดห้องได้', flags: [MessageFlags.Ephemeral] });
+        }
 
-    if (page < 1 || page > totalPages) {
-        return interaction.reply({
-            content: '❌ ไม่พบหน้านี้',
-            ephemeral: true
-        });
+        try {
+            await interaction.reply({ content: '🔒 กำลังลบห้องนี้ภายใน 3 วินาที...' });
+            setTimeout(async () => { await interaction.channel.delete().catch(() => {}); }, 3000);
+        } catch (error) { console.error('ลบห้องผิดพลาด:', error); }
+        return;
     }
+    if (interaction.isButton()) {
+    if (
+        interaction.customId.startsWith('product_prev_') ||
+        interaction.customId.startsWith('product_next_')
+    ) {
+        const [, direction, pageStr] = interaction.customId.split('_');
+        let page = parseInt(pageStr);
 
-    const start = (page - 1) * itemsPerPage;
-    const currentItems = productKeys.slice(start, start + itemsPerPage);
+        if (direction === 'prev') page--;
+        if (direction === 'next') page++;
 
-    // Select Menu ใหม่
-    const menu = new StringSelectMenuBuilder()
-        .setCustomId('select_product')
-        .setPlaceholder(`--- เลือกสินค้า (หน้า ${page}/${totalPages}) ---`)
-        .addOptions(
-            currentItems.map(key => ({
-                label: products[key].name,
-                value: key,
-                description: `ราคา: ${products[key].price}`,
-                emoji: products[key].emoji
-            }))
-        );
+        const components = createProductMenu(page);
 
-    // ปุ่มเปลี่ยนหน้าใหม่
-    const buttons = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId(`shop_page_${page - 1}`)
-            .setLabel('⬅️ ก่อนหน้า')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(page === 1),
-        new ButtonBuilder()
-            .setCustomId(`shop_page_${page + 1}`)
-            .setLabel('ถัดไป ➡️')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(page === totalPages)
-    );
-
-    // ปุ่มปิดห้อง
-    const closeBtn = new ButtonBuilder()
-        .setCustomId('close_room')
-        .setLabel('ปิดห้องนี้')
-        .setStyle(ButtonStyle.Danger)
-        .setEmoji('🔒');
-
-    await interaction.update({
-        components: [
-            new ActionRowBuilder().addComponents(menu),
-            buttons,
-            new ActionRowBuilder().addComponents(closeBtn)
-        ]
-    });
+        return interaction.update({ components });
+    }
 }
 
     // --- 3. ระบบจัดการ Select Menu สร้างห้อง (room_setup) ---
@@ -249,122 +264,27 @@ client.on('interactionCreate', async interaction => {
         if (selectedValue === 'create_item') {
             typeName = "🛒 ซื้อของ";
             channelName = `🧺-ซื้อของ-${user.username}`;
-            overwrites = [
-        {
-            // ปิดการมองเห็นสำหรับทุกคนในเซิร์ฟเวอร์
-            id: guild.id, 
-            deny: [PermissionFlagsBits.ViewChannel] 
-        },
-        {
-            // เปิดให้ลูกค้า (คนกด) มองเห็นและพิมพ์ได้
-            id: user.id, 
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] 
-        },
-        {
-            // เปิดให้ Staff Role หลักมองเห็น
-            id: STAFF_ROLE_ID, 
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] 
-        }
-    ];
-
-    TOJI.forEach(staffId => {
-        overwrites.push({
-            id: staffId,
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
-        });
-    });
-
-            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI')
-            .setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
-
-        const menu = new StringSelectMenuBuilder()
-    .setCustomId('select_product')
-    .setPlaceholder(`--- เลือกสินค้า (หน้า ${currentPage}/${totalPages}) ---`)
-    .addOptions(currentItems.map(key => ({
-        label: products[key].name,
-        value: key,
-        description: `ราคา: ${products[key].price}`,
-        emoji: products[key].emoji
-    })));
-
-// 2. สร้างปุ่มเปลี่ยนหน้า
-const buttons = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-        .setCustomId(`shop_page_${currentPage - 1}`)
-        .setLabel('⬅️ ก่อนหน้า')
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(currentPage === 1),
-    new ButtonBuilder()
-        .setCustomId(`shop_page_${currentPage + 1}`)
-        .setLabel('ถัดไป ➡️')
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(currentPage === totalPages)
-);
-
-// เพิ่มเข้าไปใน components array
-components.push(new ActionRowBuilder().addComponents(menu));
-components.push(buttons);
+            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+            const menu = new StringSelectMenuBuilder()
+                .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
+                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji, รายละเอียด: products[key].description })));
+            components.push(new ActionRowBuilder().addComponents(menu));
+            
+             const productComponents = createProductMenu(0);
+    components.push(...productComponents);
         } 
         else if (selectedValue === 'create_farm') {
             typeName = "⚔️ จ้างฟาร์ม";
             channelName = `🎮-จ้างฟาม-${user.username}`;
-            overwrites = [
-        {
-            // ปิดการมองเห็นสำหรับทุกคนในเซิร์ฟเวอร์
-            id: guild.id, 
-            deny: [PermissionFlagsBits.ViewChannel] 
-        },
-        {
-            // เปิดให้ลูกค้า (คนกด) มองเห็นและพิมพ์ได้
-            id: user.id, 
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] 
-        },
-        {
-            // เปิดให้ Staff Role หลักมองเห็น
-            id: STAFF_ROLE_ID, 
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] 
-        }
-    ];
-
-    TOJI.forEach(staffId => {
-        overwrites.push({
-            id: staffId,
-            deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
-        });
-    });
-            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างเพื่อดูรายระเอียดพร้อมราคาครับ ช่องทางการโอนในรูปเลยครับ').setImage('https://media.discordapp.net/attachments/1133947298628517970/1451492360361082910/image.png?ex=69465f1a&is=69450d9a&hm=11b4191d3f6837d7c9aef6815dd016ac2c53e3e8301e4af1cac9d2fb1877da4a&=&format=webp&quality=lossless&width=711&height=1006');
+            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างเพื่อดูรายระเอียดพร้อมราคาครับ');
             const menu = new StringSelectMenuBuilder()
                 .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
-                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji, รายละเอียด: farmPackages[key].description, สิ่งที่ต้องทำก่อนจ้างฟาม: farmPackages[key].details })));
+                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji, รายละเอียด: farmPackages[key].description, โปรดอ่านก่อน: farmPackages[key].details })));
             components.push(new ActionRowBuilder().addComponents(menu));
         }
         else if (selectedValue === 'create_trade') {
             typeName = "🤝 ติดต่อพ่อค้า";
             channelName = `🙆‍♂️-ติดต่อพ่อค้า-${user.username}`;
-            overwrites = [
-        {
-            // ปิดการมองเห็นสำหรับทุกคนในเซิร์ฟเวอร์
-            id: guild.id, 
-            deny: [PermissionFlagsBits.ViewChannel] 
-        },
-        {
-            // เปิดให้ลูกค้า (คนกด) มองเห็นและพิมพ์ได้
-            id: user.id, 
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] 
-        },
-        {
-            // เปิดให้ Staff Role หลักมองเห็น
-            id: STAFF_ROLE_ID, 
-            deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] 
-        }
-    ];
-
-    TOTO.forEach(staffId => {
-        overwrites.push({
-            id: staffId,
-            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
-        });
-    });
             welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับพิมติดต่อพ่อค้าได้เลยนะครับ');
         }
 
@@ -410,7 +330,7 @@ components.push(buttons);
         console.error('Error:', error);
         if (interaction.deferred) await interaction.editReply({ content: '❌ ไม่สามารถสร้างห้องได้' });
     }
-}});
+});
 
 client.on('roleCreate', async (role) => {
     // รอระบบอัปเดต Audit Log 1 วินาที
