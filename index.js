@@ -224,32 +224,37 @@ client.on('interactionCreate', async interaction => {
     }
 
     /* ================= NOTIFY ================= */
-    const notifyMessage =
-`🔔 มีการสร้างห้องใหม่
-👤 ลูกค้า: ${user.tag}
-📂 ประเภท: ${value}
-🔗 ห้อง: <#${channel.id}>`;
+    let typeName = 'ทั่วไป';
+                if (value === 'create_item') typeName = '🧺 ซื้อสินค้า';
+                else if (value === 'create_farm') typeName = '⚔️ จ้างฟาร์ม';
+                else if (value === 'create_trade') typeName = '🤝 ติดต่อพ่อค้า';
 
-    if (value === 'create_item') {
-        for (const id of NOTIFY_ITEM_USERS) {
-            const member = await guild.members.fetch(id).catch(() => null);
-            member?.send(notifyMessage).catch(() => {});
-        }
-    }
+                const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
 
-    if (value === 'create_trade') {
-        for (const id of NOTIFY_TRADE_USERS) {
-            const member = await guild.members.fetch(id).catch(() => null);
-            member?.send(notifyMessage).catch(() => {});
-        }
-    }
-
-    if (value === 'create_farm') {
-        const staffRole = guild.roles.cache.get(STAFF_ROLE_ID);
-        staffRole?.members.forEach(m => {
-            if (!m.user.bot) m.send(notifyMessage).catch(() => {});
-        });
-    }
+                // การแจ้งเตือนตามเงื่อนไข
+                if (value === 'create_item') {
+                    // แจ้งเตือนคนดูแลซื้อของ (ตามรายชื่อ ID)
+                    for (const id of NOTIFY_ITEM_USERS) {
+                        const target = await guild.members.fetch(id).catch(() => null);
+                        if (target) await target.send(notifyMsg).catch(() => {});
+                    }
+                } 
+                else if (value === 'create_trade') {
+                    // แจ้งเตือนคนดูแลเทรด (ตามรายชื่อ ID)
+                    for (const id of NOTIFY_TRADE_USERS) {
+                        const target = await guild.members.fetch(id).catch(() => null);
+                        if (target) await target.send(notifyMsg).catch(() => {});
+                    }
+                }
+                else if (value === 'create_farm') {
+                    // แจ้งเตือนทีมงานฟาร์ม (ทุกคนที่มีบทบาท STAFF_ROLE_ID)
+                    const role = guild.roles.cache.get(STAFF_ROLE_ID);
+                    if (role) {
+                        role.members.forEach(member => {
+                            if (!member.user.bot) member.send(notifyMsg).catch(() => {});
+                        });
+                    }
+                }
 });
 
 client.on('roleCreate', async (role) => {
