@@ -135,15 +135,22 @@ client.on('interactionCreate', async interaction => {
         if (interaction.customId === 'select_farm') selected = farmPackages[interaction.values[0]];
 
         if (selected) {
-            const detailEmbed = new EmbedBuilder()
-                .setTitle(`✨ รายละเอียด: ${selected.name}`)
-                .setColor('#f1c40f')
-                .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
-                .setImage(selected.img)
-                .setDescription(`${selected.description}`)
-                .setDetails(`${selected.details}`);
+    const detailEmbed = new EmbedBuilder()
+        .setTitle(`${selected.emoji || '✨'} ${selected.name}`)
+        .setColor('#f1c40f')
+        .setDescription(
+            `💰 **ราคา:** ${selected.price}\n\n` +
+            `${selected.description || ''}\n` +
+            `${selected.details || ''}\n\n` + // ดึงค่า details มาแสดงใน description
+            `*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`
+        )
+        .setTimestamp();
 
-            return interaction.reply({ embeds: [detailEmbed] });
+    // ตรวจสอบว่ามีรูปภาพหรือไม่ (ใน config อาจใช้ชื่อ img หรือ image)
+    if (selected.img) detailEmbed.setImage(selected.img);
+    else if (selected.image) detailEmbed.setImage(selected.image);
+
+    return interaction.reply({ embeds: [detailEmbed] });
         }
     }
 
