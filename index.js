@@ -96,6 +96,8 @@ if (fs.existsSync(foldersPath)) {
 /* ================= INTERACTION HANDLER ================= */
 client.on('interactionCreate', async interaction => {
 
+     const { guild, user, customId, values } = interaction;
+
     // 1. จัดการ Slash Command
     if (interaction.isChatInputCommand()) {
         const command = client.commands.get(interaction.commandName);
@@ -115,9 +117,9 @@ client.on('interactionCreate', async interaction => {
      if (interaction.isStringSelectMenu()) {
         
         // --- ดูรายละเอียดสินค้า/ฟาร์ม ---
-        if (interaction.customId === 'select_product' || interaction.customId === 'select_farm') {
-            const data = interaction.customId === 'select_product' ? products : farmPackages;
-            const selected = data[interaction.values[0]];
+         if (customId === 'select_product' || customId === 'select_farm') {
+            const data = (customId === 'select_product') ? products : farmPackages;
+            const selected = data[values[0]]; // ดึงค่าแรกจาก Array values
 
             if (!selected) return interaction.reply({ content: 'ไม่พบข้อมูล', ephemeral: true });
 
@@ -133,6 +135,7 @@ client.on('interactionCreate', async interaction => {
             });
             return interaction.reply({ embeds, ephemeral: true });
         }
+
         // --- ส่วนการสร้างห้อง (room_setup) ---
         if (interaction.customId === 'room_setup') {
             try {
@@ -163,9 +166,10 @@ client.on('interactionCreate', async interaction => {
                         label: farmPackages[k].name, value: k, description: `ราคา ${farmPackages[k].price}`, emoji: farmPackages[k].emoji
                     }));
                     notifyList = NOTIFY_TRADE_USERS;
-                } else if (value === 'create_trade') {
-                    channelName = `ติดต่อพ่อค้า-${user.username}`;
-                    embedTitle = 'ติดต่อพ่อค้าโตโต้';
+                } else if (selectedValue === 'create_trade') {
+                    channelName = `🤝-ติดต่อพ่อค้า-${user.username}`;
+                    embedTitle = '🤝 ติดต่อพ่อค้า';
+                    setDescription = 'สวัสดีครับพิมติดต่อพ่อค้าได้เลยนะครับ';
                     notifyList = NOTIFY_TRADE_USERS;
                 }
 
