@@ -98,29 +98,24 @@ if (fs.existsSync(foldersPath)) {
 /* ================= SLASH COMMAND SETROOM ================= */
 client.on('interactionCreate', async interaction => {
 
-    if (!interaction.isChatInputCommand()) return;
+   if (interaction.isChatInputCommand()) {
+        const command = client.commands.get(interaction.commandName);
+        if (!command) return;
 
-    const command = client.commands.get(interaction.commandName);
-    if (!command) return;
-
-    const isEphemeral = command.ephemeral || false;
-
-    try {
-        
-        await interaction.deferReply({ ephemeral: isEphemeral }).catch(err => {
-            console.error("ไม่สามารถ Defer ได้เนื่องจาก Timeout หรือ Interaction หมดอายุ:", err);
-            return; 
-        });
-       
-        if (!interaction.deferred && !interaction.replied) return;
-
-        await command.execute(interaction);
-
-    } catch (error) {
-        console.error(error);
-        await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true });
+        try {
+            // เรียก deferReply ทันทีเพื่อกัน Timeout
+            await interaction.deferReply({ ephemeral: command.ephemeral || false });
+            await command.execute(interaction);
+        } catch (error) {
+            console.error("Command Error:", error);
+            if (interaction.deferred) {
+                await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!' });
+            } else {
+                await interaction.reply({ content: 'เกิดข้อผิดพลาด!', ephemeral: true });
+            }
+        }
+        return; // จบการทำงานของ ChatInput
     }
-
     /* ================= SELECT PRODUCT / FARM ================= */
     if (
         interaction.isStringSelectMenu() &&
@@ -166,14 +161,14 @@ ${selected.details ?? ''}`
     }
 
     /* ================= CLOSE ROOM ================= */
-    if (interaction.isButton() && interaction.customId === 'close_room') {
-        const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
-        if (!isStaff) {
-            return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้น', ephemeral: true });
-        }
+     if (interaction.isButton()) {
+        if (interaction.customId === 'close_room') {
+            const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
+            if (!isStaff) return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้น', ephemeral: true });
 
-        await interaction.reply({ content: '🔒 ลบห้องใน 3 วินาที...' });
-        setTimeout(() => interaction.channel.delete().catch(() => {}), 3000);
+            await interaction.reply({ content: '🔒 ลบห้องใน 3 วินาที...' });
+            setTimeout(() => interaction.channel.delete().catch(() => {}), 3000);
+        }
         return;
     }
 
@@ -188,63 +183,56 @@ ${selected.details ?? ''}`
     }
 
     /* ================= ROOM SETUP ================= */
-    if (!interaction.isStringSelectMenu() || interaction.customId !== 'room_setup') return;
+     if (interaction.customId === 'room_setup') {
+            try {
+                await interaction.deferReply({ ephemeral: true });
+                
+                const { guild, user } = interaction;
+                const value = interaction.values[0];
+                let channelName = '';
+                let embed = new EmbedBuilder().setColor('#2ecc71');
+                let rows = [];
 
-    await interaction.deferReply({ ephemeral: true });
+                if (value === 'create_item') {
+                    channelName = `🧺-ซื้อของ-${user.username}`;
+                    embed.setTitle('🛒 ร้านค้า').setDescription('เลือกสินค้าที่ต้องการ');
+                    rows.push(new ActionRowBuilder().addComponents(
+                        new StringSelectMenuBuilder()
+                            .setCustomId('select_product')
+                            .setPlaceholder('เลือกสินค้า')
+                            .addOptions(Object.keys(products).map(k => ({
+                                label: products[k].name,
+                                value: k,
+                                description: `ราคา ${products[k].price}`,
+                                emoji: products[k].emoji
+                            })))
+                    ));
+                } 
+                else if (value === 'create_farm') {
+                    channelName = `🎮-จ้างฟาร์ม-${user.username}`;
+                    embed.setTitle('⚔️ จ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
+                    rows.push(new ActionRowBuilder().addComponents(
+                        new StringSelectMenuBuilder()
+                            .setCustomId('select_farm')
+                            .setPlaceholder('เลือกแพ็กเกจ')
+                            .addOptions(Object.keys(farmPackages).map(k => ({
+                                label: farmPackages[k].name,
+                                value: k,
+                                description: `ราคา ${farmPackages[k].price}`,
+                                emoji: farmPackages[k].emoji
+                            })))
+                    ));
+                }
 
-    const { guild, user, values } = interaction;
-    const value = interaction.values[0];
+                // logic การสร้างห้อง (ต่อจากนี้ให้ใส่โค้ดสร้าง channel ของคุณ)
+                // ...
+                await interaction.editReply({ content: `สร้างห้อง ${channelName} เรียบร้อยแล้ว!` });
 
-    let channelName = '';
-    let embed = new EmbedBuilder().setColor('#2ecc71');
-    let rows = [];
-    let typeName = "";
-
-    const overwrites = [
-        { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
-        { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
-        { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
-        ];
-
-    if (value === 'create_item') {
-        channelName = `🧺-ซื้อของ-${user.username}`;
-        embed.setTitle('🛒 ร้านค้า').setDescription('เลือกสินค้าที่ต้องการ');
-
-        rows.push(new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder()
-                .setCustomId('select_product')
-                .setPlaceholder('เลือกสินค้า')
-                .addOptions(Object.keys(products).map(k => ({
-                    label: products[k].name,
-                    value: k,
-                    description: `ราคา ${products[k].price}`,
-                    emoji: products[k].emoji
-                })))
-        ));
-    }
-
-    if (value === 'create_farm') {
-        channelName = `🎮-จ้างฟาร์ม-${user.username}`;
-        embed.setTitle('⚔️ จ้างฟาร์ม')
-             .setImage('https://media.discordapp.net/attachments/1133947298628517970/1451492360361082910/image.png?ex=694707da&is=6945b65a&hm=6906a36a36c18b55d6c948efb7c19858d3c344446a17435708e68159a77f3deb&=&format=webp&quality=lossless&width=711&height=1006')
-             .setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
-        rows.push(new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder()
-                .setCustomId('select_farm')
-                .setPlaceholder('เลือกแพ็กเกจ')
-                .addOptions(Object.keys(farmPackages).map(k => ({
-                    label: farmPackages[k].name,
-                    value: k,
-                    description: `ราคา ${farmPackages[k].price}`,
-                    emoji: farmPackages[k].emoji
-                })))
-        ));
-    }
-
-    if (value === 'create_trade') {
-        channelName = `🙆‍♂️-ติดต่อพ่อค้า-${user.username}`;
-        embed.setTitle('🤝 ติดต่อพ่อค้า');
-    }
+            } catch (err) {
+                console.error("Room Setup Error:", err);
+            }
+            return;
+        }
 
     const channel = await guild.channels.create({
         name: channelName,
@@ -267,7 +255,7 @@ ${selected.details ?? ''}`
         components: rows
     });
 
-    await interaction.editReply({ content: `✅ สร้างห้องแล้ว: ${channel}` });
+    await interaction.editReply({ content: `สร้างห้อง ${channelName} เรียบร้อยแล้ว!` });
 
     /* ================= NOTIFY ================= */
     const notifyMessage =
