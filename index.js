@@ -97,10 +97,9 @@ if (fs.existsSync(foldersPath)) {
 client.on('interactionCreate', async interaction => {
 
      const { guild, user, customId, values } = interaction;
-     const selectedValue = values[0];
 
     // 1. จัดการ Slash Command
-    if (interaction.isChatInputCommand()) {
+      if (interaction.isChatInputCommand()) {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
         try {
@@ -114,7 +113,7 @@ client.on('interactionCreate', async interaction => {
         return;
     }
 
-    if (interaction.isButton() && interaction.customId === 'close_room') {
+     if (interaction.isButton() && interaction.customId === 'close_room') {
         const ALLOWED_USER_IDS = ['1390444294988369971', '774417760281165835', '1056886143754444840'];
         const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
         const isAllowedUser = ALLOWED_USER_IDS.includes(interaction.user.id);
@@ -150,89 +149,105 @@ client.on('interactionCreate', async interaction => {
 
 
     /* ================= SELECT PRODUCT / FARM ================= */
-        if (!interaction.isStringSelectMenu() || interaction.customId !== 'room_setup') return;
+        if (interaction.isStringSelectMenu()) {
+        const value = interaction.values[0]; // ประกาศค่าที่เลือกไว้ตรงนี้
 
-    try {
-        await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-
-        let channelName = '';
-        let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
-        let components = [];
-        let typeName = ""; // 
-
-        let overwrites = [
-            { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
-            { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
-            { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
-        ];
-
-        if (selectedValue === 'create_item') {
-            TypeName = "🛒 ซื้อของ";
-            channelName = `🧺-ซื้อของ-${user.username}`;
-            welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
-            const menu = new StringSelectMenuBuilder()
-                .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
-                .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
-            components.push(new ActionRowBuilder().addComponents(menu));
-        } 
-        else if (selectedValue === 'create_farm') {
-            typeName = "⚔️ จ้างฟาร์ม";
-            channelName = `🎮-จ้างฟาม-${user.username}`;
-            welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
-            const menu = new StringSelectMenuBuilder()
-                .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
-                .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
-            components.push(new ActionRowBuilder().addComponents(menu));
-        }
-        else if (selectedValue === 'create_trade') {
-            typeName = "🤝 ติดต่อพ่อค้า";
-            channelName = `🙆‍♂️-ติดต่อพ่อค้า-${user.username}`;
-            welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับพิมติดต่อพ่อค้าได้เลยนะครับ');
-        }
-
-        const channel = await guild.channels.create({
-            name: channelName,
-            type: ChannelType.GuildText,
-            parent: TARGET_CATEGORY_ID,
-            permissionOverwrites: overwrites,
-        });
-
-        const closeBtn = new ButtonBuilder().setCustomId('close_room').setLabel('ปิดห้องนี้').setStyle(ButtonStyle.Danger).setEmoji('🔒');
-        components.push(new ActionRowBuilder().addComponents(closeBtn));
-
-        await channel.send({ content: `👋 สวัสดีครับ ${user}`, embeds: [welcomeEmbed], components: components });
-        await interaction.editReply({ content: `✅ สร้างห้องสำเร็จ: ${channel}` });
-
-    /* ================= NOTIFY ================= */
-        const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
-
-        if (selectedValue === 'create_item') {
-            // แจ้งเตือนคนดูแลซื้อของ (ตาม ID)
-            for (const id of NOTIFY_ITEM_USERS) {
-                const target = await guild.members.fetch(id).catch(() => null);
-                if (target) target.send(notifyMsg).catch(() => {});
-            }
-        } 
-        else if (selectedValue === 'create_trade') {
-            // แจ้งเตือนคนดูแลเทรด (ตาม ID)
-            for (const id of NOTIFY_TRADE_USERS) {
-                const target = await guild.members.fetch(id).catch(() => null);
-                if (target) target.send(notifyMsg).catch(() => {});
+        // ดูรายละเอียดสินค้า/ฟาร์ม
+        if (customId === 'select_product' || customId === 'select_farm') {
+            let selected = (customId === 'select_product') ? products[value] : farmPackages[value];
+            if (selected) {
+                const detailEmbed = new EmbedBuilder()
+                    .setTitle(`✨ รายละเอียด: ${selected.name}`)
+                    .setColor('#f1c40f')
+                    .setDescription(`${selected.description}\n\n💰 **ราคา:** ${selected.price}\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
+                    .setImage(selected.img || null);
+                return interaction.reply({ embeds: [detailEmbed] });
             }
         }
-        else if (selectedValue === 'create_farm') {
-            // แจ้งเตือนทีมงานฟาร์ม (ตามยศ STAFF_ROLE_ID)
-            const farmStaff = guild.roles.cache.get(STAFF_ROLE_ID)?.members;
-            farmStaff?.forEach(member => {
-                if (!member.user.bot) member.send(notifyMsg).catch(() => {});
-            });
-        }
 
-    } catch (error) {
-        console.error('Error:', error);
-        if (interaction.deferred) await interaction.editReply({ content: '❌ ไม่สามารถสร้างห้องได้' });
+        // สร้างห้อง (Room Setup)
+        if (customId === 'room_setup') {
+            try {
+                await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+
+                let channelName = '';
+                let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
+                let components = [];
+                let typeName = ""; 
+
+                // เช็คค่าจาก value (ที่ดึงมาจาก interaction.values[0])
+                if (value === 'create_item') {
+                    typeName = "🛒 ซื้อของ";
+                    channelName = `🧺-ซื้อของ-${user.username}`;
+                    welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+                    const menu = new StringSelectMenuBuilder()
+                        .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
+                        .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
+                    components.push(new ActionRowBuilder().addComponents(menu));
+                } 
+                else if (value === 'create_farm') {
+                    typeName = "⚔️ จ้างฟาร์ม";
+                    channelName = `🎮-จ้างฟาม-${user.username}`;
+                    welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างครับ');
+                    const menu = new StringSelectMenuBuilder()
+                        .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
+                        .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
+                    components.push(new ActionRowBuilder().addComponents(menu));
+                }
+                else if (value === 'create_trade') {
+                    typeName = "🤝 ติดต่อพ่อค้า";
+                    channelName = `🤝-ติดต่อ-${user.username}`;
+                    welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับ พิมพ์รายละเอียดที่ต้องการติดต่อทิ้งไว้ได้เลยครับ');
+                }
+
+                // สร้างปุ่มปิดห้อง
+                const closeBtn = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId('close_room').setLabel('ปิดห้อง').setStyle(ButtonStyle.Danger)
+                );
+                components.push(closeBtn);
+
+                const channel = await guild.channels.create({
+                    name: channelName,
+                    type: ChannelType.GuildText,
+                    parent: TARGET_CATEGORY_ID,
+                    permissionOverwrites: [
+                        { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+                        { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
+                        { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
+                    ]
+                });
+
+                await channel.send({ content: `ยินดีต้อนรับครับ ${user}`, embeds: [welcomeEmbed], components: components });
+                await interaction.editReply({ content: `✅ สร้างห้องเรียบร้อยแล้ว: ${channel}` });
+
+                // --- ส่วนการแจ้งเตือน DM ---
+                const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
+
+                if (value === 'create_item') {
+                    for (const id of NOTIFY_ITEM_USERS) {
+                        const target = await guild.members.fetch(id).catch(() => null);
+                        if (target) target.send(notifyMsg).catch(() => {});
+                    }
+                } 
+                else if (value === 'create_trade') {
+                    for (const id of NOTIFY_TRADE_USERS) {
+                        const target = await guild.members.fetch(id).catch(() => null);
+                        if (target) target.send(notifyMsg).catch(() => {});
+                    }
+                }
+                else if (value === 'create_farm') {
+                    const farmStaff = guild.roles.cache.get(STAFF_ROLE_ID)?.members;
+                    farmStaff?.forEach(member => {
+                        if (!member.user.bot) member.send(notifyMsg).catch(() => {});
+                    });
+                }
+
+            } catch (error) {
+                console.error("Room Error:", error);
+                if (interaction.deferred) await interaction.editReply('เกิดข้อผิดพลาดในการสร้างห้อง');
+            }
+        }
     }
-
 });
 
 client.on('roleCreate', async (role) => {
