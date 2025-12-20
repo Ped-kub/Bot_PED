@@ -40,9 +40,9 @@ const UNBAN_LOG_CHANNEL_ID = '1450468042633908224';
 
 const TARGET_CATEGORY_ID = '1428682337952206848';
 const STAFF_ROLE_ID = '1443797915230539928';
-
 const NOTIFY_ITEM_USERS = ['1390444294988369971'];
 const NOTIFY_TRADE_USERS = ['1056886143754444840'];
+
 
 const fs = require('fs');
 const path = require('path');
@@ -84,7 +84,6 @@ if (fs.existsSync(foldersPath)) {
     for (const folder of commandFolders) {
         const commandsPath = path.join(foldersPath, folder);
         const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-        
         for (const file of commandFiles) {
             const filePath = path.join(commandsPath, file);
             const command = require(filePath);
@@ -94,28 +93,28 @@ if (fs.existsSync(foldersPath)) {
         }
     }
 }
-
-/* ================= SLASH COMMAND SETROOM ================= */
+/* ================= INTERACTION HANDLER ================= */
 client.on('interactionCreate', async interaction => {
 
-   if (interaction.isChatInputCommand()) {
+    // 1. จัดการ Slash Command
+    if (interaction.isChatInputCommand()) {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
-
         try {
             await interaction.deferReply({ ephemeral: command.ephemeral || false });
             await command.execute(interaction);
         } catch (error) {
             console.error("Command Error:", error);
-            const msg = { content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true };
-            interaction.deferred ? await interaction.editReply(msg) : await interaction.reply(msg);
+            if (interaction.deferred) await interaction.editReply('เกิดข้อผิดพลาด!');
+            else await interaction.reply({ content: 'เกิดข้อผิดพลาด!', ephemeral: true });
         }
         return;
     }
+
     /* ================= SELECT PRODUCT / FARM ================= */
      if (interaction.isStringSelectMenu()) {
         
-        // --- ส่วนการเลือกดูรายละเอียดสินค้า/ฟาร์ม ---
+        // --- ดูรายละเอียดสินค้า/ฟาร์ม ---
         if (interaction.customId === 'select_product' || interaction.customId === 'select_farm') {
             const data = interaction.customId === 'select_product' ? products : farmPackages;
             const selected = data[interaction.values[0]];
@@ -124,21 +123,20 @@ client.on('interactionCreate', async interaction => {
 
             const embeds = [];
             const images = selected.images?.slice(0, 3) || [];
-
             images.forEach((img, index) => {
                 const embed = new EmbedBuilder().setColor('#f1c40f').setImage(img);
                 if (index === 0) {
                     embed.setTitle(`✨ ${selected.name}`)
-                         .setDescription(`💰 ราคา: ${selected.price}\n\n${selected.description}\n\n${selected.details ?? ''}`);
+                         .setDescription(`💰 ราคา: ${selected.price}\n\n${selected.description}`);
                 }
                 embeds.push(embed);
             });
             return interaction.reply({ embeds, ephemeral: true });
         }
-
         // --- ส่วนการสร้างห้อง (room_setup) ---
         if (interaction.customId === 'room_setup') {
             try {
+                // ตอบรับทันทีเพื่อกัน Interaction Failed
                 await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
                 
                 const { guild, user } = interaction;
@@ -165,9 +163,13 @@ client.on('interactionCreate', async interaction => {
                         label: farmPackages[k].name, value: k, description: `ราคา ${farmPackages[k].price}`, emoji: farmPackages[k].emoji
                     }));
                     notifyList = NOTIFY_TRADE_USERS;
+                } else if (value === 'create_trade') {
+                    channelName = `ติดต่อพ่อค้า-${user.username}`;
+                    embedTitle = 'ติดต่อพ่อค้าโตโต้';
+                    notifyList = NOTIFY_TRADE_USERS;
                 }
 
-                // สร้างห้อง
+                // สร้าง Channel
                 const channel = await guild.channels.create({
                     name: channelName,
                     type: ChannelType.GuildText,
@@ -181,7 +183,7 @@ client.on('interactionCreate', async interaction => {
 
                 const menuEmbed = new EmbedBuilder()
                     .setTitle(embedTitle)
-                    .setDescription(`สวัสดีคุณ ${user} กรุณาเลือกรายการที่ต้องการทราบรายละเอียด\nหากต้องการคุยกับทีมงานสามารถพิมพ์ทิ้งไว้ได้เลยครับ`)
+                    .setDescription(`สวัสดีคุณ ${user} กรุณาเลือกรายการที่ต้องการ หรือพิมพ์สอบถามทิ้งไว้ได้เลยครับ`)
                     .setColor('#3498db')
                     .setTimestamp();
 
@@ -199,11 +201,11 @@ client.on('interactionCreate', async interaction => {
                     components: [menuRow, closeRow] 
                 });
 
-                await interaction.editReply(`✅ สร้างห้องสำเร็จแล้วที่ ${channel}`);
+                await interaction.editReply(`✅ สร้างห้องสำเร็จแล้ว! คลิกที่นี่เพื่อไปที่ห้อง: ${channel}`);
 
             } catch (error) {
                 console.error("Room Setup Error:", error);
-                await interaction.editReply("❌ เกิดข้อผิดพลาดในการสร้างห้อง");
+                await interaction.editReply("❌ เกิดข้อผิดพลาด: บอทอาจไม่มีสิทธิ์ Manage Channels หรือ ID Category ผิด");
             }
         }
     }
@@ -211,7 +213,7 @@ client.on('interactionCreate', async interaction => {
      if (interaction.isButton()) {
         if (interaction.customId === 'close_room') {
             const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
-            if (!isStaff) return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้นที่มีสิทธิ์ปิดห้อง', ephemeral: true });
+            if (!isStaff) return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้น', ephemeral: true });
 
             await interaction.reply({ content: '🔒 กำลังลบห้องใน 3 วินาที...' });
             setTimeout(() => interaction.channel.delete().catch(() => {}), 3000);
