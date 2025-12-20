@@ -45,7 +45,11 @@ const NOTIFY_ITEM_USERS = ['1390444294988369971'];
 const NOTIFY_TRADE_USERS = ['1056886143754444840'];
 
 const { products, farmPackages } = require('./config.js');
-
+const { 
+    createMenuEmbed, 
+    createMenuDropdown, 
+    handleInteraction 
+} = require('./menuUtils.js');
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -167,18 +171,19 @@ ${selected.details ?? ''}`
 
     await interaction.deferReply({ ephemeral: true });
 
-    const { guild, user } = interaction;
+    const { guild, user, values } = interaction;
     const value = interaction.values[0];
 
     let channelName = '';
     let embed = new EmbedBuilder().setColor('#2ecc71');
     let rows = [];
+    let typeName = "";
 
     const overwrites = [
         { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
         { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] },
         { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
-    ];
+        ];
 
     if (value === 'create_item') {
         channelName = `🧺-ซื้อของ-${user.username}`;
