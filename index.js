@@ -103,159 +103,120 @@ client.on('interactionCreate', async interaction => {
         if (!command) return;
 
         try {
-            // เรียก deferReply ทันทีเพื่อกัน Timeout
             await interaction.deferReply({ ephemeral: command.ephemeral || false });
             await command.execute(interaction);
         } catch (error) {
             console.error("Command Error:", error);
-            if (interaction.deferred) {
-                await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!' });
-            } else {
-                await interaction.reply({ content: 'เกิดข้อผิดพลาด!', ephemeral: true });
-            }
+            const msg = { content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true };
+            interaction.deferred ? await interaction.editReply(msg) : await interaction.reply(msg);
         }
-        return; // จบการทำงานของ ChatInput
+        return;
     }
     /* ================= SELECT PRODUCT / FARM ================= */
-    if (
-        interaction.isStringSelectMenu() &&
-        (interaction.customId === 'select_product' ||
-         interaction.customId === 'select_farm')
-    ) {
-        let selected;
+     if (interaction.isStringSelectMenu()) {
+        
+        // --- ส่วนการเลือกดูรายละเอียดสินค้า/ฟาร์ม ---
+        if (interaction.customId === 'select_product' || interaction.customId === 'select_farm') {
+            const data = interaction.customId === 'select_product' ? products : farmPackages;
+            const selected = data[interaction.values[0]];
 
-        if (interaction.customId === 'select_product') {
-            selected = products[interaction.values[0]];
-        } else {
-            selected = farmPackages[interaction.values[0]];
+            if (!selected) return interaction.reply({ content: 'ไม่พบข้อมูล', ephemeral: true });
+
+            const embeds = [];
+            const images = selected.images?.slice(0, 3) || [];
+
+            images.forEach((img, index) => {
+                const embed = new EmbedBuilder().setColor('#f1c40f').setImage(img);
+                if (index === 0) {
+                    embed.setTitle(`✨ ${selected.name}`)
+                         .setDescription(`💰 ราคา: ${selected.price}\n\n${selected.description}\n\n${selected.details ?? ''}`);
+                }
+                embeds.push(embed);
+            });
+            return interaction.reply({ embeds, ephemeral: true });
         }
 
-        if (!selected) {
-            return interaction.reply({ content: 'ไม่พบข้อมูล', ephemeral: true });
-        }
-
-        const embeds = [];
-        const images = selected.images?.slice(0, 3) || [];
-
-        images.forEach((img, index) => {
-            const embed = new EmbedBuilder()
-                .setColor('#f1c40f')
-                .setImage(img);
-
-            if (index === 0) {
-                embed
-                    .setTitle(`✨ ${selected.name}`)
-                    .setDescription(
-`💰 ราคา: ${selected.price}
-
-${selected.description}
-
-${selected.details ?? ''}`
-                    );
-            }
-
-            embeds.push(embed);
-        });
-
-        return interaction.reply({ embeds, ephemeral: true });
-    }
-
-    /* ================= CLOSE ROOM ================= */
-     if (interaction.isButton()) {
-        if (interaction.customId === 'close_room') {
-            const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
-            if (!isStaff) return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้น', ephemeral: true });
-
-            await interaction.reply({ content: '🔒 ลบห้องใน 3 วินาที...' });
-            setTimeout(() => interaction.channel.delete().catch(() => {}), 3000);
-        }
-        return;
-    }
-
-     if (!interaction.isChatInputCommand()) return;
-
-    // เรียกทันทีที่เริ่ม!
-    try {
-        await interaction.deferReply({ ephemeral: true });
-    } catch (err) {
-        console.error("ตอบกลับไม่ทันภายใน 3 วินาที:", err);
-        return;
-    }
-
-    /* ================= ROOM SETUP ================= */
-     if (interaction.customId === 'room_setup') {
+        // --- ส่วนการสร้างห้อง (room_setup) ---
+        if (interaction.customId === 'room_setup') {
             try {
                 await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
                 
                 const { guild, user } = interaction;
                 const value = interaction.values[0];
                 let channelName = '';
-                let embed = new EmbedBuilder().setColor('#2ecc71');
-                let rows = [];
+                let embedTitle = '';
+                let menuOptions = [];
+                let menuId = '';
+                let notifyList = [];
 
                 if (value === 'create_item') {
                     channelName = `🧺-ซื้อของ-${user.username}`;
-                    embed.setTitle('🛒 ร้านค้า').setDescription('เลือกสินค้าที่ต้องการ');
-                    rows.push(new ActionRowBuilder().addComponents(
-                        new StringSelectMenuBuilder()
-                            .setCustomId('select_product')
-                            .setPlaceholder('เลือกสินค้า')
-                            .addOptions(Object.keys(products).map(k => ({
-                                label: products[k].name,
-                                value: k,
-                                description: `ราคา ${products[k].price}`,
-                                emoji: products[k].emoji
-                            })))
-                    ));
-                } 
-                else if (value === 'create_farm') {
+                    embedTitle = '🛒 ร้านค้า (เลือกสินค้าด้านล่าง)';
+                    menuId = 'select_product';
+                    menuOptions = Object.keys(products).map(k => ({
+                        label: products[k].name, value: k, description: `ราคา ${products[k].price}`, emoji: products[k].emoji
+                    }));
+                    notifyList = NOTIFY_ITEM_USERS;
+                } else if (value === 'create_farm') {
                     channelName = `🎮-จ้างฟาร์ม-${user.username}`;
-                    embed.setTitle('⚔️ จ้างฟาร์ม').setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
-                    rows.push(new ActionRowBuilder().addComponents(
-                        new StringSelectMenuBuilder()
-                            .setCustomId('select_farm')
-                            .setPlaceholder('เลือกแพ็กเกจ')
-                            .addOptions(Object.keys(farmPackages).map(k => ({
-                                label: farmPackages[k].name,
-                                value: k,
-                                description: `ราคา ${farmPackages[k].price}`,
-                                emoji: farmPackages[k].emoji
-                            })))
-                    ));
+                    embedTitle = '⚔️ บริการจ้างฟาร์ม';
+                    menuId = 'select_farm';
+                    menuOptions = Object.keys(farmPackages).map(k => ({
+                        label: farmPackages[k].name, value: k, description: `ราคา ${farmPackages[k].price}`, emoji: farmPackages[k].emoji
+                    }));
+                    notifyList = NOTIFY_TRADE_USERS;
                 }
 
-                // logic การสร้างห้อง (ต่อจากนี้ให้ใส่โค้ดสร้าง channel ของคุณ)
-                // ...
-                await interaction.editReply({ content: `สร้างห้อง ${channelName} เรียบร้อยแล้ว!` });
+                // สร้างห้อง
+                const channel = await guild.channels.create({
+                    name: channelName,
+                    type: ChannelType.GuildText,
+                    parent: TARGET_CATEGORY_ID,
+                    permissionOverwrites: [
+                        { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+                        { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
+                        { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
+                    ]
+                });
 
-            } catch (err) {
-                console.error("Room Setup Error:", err);
+                const menuEmbed = new EmbedBuilder()
+                    .setTitle(embedTitle)
+                    .setDescription(`สวัสดีคุณ ${user} กรุณาเลือกรายการที่ต้องการทราบรายละเอียด\nหากต้องการคุยกับทีมงานสามารถพิมพ์ทิ้งไว้ได้เลยครับ`)
+                    .setColor('#3498db')
+                    .setTimestamp();
+
+                const menuRow = new ActionRowBuilder().addComponents(
+                    new StringSelectMenuBuilder().setCustomId(menuId).setPlaceholder('คลิกเพื่อเลือกรายการ...').addOptions(menuOptions)
+                );
+
+                const closeRow = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId('close_room').setLabel('ปิดห้อง (Staff Only)').setStyle(ButtonStyle.Danger)
+                );
+
+                await channel.send({ 
+                    content: `${user} ได้สร้างห้องใหม่ | แจ้งเตือนทีมงาน: ${notifyList.map(id => `<@${id}>`).join(' ')}`,
+                    embeds: [menuEmbed], 
+                    components: [menuRow, closeRow] 
+                });
+
+                await interaction.editReply(`✅ สร้างห้องสำเร็จแล้วที่ ${channel}`);
+
+            } catch (error) {
+                console.error("Room Setup Error:", error);
+                await interaction.editReply("❌ เกิดข้อผิดพลาดในการสร้างห้อง");
             }
-            return;
         }
+    }
+    /* ================= CLOSE ROOM ================= */
+     if (interaction.isButton()) {
+        if (interaction.customId === 'close_room') {
+            const isStaff = interaction.member.roles.cache.has(STAFF_ROLE_ID);
+            if (!isStaff) return interaction.reply({ content: '❌ เฉพาะทีมงานเท่านั้นที่มีสิทธิ์ปิดห้อง', ephemeral: true });
 
-    const channel = await guild.channels.create({
-        name: channelName,
-        type: ChannelType.GuildText,
-        parent: TARGET_CATEGORY_ID,
-        permissionOverwrites: overwrites
-    });
-
-    rows.push(new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId('close_room')
-            .setLabel('ปิดห้อง')
-            .setStyle(ButtonStyle.Danger)
-            .setEmoji('🔒')
-    ));
-
-    await channel.send({
-        content: `👋 ${user}`,
-        embeds: [embed],
-        components: rows
-    });
-
-    await interaction.editReply({ content: `สร้างห้อง ${channelName} เรียบร้อยแล้ว!` });
+            await interaction.reply({ content: '🔒 กำลังลบห้องใน 3 วินาที...' });
+            setTimeout(() => interaction.channel.delete().catch(() => {}), 3000);
+        }
+    }
 
     /* ================= NOTIFY ================= */
     const notifyMessage =
