@@ -142,10 +142,10 @@ client.on('interactionCreate', async interaction => {
         const embeds = [];
         const images = selected.images?.slice(0, 3) || [];
 
-        images.forEach((img, index) => {
+        images.forEach((images, index) => {
             const embed = new EmbedBuilder()
                 .setColor('#f1c40f')
-                .setImage(img);
+                .setImage(images);
 
             if (index === 0) {
                 embed
@@ -215,8 +215,9 @@ ${selected.details ?? ''}`
 
     if (value === 'create_farm') {
         channelName = `🎮-จ้างฟาร์ม-${user.username}`;
-        embed.setTitle('⚔️ จ้างฟาร์ม');
-
+        embed.setTitle('⚔️ จ้างฟาร์ม')
+             .setImage('https://media.discordapp.net/attachments/1133947298628517970/1451492360361082910/image.png?ex=694707da&is=6945b65a&hm=6906a36a36c18b55d6c948efb7c19858d3c344446a17435708e68159a77f3deb&=&format=webp&quality=lossless&width=711&height=1006')
+             .setDescription('เลือประเภทที่จะจ้างฟาร์มด้านล่างครับ');
         rows.push(new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
                 .setCustomId('select_farm')
