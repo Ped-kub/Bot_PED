@@ -183,7 +183,7 @@ ${selected.details ?? ''}`
     }
 
     /* ================= ROOM SETUP ================= */
-     if (interaction.customId === 'room_setup') return;
+     if (interaction.customId === 'room_setup') {
             try {
                 await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
                 
@@ -223,12 +223,14 @@ ${selected.details ?? ''}`
                             })))
                     ));
                 }
-                
+
+                // logic การสร้างห้อง (ต่อจากนี้ให้ใส่โค้ดสร้าง channel ของคุณ)
+                // ...
                 await interaction.editReply({ content: `สร้างห้อง ${channelName} เรียบร้อยแล้ว!` });
 
             } catch (err) {
                 console.error("Room Setup Error:", err);
-            
+            }
             return;
         }
 
