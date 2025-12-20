@@ -137,10 +137,10 @@ client.on('interactionCreate', async interaction => {
         const embeds = [];
         const images = selected.images?.slice(0, 3) || [];
 
-        images.forEach((images, index) => {
+        images.forEach((img, index) => {
             const embed = new EmbedBuilder()
                 .setColor('#f1c40f')
-                .setImage(images);
+                .setImage(img);
 
             if (index === 0) {
                 embed
