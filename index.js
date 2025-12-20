@@ -177,6 +177,16 @@ ${selected.details ?? ''}`
         return;
     }
 
+     if (!interaction.isChatInputCommand()) return;
+
+    // เรียกทันทีที่เริ่ม!
+    try {
+        await interaction.deferReply({ ephemeral: true });
+    } catch (err) {
+        console.error("ตอบกลับไม่ทันภายใน 3 วินาที:", err);
+        return;
+    }
+
     /* ================= ROOM SETUP ================= */
     if (!interaction.isStringSelectMenu() || interaction.customId !== 'room_setup') return;
 
