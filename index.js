@@ -130,6 +130,25 @@ client.on('interactionCreate', async interaction => {
         return;
     }
 
+    if (interaction.isStringSelectMenu()) {
+        let selected = null;
+        if (interaction.customId === 'select_product') selected = products[interaction.values[0]];
+        if (interaction.customId === 'select_farm') selected = farmPackages[interaction.values[0]];
+
+        if (selected) {
+            const detailEmbed = new EmbedBuilder()
+                .setTitle(`✨ รายละเอียด: ${selected.name}`)
+                .setColor('#f1c40f')
+                .setDescription(`💰 **ราคา:** ${selected.price}\n\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
+                .setImage(selected.img)
+                .setDescription(`${selected.description}`)
+                .setDetails(`${selected.details}`);
+
+            return interaction.reply({ embeds: [detailEmbed] });
+        }
+    }
+
+
     /* ================= SELECT PRODUCT / FARM ================= */
         if (!interaction.isStringSelectMenu() || interaction.customId !== 'room_setup') return;
 
@@ -185,7 +204,7 @@ client.on('interactionCreate', async interaction => {
         await interaction.editReply({ content: `✅ สร้างห้องสำเร็จ: ${channel}` });
 
     /* ================= NOTIFY ================= */
-                 const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
+        const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
 
         if (selectedValue === 'create_item') {
             // แจ้งเตือนคนดูแลซื้อของ (ตาม ID)
