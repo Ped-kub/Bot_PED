@@ -98,36 +98,27 @@ if (fs.existsSync(foldersPath)) {
 /* ================= SLASH COMMAND SETROOM ================= */
 client.on('interactionCreate', async interaction => {
 
-    if (interaction.isChatInputCommand() && interaction.commandName === 'setroom') {
+    if (!interaction.isChatInputCommand()) return;
 
-        // ต้องตอบรับก่อน (กัน application did not respond)
-        await interaction.deferReply({ ephemeral: true });
+    const command = client.commands.get(interaction.commandName);
+    if (!command) return;
 
-        const embed = new EmbedBuilder()
-            .setColor('#3498db')
-            .setTitle('📂 สร้างห้องบริการ')
-            .setDescription('กรุณาเลือกประเภทห้องที่ต้องการ');
+    const isEphemeral = command.ephemeral || false;
 
-        const row = new ActionRowBuilder().addComponents(
-            new StringSelectMenuBuilder()
-                .setCustomId('room_setup')
-                .setPlaceholder('เลือกประเภทห้อง')
-                .addOptions(
-                    { label: 'ซื้อของ', value: 'create_item', emoji: '🧺' },
-                    { label: 'จ้างฟาร์ม', value: 'create_farm', emoji: '🎮' },
-                    { label: 'ติดต่อพ่อค้า', value: 'create_trade', emoji: '🤝' }
-                )
-        );
-
-        // ส่งเมนูลงห้อง
-        await interaction.channel.send({
-            embeds: [embed],
-            components: [row]
+    try {
+        
+        await interaction.deferReply({ ephemeral: isEphemeral }).catch(err => {
+            console.error("ไม่สามารถ Defer ได้เนื่องจาก Timeout หรือ Interaction หมดอายุ:", err);
+            return; 
         });
+       
+        if (!interaction.deferred && !interaction.replied) return;
 
-        // ลบ reply → ผู้ใช้จะไม่เห็นอะไรเด้ง
-        await interaction.deleteReply();
-        return;
+        await command.execute(interaction);
+
+    } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่งนี้!', ephemeral: true });
     }
 
     /* ================= SELECT PRODUCT / FARM ================= */
