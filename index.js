@@ -44,6 +44,8 @@ const STAFF_ROLE_ID = '1443797915230539928';
 const NOTIFY_ITEM_USERS = ['1390444294988369971'];
 const NOTIFY_TRADE_USERS = ['1056886143754444840'];
 
+const fs = require('fs');
+const path = require('path');
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 const { products, farmPackages } = require('./config.js');
