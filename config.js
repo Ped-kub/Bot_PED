@@ -17,14 +17,14 @@ module.exports = {
         },
         'helos': { 
             name: 'ตระกูล Helos', 
-            price: ' 950  บาท', 
+            price: ' 850  บาท', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1451502311640924241/image.png?ex=6946685e&is=694516de&hm=8621d0aaf958b607699b4b114b9e95587671ef5262fb1538f14f6898df667f5f&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k'
         },
         'fritz': { 
             name: 'ตระกูล Fritz', 
-            price: ' 550  บาท', 
+            price: ' 450  บาท', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1434280912140632267/IMG_4246.png?ex=694660f1&is=69450f71&hm=e4f6b903f845a5f92d8c82f5e533dbbb680bdda064efcd08f40d3f8807daf970&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k'
