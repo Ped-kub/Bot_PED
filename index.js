@@ -333,6 +333,9 @@ client.on('interactionCreate', async interaction => {
 
                 await channel.send({ content: `ยินดีต้อนรับครับ ${user}`, embeds: [welcomeEmbed], components: components });
                 await interaction.editReply({ content: `✅ สร้างห้องเรียบร้อยแล้ว: ${channel}` });
+                await interaction.message.edit({
+                    components: interaction.message.components 
+                }).catch(() => {}); 
 
                 // --- ส่วนการแจ้งเตือน DM ---
                 const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
