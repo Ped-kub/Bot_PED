@@ -216,7 +216,7 @@ client.on('interactionCreate', async interaction => {
             try {
                 await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
-                const value = interaction.values[0];
+                const selectedValue = interaction.values[0];
                 let channelName = '';
                 let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
                 let components = [];
@@ -350,19 +350,19 @@ client.on('interactionCreate', async interaction => {
                 // --- ส่วนการแจ้งเตือน DM ---
                 const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
 
-                if (value === 'create_item') {
+                if (selectedValue === 'create_item') {
                     for (const id of NOTIFY_ITEM_USERS) {
                         const target = await guild.members.fetch(id).catch(() => null);
                         if (target) target.send(notifyMsg).catch(() => {});
                     }
                 } 
-                else if (value === 'create_trade') {
+                else if (selectedValue === 'create_trade') {
                     for (const id of NOTIFY_TRADE_USERS) {
                         const target = await guild.members.fetch(id).catch(() => null);
                         if (target) target.send(notifyMsg).catch(() => {});
                     }
                 }
-                else if (value === 'create_farm') {
+                else if (selectedValue === 'create_farm') {
                     const farmStaff = guild.roles.cache.get(STAFF_ROLE_ID)?.members;
                     farmStaff?.forEach(member => {
                         if (!member.user.bot) member.send(notifyMsg).catch(() => {});
