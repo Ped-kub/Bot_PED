@@ -350,19 +350,19 @@ client.on('interactionCreate', async interaction => {
                 // --- ส่วนการแจ้งเตือน DM ---
                 const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
 
-                if (selectedValue === 'create_item') {
+                if (value === 'create_item') {
                     for (const id of NOTIFY_ITEM_USERS) {
                         const target = await guild.members.fetch(id).catch(() => null);
                         if (target) target.send(notifyMsg).catch(() => {});
                     }
                 } 
-                else if (selectedValue === 'create_trade') {
+                else if (value === 'create_trade') {
                     for (const id of NOTIFY_TRADE_USERS) {
                         const target = await guild.members.fetch(id).catch(() => null);
                         if (target) target.send(notifyMsg).catch(() => {});
                     }
                 }
-                else if (selectedValue === 'create_farm') {
+                else if (value === 'create_farm') {
                     const farmStaff = guild.roles.cache.get(STAFF_ROLE_ID)?.members;
                     farmStaff?.forEach(member => {
                         if (!member.user.bot) member.send(notifyMsg).catch(() => {});
