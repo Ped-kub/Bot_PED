@@ -15,7 +15,6 @@ const {
     OnlineStatus, 
     PermissionsBitField, 
     ChannelType,
-    PermissionFlagsBits,
     Collection,
     StringSelectMenuBuilder,
     EmbedBuilder, 
@@ -25,9 +24,9 @@ const {
     StringSelectMenuOptionBuilder,
     ButtonBuilder, 
     PermissionFlagsBits,
-    OverwriteType,
     ButtonStyle,
-    time 
+    time,
+    OverwriteType
 } = require('discord.js');
 
 const TOKEN = process.env.BOT_TOKEN;
