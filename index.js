@@ -179,6 +179,7 @@ client.on('interactionCreate', async interaction => {
 
             return interaction.reply({ embeds: [detailEmbed], ephemeral: true });
         }
+        
 
         // สร้างห้อง (Room Setup)
         if (customId === 'room_setup') {
@@ -189,7 +190,11 @@ client.on('interactionCreate', async interaction => {
                 let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
                 let components = [];
                 let typeName = ""; 
-
+                 let overwrites = [
+            { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+            { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] }
+        ];
+        
                 // เช็คค่าจาก value (ที่ดึงมาจาก interaction.values[0])
                 if (value === 'create_item') {
                     typeName = "🛒 ซื้อของ";
@@ -223,6 +228,10 @@ client.on('interactionCreate', async interaction => {
                         emoji: products[key].emoji 
                     })));
                 components.push(new ActionRowBuilder().addComponents(menu2));
+                  overwrites.push({ id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                    NOTIFY_ITEM_USERS.forEach(id => {
+                        overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                    });
             }
         }
                 else if (value === 'create_farm') {
@@ -235,11 +244,19 @@ client.on('interactionCreate', async interaction => {
                         .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
                         .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
                     components.push(new ActionRowBuilder().addComponents(menu));
+                      overwrites.push({ id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                    NOTIFY_ITEM_USERS.forEach(id => {
+                        overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                    });
                 }
                 else if (value === 'create_trade') {
                     typeName = "🤝 ติดต่อพ่อค้า";
                     channelName = `🤝-ติดต่อ-${user.username}`;
                     welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับ พิมพ์รายละเอียดที่ต้องการติดต่อทิ้งไว้ได้เลยครับ');
+
+                    NOTIFY_TRADE_USERS.forEach(id => {
+                        overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                    });
                 }
 
                 // สร้างปุ่มปิดห้อง
@@ -252,11 +269,7 @@ client.on('interactionCreate', async interaction => {
                     name: channelName,
                     type: ChannelType.GuildText,
                     parent: TARGET_CATEGORY_ID,
-                    permissionOverwrites: [
-                        { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
-                        { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] },
-                        { id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }
-                    ]
+                    permissionOverwrites: overwrites 
                 });
 
                 await channel.send({ content: `ยินดีต้อนรับครับ ${user}`, embeds: [welcomeEmbed], components: components });
