@@ -206,6 +206,7 @@ client.on('interactionCreate', async interaction => {
             try {
                 await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
+                const selectedValue = interaction.values[0];
                 let channelName = '';
                 let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
                 let components = [];
