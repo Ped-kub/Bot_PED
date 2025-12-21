@@ -157,11 +157,11 @@ client.on('interactionCreate', async interaction => {
 
     /* ================= SELECT PRODUCT / FARM ================= */
         if (interaction.isStringSelectMenu()) {
-        const val = interaction.values[0];
+        const value = interaction.values[0];
         // ดูรายละเอียดสินค้า/ฟาร์ม
         let selected = null;
-        if (customId.startsWith('select_product')) selected = products[val];
-        if (customId.startsWith('select_farm')) selected = farmPackages[val];
+        if (customId.startsWith('select_product')) selected = products[value];
+        if (customId.startsWith('select_farm')) selected = farmPackages[value];
 
         if (selected) {
             const detailEmbed = new EmbedBuilder()
