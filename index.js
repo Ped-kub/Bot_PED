@@ -98,24 +98,25 @@ if (fs.existsSync(foldersPath)) {
 client.on('interactionCreate', async interaction => {
     const { guild, user, customId, values } = interaction;
 
-    // 1. จัดการ Slash Command
     if (interaction.isChatInputCommand()) {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
+
         try {
-            // จองการตอบกลับ (ให้เวลาทำงานเพิ่มเป็น 15 นาที)
+            // 1. เรียก deferReply เพื่อจองการตอบกลับ (บรรทัดนี้คือการ acknowledge ครั้งแรก)
             await interaction.deferReply({ ephemeral: command.ephemeral || false });
-            
-            // ส่ง interaction ไปที่ไฟล์คำสั่ง
-            // ** สำคัญ: ในไฟล์คำสั่งต้องใช้ interaction.editReply() เท่านั้น **
+
+            // 2. ส่งไปทำงานในไฟล์คำสั่ง
             await command.execute(interaction);
         } catch (error) {
             console.error("Command Error:", error);
-            // ตรวจสอบว่าเคยตอบไปหรือยัง ถ้าเคยแล้วให้ editReply แทน
+            
+            // 3. แก้ไขตรงนี้: ตรวจสอบก่อนว่า defer หรือ reply ไปแล้วหรือยัง
+            // ถ้าตอบไปแล้ว (deferred/replied) ต้องใช้ editReply เท่านั้น ห้ามใช้ reply
             if (interaction.deferred || interaction.replied) {
-                await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการประมวลผล!' });
+                await interaction.editReply({ content: '❌ เกิดข้อผิดพลาดในการรันคำสั่งนี้!' }).catch(() => {});
             } else {
-                await interaction.reply({ content: 'เกิดข้อผิดพลาด!', ephemeral: true });
+                await interaction.reply({ content: '❌ เกิดข้อผิดพลาด!', ephemeral: true }).catch(() => {});
             }
         }
         return;
