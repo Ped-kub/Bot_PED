@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuOptionBuilder } = require('discord.js');
 
 // --- สร้าง Embed Message (เหมือนเดิม) ---
 const createMenuEmbed = () => {
@@ -16,59 +16,50 @@ const createMenuEmbed = () => {
 const createMenuDropdown = () => {
   const selectMenu = new StringSelectMenuBuilder()
     .setCustomId('main_menu_select')
-    .setPlaceholder('เลือกบริการได้เลย') // ค่านี้จะกลับมาแสดงเมื่อเราส่ง ActionRow กลับไปใหม่
+    .setPlaceholder('เลือกบริการได้เลย')
     .addOptions(
+      // ... options เดิมของคุณ ...
       new StringSelectMenuOptionBuilder()
-        .setLabel('จ้างฟาม')
-        .setDescription('จ้างฟามกับทางเรา')
-        .setValue('Farm'),
+        .setLabel('จ้างฟาม').setValue('Farm'),
       new StringSelectMenuOptionBuilder()
-        .setLabel('ซื้อของ')
-        .setDescription('ซื้อของจากพี่ TOJI')
-        .setValue('Item'),
+        .setLabel('ซื้อของ').setValue('Item'),
       new StringSelectMenuOptionBuilder()
-        .setLabel('ซื้อตระกูล')
-        .setDescription('ซื้อตระกูลจากพี่ TOJI')
-        .setValue('Bloodline'),
+        .setLabel('ซื้อตระกูล').setValue('Bloodline'),
       new StringSelectMenuOptionBuilder()
-        .setLabel('พ่อค้าโตโต้เด็กเย็ดโม้')
-        .setDescription('พ่อค้า โตโต้เด็กเย็ดโม้')
-        .setValue('Trade_1'),
+        .setLabel('พ่อค้าโตโต้เด็กเย็ดโม้').setValue('Trade_1'),
     );
 
-  const actionRow = new ActionRowBuilder().addComponents(selectMenu);
-  return [actionRow];
+  // สร้างปุ่ม Reset
+  const resetButton = new ButtonBuilder()
+    .setCustomId('reset_dropdown')
+    .setLabel('รีเซ็ตการเลือก')
+    .setStyle(ButtonStyle.Danger); // สีแดง
+
+  const row1 = new ActionRowBuilder().addComponents(selectMenu);
+  const row2 = new ActionRowBuilder().addComponents(resetButton);
+
+  return [row1, row2];
 };
 
 // --- จัดการ Interaction (การเลือก Dropdown) ---
 const handleInteraction = async (interaction) => {
-  if (!interaction.isStringSelectMenu() || interaction.customId !== 'main_menu_select') {
-    return;
+  // กรณีเลือกจาก Dropdown
+  if (interaction.isStringSelectMenu() && interaction.customId === 'main_menu_select') {
+    const selectedValue = interaction.values[0];
+
+    // รีเซ็ต Dropdown ทันทีหลังเลือก
+    await interaction.update({ components: createMenuDropdown() });
+
+    // ส่งข้อความตอบกลับ
+    await interaction.followUp({ content: `คุณเลือก: ${selectedValue}`, ephemeral: true });
   }
-  
-  const selectedValue = interaction.values[0];
 
-  // 1. ใช้ interaction.update เพื่อส่ง Component เดิมกลับไป (เป็นการรีเซ็ตหน้าจอ Dropdown)
-  await interaction.update({
-    components: createMenuDropdown() 
-  });
-
-  // 2. ตรวจสอบเงื่อนไขตาม Value ที่เลือก (แก้ไข Case ให้ตรงกับด้านบน)
-  switch (selectedValue) {
-    case 'Farm':
-      await interaction.followUp({ content: 'คุณเลือกเมนู: จ้างฟาม', ephemeral: true });
-      break;
-    case 'Item':
-      await interaction.followUp({ content: 'คุณเลือกเมนู: ซื้อของ', ephemeral: true });
-      break;
-    case 'Bloodline':
-      await interaction.followUp({ content: 'คุณเลือกเมนู: ซื้อตระกูล', ephemeral: true });
-      break;
-    case 'Trade_1':
-      await interaction.followUp({ content: 'คุณเลือกเมนู: พ่อค้าโตโต้เด็กเย็ดโม้', ephemeral: true });
-      break;
-    default:
-      await interaction.followUp({ content: 'ไม่พบคำสั่งสำหรับตัวเลือกนี้', ephemeral: true });
+  // กรณีเลือกปุ่ม Reset
+  if (interaction.isButton() && interaction.customId === 'reset_dropdown') {
+    await interaction.update({
+      content: 'ล้างตัวเลือกเรียบร้อยแล้ว',
+      components: createMenuDropdown()
+    });
   }
 };
 
