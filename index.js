@@ -196,7 +196,7 @@ client.on('interactionCreate', async interaction => {
                 if (value === 'create_item') {
                     typeName = "🛒 ซื้อของ";
                     channelName = `🧺-ซื้อของ-${user.username}`;
-                    welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ');
+                    welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI').setDescription('เลือกสินค้าที่สนใจเพื่อดูราคาและรูปภาพครับ').setImage('https://cdn.discordapp.com/attachments/1133947298628517970/1452087430713966793/Toji.png?ex=6948894d&is=694737cd&hm=ab5a817cb6d8a9c9433ad43e0ac85fcc467a1fb1d69cf1cc793c303b145520a7&');
                     const menu = new StringSelectMenuBuilder()
                         .setCustomId('select_product').setPlaceholder('--- เลือกสินค้าที่นี่ ---')
                         .addOptions(Object.keys(products).map(key => ({ label: products[key].name, value: key, description: `ราคา: ${products[key].price}`, emoji: products[key].emoji })));
@@ -205,7 +205,7 @@ client.on('interactionCreate', async interaction => {
                 else if (value === 'create_farm') {
                     typeName = "⚔️ จ้างฟาร์ม";
                     channelName = `🎮-จ้างฟาม-${user.username}`;
-                    welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างครับ');
+                    welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม').setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างครับ').setImage('https://cdn.discordapp.com/attachments/1133947298628517970/1451492360361082910/image.png?ex=6948595a&is=694707da&hm=93e7750135c9fe65038c041e96d69ce731b50fef1666d3de0a8755974960b66e&');
                     const menu = new StringSelectMenuBuilder()
                         .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
                         .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
