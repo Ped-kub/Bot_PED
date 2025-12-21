@@ -226,7 +226,7 @@ client.on('interactionCreate', async interaction => {
                 ];
                 
                 // เช็คค่าจาก value (ที่ดึงมาจาก interaction.values[0])
-                if (value === 'create_item') {
+                if (selectedValue === 'create_item') {
                     typeName = "🛒 ซื้อของ";
                     channelName = `🧺-ซื้อของ-${user.username}`;
                     welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI')
@@ -264,7 +264,7 @@ client.on('interactionCreate', async interaction => {
                     });
             }
         }
-                else if (value === 'create_farm') {
+                else if (selectedValue === 'create_farm') {
                     typeName = "⚔️ จ้างฟาร์ม";
                     channelName = `🎮-จ้างฟาม-${user.username}`;
                     welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม')
@@ -302,7 +302,7 @@ client.on('interactionCreate', async interaction => {
                         overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
                     });
                 }
-                else if (value === 'create_trade') {
+                else if (selectedValue === 'create_trade') {
                     typeName = "🤝 ติดต่อพ่อค้า";
                     channelName = `🤝-ติดต่อ-${user.username}`;
                     welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับ พิมพ์รายละเอียดที่ต้องการติดต่อทิ้งไว้ได้เลยครับ');
@@ -337,19 +337,19 @@ client.on('interactionCreate', async interaction => {
                 // --- ส่วนการแจ้งเตือน DM ---
                 const notifyMsg = `🔔 **มีการสร้างห้องใหม่!**\n👤 **ลูกค้า:** ${user.tag}\n📂 **ประเภท:** ${typeName}\n🔗 **ห้อง:** <#${channel.id}>`;
 
-                if (value === 'create_item') {
+                if (selectedValue === 'create_item') {
                     for (const id of NOTIFY_ITEM_USERS) {
                         const target = await guild.members.fetch(id).catch(() => null);
                         if (target) target.send(notifyMsg).catch(() => {});
                     }
                 } 
-                else if (value === 'create_trade') {
+                else if (selectedValue === 'create_trade') {
                     for (const id of NOTIFY_TRADE_USERS) {
                         const target = await guild.members.fetch(id).catch(() => null);
                         if (target) target.send(notifyMsg).catch(() => {});
                     }
                 }
-                else if (value === 'create_farm') {
+                else if (selectedValue === 'create_farm') {
                     const farmStaff = guild.roles.cache.get(STAFF_ROLE_ID)?.members;
                     farmStaff?.forEach(member => {
                         if (!member.user.bot) member.send(notifyMsg).catch(() => {});
