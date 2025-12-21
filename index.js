@@ -163,14 +163,24 @@ client.on('interactionCreate', async interaction => {
         if (customId === 'select_product' || customId === 'select_farm') {
             let selected = (customId === 'select_product') ? products[value] : farmPackages[value];
             if (selected) {
-                const detailEmbed = new EmbedBuilder()
-                    .setTitle(`✨ รายละเอียด: ${selected.name}`)
-                    .setColor('#f1c40f')
-                    .setDescription(`${selected.description}\n\n💰 **ราคา:** ${selected.price}\n*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`)
-                    .setImage(selected.img || null);
-                return interaction.reply({ embeds: [detailEmbed] });
+            const detailEmbed = new EmbedBuilder()
+                .setTitle(`${selected.emoji || '✨'} ${selected.name}`)
+                .setColor('#f1c40f')
+                .setDescription(
+                    `💰 **ราคา:** ${selected.price}\n` +
+                    `📝 **รายละเอียด:** ${selected.description}\n\n` +
+                    `*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`
+                );
+
+            // เนื่องจากใน config ของคุณ 'images' เป็น Array [ 'url' ]
+            // เราจะดึงรูปแรก (index 0) มาแสดงผล
+            if (selected.images && selected.images.length > 0) {
+                detailEmbed.setImage(selected.images[0]);
             }
+
+            return interaction.reply({ embeds: [detailEmbed], ephemeral: true });
         }
+    }
 
         // สร้างห้อง (Room Setup)
         if (customId === 'room_setup') {
