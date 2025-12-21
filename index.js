@@ -24,6 +24,8 @@ const {
     MessageFlags,
     StringSelectMenuOptionBuilder,
     ButtonBuilder, 
+    PermissionFlagsBits,
+    OverwriteType,
     ButtonStyle,
     time 
 } = require('discord.js');
@@ -163,24 +165,30 @@ client.on('interactionCreate', async interaction => {
         if (customId.startsWith('select_product')) selected = products[value];
         if (customId.startsWith('select_farm')) selected = farmPackages[value];
 
-        if (selected) {
-            const detailEmbed = new EmbedBuilder()
-                .setTitle(`${selected.emoji || '✨'} ${selected.name}`)
-                .setColor('#f1c40f')
-                .setDescription(
-                    `💰 **ราคา:** ${selected.price}\n` +
-                    `📝 **รายละเอียด:** ${selected.description}\n\n` +
-                    `*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`
-                );
+         if (selected) {
+            const embeds = [];
+            
+            // ดึงรูปภาพออกมา (สูงสุด 3 รูป)
+            const imagesToShow = selected.images ? selected.images.slice(0, 3) : [];
 
-            if (selected.images && selected.images.length > 0) {
-                detailEmbed.setImage(selected.images[0]);
+            if (imagesToShow.length > 0) {
+                imagesToShow.forEach((imgUrl, index) => {
+                    const embed = new EmbedBuilder().setColor('#f1c40f').setImage(imgUrl);
+
+                    // ใส่รายละเอียดข้อความเฉพาะใน Embed แรกอันเดียว
+                    if (index === 0) {
+                        embed.setTitle(`${selected.emoji || '✨'} ${selected.name}`)
+                             .setDescription(
+                                `💰 **ราคา:** ${selected.price}\n` +
+                                `📝 **รายละเอียด:** ${selected.description}\n\n` +
+                                `*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`
+                             );
+                    }
+                    embeds.push(embed);
+                });
             }
-
-            return interaction.reply({ embeds: [detailEmbed], ephemeral: true });
-        }
+         }
         
-
         // สร้างห้อง (Room Setup)
         if (customId === 'room_setup') {
             try {
@@ -240,10 +248,33 @@ client.on('interactionCreate', async interaction => {
                     welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม')
                     .setDescription('เลือกประเภทที่จะจ้างฟาร์มด้านล่างครับ')
                     .setImage('https://cdn.discordapp.com/attachments/1133947298628517970/1451492360361082910/image.png?ex=6948595a&is=694707da&hm=93e7750135c9fe65038c041e96d69ce731b50fef1666d3de0a8755974960b66e&');
-                    const menu = new StringSelectMenuBuilder()
-                        .setCustomId('select_farm').setPlaceholder('--- เลือกประเภทที่จะจ้างฟาร์ม ---')
-                        .addOptions(Object.keys(farmPackages).map(key => ({ label: farmPackages[key].name, value: key, description: `ราคา: ${farmPackages[key].price}`, emoji: farmPackages[key].emoji })));
-                    components.push(new ActionRowBuilder().addComponents(menu));
+                     const allFarmKeys = Object.keys(farmPackages);
+
+            // เมนูที่ 1 (25 รายการแรก)
+            const menu1 = new StringSelectMenuBuilder()
+                .setCustomId('select_farm_1')
+                .setPlaceholder('--- เลือกประเภทจ้างฟาร์ม (หน้า 1) ---')
+                .addOptions(allFarmKeys.slice(0, 25).map(key => ({
+                    label: farmPackages[key].name,
+                    value: key,
+                    description: `ราคา: ${farmPackages[key].price}`,
+                    emoji: farmPackages[key].emoji
+                })));
+            components.push(new ActionRowBuilder().addComponents(menu1));
+
+            // เมนูที่ 2 (ถ้ามีรายการที่ 26 ขึ้นไป)
+            if (allFarmKeys.length > 25) {
+                const menu2 = new StringSelectMenuBuilder()
+                    .setCustomId('select_farm_2')
+                    .setPlaceholder('--- เลือกประเภทจ้างฟาร์ม (หน้า 2) ---')
+                    .addOptions(allFarmKeys.slice(25).map(key => ({
+                        label: farmPackages[key].name,
+                        value: key,
+                        description: `ราคา: ${farmPackages[key].price}`,
+                        emoji: farmPackages[key].emoji
+                    })));
+                components.push(new ActionRowBuilder().addComponents(menu2));
+            }
                       overwrites.push({ id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
                     NOTIFY_ITEM_USERS.forEach(id => {
                         overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
@@ -255,8 +286,14 @@ client.on('interactionCreate', async interaction => {
                     welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับ พิมพ์รายละเอียดที่ต้องการติดต่อทิ้งไว้ได้เลยครับ');
 
                     NOTIFY_TRADE_USERS.forEach(id => {
-                        overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
-                    });
+                if (id) {
+                 overwrites.push({ 
+                      id: id, 
+                     allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                     type: 1 // ใช้เลข 1 ปลอดภัยที่สุดสำหรับ ID ผู้ใช้
+         });
+        }
+            });
                 }
 
                 // สร้างปุ่มปิดห้อง
