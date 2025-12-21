@@ -6,10 +6,9 @@ const createMenuEmbed = () => {
     .setColor(0x00FF00)
     .setTitle('บริการต่างๆ')
     .setDescription('กรุณาเลือกเมนูที่ต้องการจาก Dropdown ด้านล่าง:')
-    .setImage('https://www.craiyon.com/pt/image/GmCvgfvIQ9u2BXClxXtwuQ') // **แทนที่ด้วย URL รูปภาพตัวละครของคุณ**
+    .setImage('https://www.craiyon.com/pt/image/GmCvgfvIQ9u2BXClxXtwuQ')
     .setTimestamp()
-    .setFooter({ text: '© BOT Copyrights By. LEMON HUB' });
-
+    .setFooter({ text: '© BOT By. Ped' });
   return embed;
 };
 
@@ -17,7 +16,7 @@ const createMenuEmbed = () => {
 const createMenuDropdown = () => {
   const selectMenu = new StringSelectMenuBuilder()
     .setCustomId('main_menu_select')
-    .setPlaceholder('เลือกบริการได้เลย')
+    .setPlaceholder('เลือกบริการได้เลย') // ค่านี้จะกลับมาแสดงเมื่อเราส่ง ActionRow กลับไปใหม่
     .addOptions(
       new StringSelectMenuOptionBuilder()
         .setLabel('จ้างฟาม')
@@ -37,39 +36,41 @@ const createMenuDropdown = () => {
         .setValue('Trade_1'),
     );
 
-  const actionRow = new ActionRowBuilder()
-    .addComponents(selectMenu);
-
-  return [actionRow]; // ส่งคืนเป็น Array ของ ActionRowBuilder
+  const actionRow = new ActionRowBuilder().addComponents(selectMenu);
+  return [actionRow];
 };
 
 // --- จัดการ Interaction (การเลือก Dropdown) ---
 const handleInteraction = async (interaction) => {
-  // ตรวจสอบว่าเป็น String Select Menu interaction และ customId ถูกต้อง
   if (!interaction.isStringSelectMenu() || interaction.customId !== 'main_menu_select') {
     return;
   }
-
-  // ค่าที่ผู้ใช้เลือกจะอยู่ใน interaction.values (เป็น Array)
+  
   const selectedValue = interaction.values[0];
 
+  // 1. ใช้ interaction.update เพื่อส่ง Component เดิมกลับไป (เป็นการรีเซ็ตหน้าจอ Dropdown)
+  await interaction.update({
+    components: createMenuDropdown() 
+  });
+
+  // 2. ตรวจสอบเงื่อนไขตาม Value ที่เลือก (แก้ไข Case ให้ตรงกับด้านบน)
   switch (selectedValue) {
-    case 'copy_emoji':
-      await interaction.reply({ content: 'คุณเลือกเมนู ก๊อปอิโมจิ!', ephemeral: true });
+    case 'Farm':
+      await interaction.followUp({ content: 'คุณเลือกเมนู: จ้างฟาม', ephemeral: true });
       break;
-    case 'join_server':
-      await interaction.reply({ content: 'คุณเลือกเมนู จอยเซิฟออโต้!', ephemeral: true });
+    case 'Item':
+      await interaction.followUp({ content: 'คุณเลือกเมนู: ซื้อของ', ephemeral: true });
       break;
-    case 'get_badge':
-      await interaction.reply({ content: 'คุณเลือกเมนู รับตราดิสคอร์ด!', ephemeral: true });
+    case 'Bloodline':
+      await interaction.followUp({ content: 'คุณเลือกเมนู: ซื้อตระกูล', ephemeral: true });
       break;
-    case 'nuke_server':
-      await interaction.reply({ content: 'คำเตือน: คุณเลือกเมนู Nuke เซิฟเวอร์!', ephemeral: true });
+    case 'Trade_1':
+      await interaction.followUp({ content: 'คุณเลือกเมนู: พ่อค้าโตโต้เด็กเย็ดโม้', ephemeral: true });
       break;
     default:
-      await interaction.reply({ content: 'ไม่พบคำสั่งสำหรับตัวเลือกนี้', ephemeral: true });
+      await interaction.followUp({ content: 'ไม่พบคำสั่งสำหรับตัวเลือกนี้', ephemeral: true });
   }
 };
 
-// ส่งออกฟังก์ชันที่อัปเดตแล้ว (เปลี่ยนชื่อฟังก์ชันสร้างปุ่มเป็นสร้าง dropdown)
+
 module.exports = { createMenuEmbed, createMenuDropdown, handleInteraction };
