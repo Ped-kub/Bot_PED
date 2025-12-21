@@ -210,6 +210,19 @@ client.on('interactionCreate', async interaction => {
                 let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
                 let components = [];
                 let typeName = ""; 
+
+                const overwrites = [
+                    {
+                        id: interaction.guild.id,
+                        type: OverwriteType.Role,
+                        deny: [PermissionFlagsBits.ViewChannel],
+                    },
+                    {
+                        id: interaction.user.id,
+                        type: OverwriteType.Member,
+                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles],
+                    }
+                ];
                 
                 // เช็คค่าจาก value (ที่ดึงมาจาก interaction.values[0])
                 if (value === 'create_item') {
@@ -314,20 +327,7 @@ client.on('interactionCreate', async interaction => {
                     name: channelName,
                     type: ChannelType.GuildText,
                     parent: TARGET_CATEGORY_ID,
-                    permissionOverwrites: [
-                        {
-                            // ปิดการมองเห็นสำหรับทุกคน
-                            id: interaction.guild.id,
-                            type: OverwriteType.Role, // แก้ไข: เพิ่ม type
-                            deny: [PermissionFlagsBits.ViewChannel],
-                        },
-                        {
-                            // เปิดให้ User ที่กดเห็นห้อง
-                            id: interaction.user.id,
-                            type: OverwriteType.Member, // แก้ไข: เพิ่ม type
-                            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles],
-                        }
-                    ] 
+                    permissionOverwrites: overwrites
                 });
 
                 await channel.send({ content: `ยินดีต้อนรับครับ ${user}`, embeds: [welcomeEmbed], components: components });
