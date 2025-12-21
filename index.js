@@ -326,7 +326,7 @@ client.on('interactionCreate', async interaction => {
                             id: interaction.user.id,
                             type: OverwriteType.Member, // แก้ไข: เพิ่ม type
                             allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles],
-                        },
+                        }
                     ] 
                 });
 
