@@ -96,20 +96,27 @@ if (fs.existsSync(foldersPath)) {
 }
 /* ================= INTERACTION HANDLER ================= */
 client.on('interactionCreate', async interaction => {
-
-     const { guild, user, customId, values } = interaction;
+    const { guild, user, customId, values } = interaction;
 
     // 1. จัดการ Slash Command
-      if (interaction.isChatInputCommand()) {
+    if (interaction.isChatInputCommand()) {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
         try {
+            // จองการตอบกลับ (ให้เวลาทำงานเพิ่มเป็น 15 นาที)
             await interaction.deferReply({ ephemeral: command.ephemeral || false });
+            
+            // ส่ง interaction ไปที่ไฟล์คำสั่ง
+            // ** สำคัญ: ในไฟล์คำสั่งต้องใช้ interaction.editReply() เท่านั้น **
             await command.execute(interaction);
         } catch (error) {
             console.error("Command Error:", error);
-            if (interaction.deferred) await interaction.editReply('เกิดข้อผิดพลาด!');
-            else await interaction.reply({ content: 'เกิดข้อผิดพลาด!', ephemeral: true });
+            // ตรวจสอบว่าเคยตอบไปหรือยัง ถ้าเคยแล้วให้ editReply แทน
+            if (interaction.deferred || interaction.replied) {
+                await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการประมวลผล!' });
+            } else {
+                await interaction.reply({ content: 'เกิดข้อผิดพลาด!', ephemeral: true });
+            }
         }
         return;
     }
@@ -125,7 +132,9 @@ client.on('interactionCreate', async interaction => {
 
         try {
             await interaction.reply({ content: '🔒 กำลังลบห้องนี้ภายใน 3 วินาที...' });
-            setTimeout(async () => { await interaction.channel.delete().catch(() => {}); }, 3000);
+            setTimeout(async () => { 
+                await interaction.channel.delete().catch(() => {}); 
+            }, 3000);
         } catch (error) { console.error('ลบห้องผิดพลาด:', error); }
         return;
     }
