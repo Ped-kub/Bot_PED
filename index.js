@@ -268,9 +268,9 @@ client.on('interactionCreate', async interaction => {
                         emoji: products[key].emoji 
                     })));
                 components.push(new ActionRowBuilder().addComponents(menu2));
-                  overwrites.push({ id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                  overwrites.push({ id: STAFF_ROLE_ID, type: 0, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
                     NOTIFY_ITEM_USERS.forEach(id => {
-                        overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                        overwrites.push({ id: id, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
                     });
             }
         }
@@ -309,7 +309,7 @@ client.on('interactionCreate', async interaction => {
             }
                       overwrites.push({ id: STAFF_ROLE_ID, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
                     NOTIFY_ITEM_USERS.forEach(id => {
-                        overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
+                        overwrites.push({ id: id, type: 0, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
                     });
                 }
                 else if ( value === 'create_trade') {
@@ -321,8 +321,8 @@ client.on('interactionCreate', async interaction => {
                 if (id) {
                  overwrites.push({ 
                       id: id, 
-                     allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-                     type: 1 // ใช้เลข 1 ปลอดภัยที่สุดสำหรับ ID ผู้ใช้
+                      type: 1,
+                     allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages]
          });
         }
             });
