@@ -164,7 +164,7 @@ client.on('interactionCreate', async interaction => {
         if (customId.startsWith('select_product')) selected = products[value];
         if (customId.startsWith('select_farm')) selected = farmPackages[value];
 
-         if (selected) {
+          if (selected) {
             const embeds = [];
             
             // ดึงรูปภาพออกมา (สูงสุด 3 รูป)
@@ -185,8 +185,21 @@ client.on('interactionCreate', async interaction => {
                     }
                     embeds.push(embed);
                 });
+            } else {
+                // กรณีไม่มีรูปภาพเลย ให้สร้าง Embed ข้อความอย่างเดียว
+                const noImageEmbed = new EmbedBuilder()
+                    .setTitle(`${selected.emoji || '✨'} ${selected.name}`)
+                    .setColor('#f1c40f')
+                    .setDescription(
+                        `💰 **ราคา:** ${selected.price}\n` +
+                        `📝 **รายละเอียด:** ${selected.description}\n\n` +
+                        `*กรุณารอทีมงานมาตอบกลับสักครู่ครับ*`
+                    );
+                embeds.push(noImageEmbed);
             }
-         }
+
+            return interaction.reply({ embeds: embeds, ephemeral: true });
+        }
         
         // สร้างห้อง (Room Setup)
         if (customId === 'room_setup') {
