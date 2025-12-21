@@ -210,11 +210,7 @@ client.on('interactionCreate', async interaction => {
                 let welcomeEmbed = new EmbedBuilder().setColor('#2ecc71').setTimestamp();
                 let components = [];
                 let typeName = ""; 
-                 let overwrites = [
-            { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
-            { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory] }
-        ];
-        
+                
                 // เช็คค่าจาก value (ที่ดึงมาจาก interaction.values[0])
                 if (value === 'create_item') {
                     typeName = "🛒 ซื้อของ";
@@ -318,7 +314,20 @@ client.on('interactionCreate', async interaction => {
                     name: channelName,
                     type: ChannelType.GuildText,
                     parent: TARGET_CATEGORY_ID,
-                    permissionOverwrites: overwrites 
+                    permissionOverwrites: [
+                        {
+                            // ปิดการมองเห็นสำหรับทุกคน
+                            id: interaction.guild.id,
+                            type: OverwriteType.Role, // แก้ไข: เพิ่ม type
+                            deny: [PermissionFlagsBits.ViewChannel],
+                        },
+                        {
+                            // เปิดให้ User ที่กดเห็นห้อง
+                            id: interaction.user.id,
+                            type: OverwriteType.Member, // แก้ไข: เพิ่ม type
+                            allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles],
+                        },
+                    ] 
                 });
 
                 await channel.send({ content: `ยินดีต้อนรับครับ ${user}`, embeds: [welcomeEmbed], components: components });
