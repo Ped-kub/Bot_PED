@@ -226,7 +226,7 @@ client.on('interactionCreate', async interaction => {
                 ];
                 
                 // เช็คค่าจาก value (ที่ดึงมาจาก interaction.values[0])
-                if (selectedValue === 'create_item') {
+                if ( value === 'create_item') {
                     typeName = "🛒 ซื้อของ";
                     channelName = `🧺-ซื้อของ-${user.username}`;
                     welcomeEmbed.setTitle('🛒 ยินดีต้อนรับสู่ร้านค้า พี่ TOJI')
@@ -264,7 +264,7 @@ client.on('interactionCreate', async interaction => {
                     });
             }
         }
-                else if (selectedValue === 'create_farm') {
+                else if ( value === 'create_farm') {
                     typeName = "⚔️ จ้างฟาร์ม";
                     channelName = `🎮-จ้างฟาม-${user.username}`;
                     welcomeEmbed.setTitle('⚔️ บริการจ้างฟาร์ม')
@@ -302,7 +302,7 @@ client.on('interactionCreate', async interaction => {
                         overwrites.push({ id: id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] });
                     });
                 }
-                else if (selectedValue === 'create_trade') {
+                else if ( value === 'create_trade') {
                     typeName = "🤝 ติดต่อพ่อค้า";
                     channelName = `🤝-ติดต่อ-${user.username}`;
                     welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับ พิมพ์รายละเอียดที่ต้องการติดต่อทิ้งไว้ได้เลยครับ');
