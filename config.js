@@ -190,6 +190,117 @@ module.exports = {
     ], 
             emoji: '🐲'
         },
+        'skin_sword_oni': { 
+            name: 'เซ็ตดาบโอนิ', 
+            price: '60฿', 
+            images: [
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756912791781456/IMG_5068.png?ex=694873d3&is=69472253&hm=6eb701c201417b4e82499524c903775ff53a17b8ca16707e8d89e9e67d59ac6e&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756913311879199/IMG_5069.png?ex=694873d3&is=69472253&hm=464d981fd746569ad9ac81820aabb3d5bbe8ceb4bca9d54134421f25c5362048&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756914066591754/IMG_5070.png?ex=694873d3&is=69472253&hm=c89fc1642aaa384003327ca2a2f0e368e528537ff4a97fdd65f5fe294e7f3bf1&=&format=webp&quality=lossless'
+    ], 
+            emoji: '👹'
+        },
+        'skin_sword_jotun': { 
+            name: 'เซ็ตดาบโจตัน', 
+            price: '100฿', 
+            images: [
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756914675023973/IMG_5071.png?ex=694873d3&is=69472253&hm=4ec1c206a701d43f7628efd050f5a9618afe8db0d1f35a16e9217671cef7a7aa&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756915245322352/IMG_5073.png?ex=694873d3&is=69472253&hm=b88d6c78f3f7e42c378ae17ac8791847f5bd579f48f7c696214f2633a162a348&=&format=webp&quality=lossless'
+    ], 
+            emoji: '🥶'
+        },
+        'spear_wing': { 
+            name: 'หอกปีก', 
+            price: '200฿', 
+            images: [
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756973885755484/IMG_5079.png?ex=694873e1&is=69472261&hm=10178137fe0221d5fba78b7c10cb38884688b04ebbb1b5bede57915bc5c22c6f&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756973621645343/IMG_5078.png?ex=694873e1&is=69472261&hm=7cb43af2cdff7e0efd562a0bc7cf5b25370a4bce3ee851fc8c6a4705bc4f9725&=&format=webp&quality=lossless'
+    ], 
+            emoji: '🪽'
+        },
+        'spear_oni': { 
+            name: 'หอกโอนิ', 
+            price: '55฿', 
+            images: [
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756972195709019/IMG_5061.png?ex=694873e1&is=69472261&hm=7b54585a912b547d1c66827326d3e29f457fc6a50b38dfa9f81d4525c6061feb&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756972514480168/IMG_5062.png?ex=694873e1&is=69472261&hm=1c51dea10e331ee61c1f002d9566dcaada355020c9aec2f0cd909bd543b9d4c7&=&format=webp&quality=lossless'
+    ], 
+            emoji: '👹'
+        },
+        'spear_jotun': { 
+            name: 'หอกโจตัน', 
+            price: '80฿', 
+            images: [
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756972975587358/IMG_5063.png?ex=694873e1&is=69472261&hm=3deb7e2d3887aaeef27684077ae8d7c24898cc887750acb91e110d9d1682cf41&=&format=webp&quality=lossless', 
+        'https://media.discordapp.net/attachments/1427818804783616191/1435756973340753951/IMG_5064.png?ex=694873e1&is=69472261&hm=98cf8ca8a65e5b604fa4de11ffbb3ce95f7003344544122ca9f0a76d36985110&=&format=webp&quality=lossless'
+    ], 
+            emoji: '🥶'
+        },
+        'aura_azure': { 
+            name: 'Azula', 
+            price: '70฿', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435757173803192370/IMG_5095.png?ex=69487411&is=69472291&hm=80d02ffa223581907a0c599597e8a72215bcf236f6493da74def425084da6120&=&format=webp&quality=lossless'], 
+            emoji: '❤️‍🔥'
+        },
+        'aura_nova': { 
+            name: 'Nova', 
+            price: '65฿', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435757174126280745/IMG_5096.png?ex=69487411&is=69472291&hm=aef47c910e73a58b3807fc3f2628604f4961dc3115c941421ac985c55de05407&=&format=webp&quality=lossless'], 
+            emoji: '🌌'
+        },
+        'aura_nezuko': { 
+            name: 'ไฟเนะสุโกะ', 
+            price: '60฿', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435757174726070444/IMG_5097.png?ex=69487411&is=69472291&hm=f0892618589a2f19cc50559a2731cd5c302922e7074dcb40e8be1a3918c60e73&=&format=webp&quality=lossless'], 
+            emoji: '😈'
+        },
+        'aura_ignited': { 
+            name: 'IGNITED', 
+            price: '55฿', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435757175120330864/IMG_5098.png?ex=69487411&is=69472291&hm=075264357e74c4db2c9f8c365abbb8d7fa73f472586342b1e30ef38487d4ddf4&=&format=webp&quality=lossless'], 
+            emoji: '🔥'
+        },
+        'aura_titanstrike': { 
+            name: 'TITANSTRIKE', 
+            price: '55฿', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1435757175426519110/IMG_5099.png?ex=69487411&is=69472291&hm=ed13267dd70bfb689b1b35c0df98ae46c486efbadefb53ba381b0debcb37f5b9&=&format=webp&quality=lossless'], 
+            emoji: '⚡'
+        },
+        'all_gift': { 
+            name: 'กิฟสปิน', 
+            price: '25บาท / 550 สปิน  ต่อวัน ', 
+            images: ['https://cdn.discordapp.com/attachments/1427818804783616191/1443393222263963649/IMG_5509.png?ex=69488c31&is=69473ab1&hm=1fae9f9b94350684837e6cd01c72c9bdbccd8f243ce333b1cfc86a7332570316&'], 
+            description: 'เกมกำหนดใช้เพชรได้วันละ 50kเท่านั้น',
+            details: 'เงื่อนไขการกิฟ ไอดีลูกค้า ต้อง เลเวล 75 ขึ้นไป(ไม่งั้นกิฟไม่ได้งับ',
+            emoji: '💫'
+        },
+        'all_boost': { 
+            name: 'น้ำยาบูส', 
+            price: 'บูสอันละ  8 บาทนะงับทุกอัน', 
+            images: ['https://cdn.discordapp.com/attachments/1427818804783616191/1446367419189952605/IMG_5662.png?ex=69482960&is=6946d7e0&hm=c64116aa45843f9a8f64acc1ce7330b8fb4757c15798f5862d1ce4f0e3f18140&'], 
+            emoji: '🍹'
+        },
+        'annie_ject': { 
+            name: 'เข็มแอนนี่', 
+            price: '25 บาท', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1446638733494456441/IMG_4668.png?ex=69487d4f&is=69472bcf&hm=b6a5b44e403d3449f6011278e42e857ac0c0fe06593695572895fc042fb26edd&=&format=webp&quality=lossless'], 
+            description: 'ภาษี 5000',
+            emoji: '👧'
+        },
+        'aren_ject': { 
+            name: 'เข็มเอเรน', 
+            price: '55฿', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1446638733771411516/IMG_4667.png?ex=69487d4f&is=69472bcf&hm=03d9607ad5d28b1040f58cc063c982c4d8e64e268c2d6d0489e9cc854c66830e&=&format=webp&quality=lossless'], 
+            description: 'ภาษี 5000',
+            emoji: '👦'
+        },
+        'armor_ject': { 
+            name: 'เข็มไททั่นเกราะ', 
+            price: '55฿', 
+            images: ['https://media.discordapp.net/attachments/1427818804783616191/1446638734043906100/IMG_4666.png?ex=69487d4f&is=69472bcf&hm=0be2950bd6e64556abc3da6296940acf7a7fbe6fa3f78104be4e7c7bc84cead5&=&format=webp&quality=lossless'], 
+            description: 'ภาษี 5000',
+            emoji: '🛡️'
+        },
     },
 
     // ข้อมูลแพ็กเกจในหมวด จ้างฟาร์ม
