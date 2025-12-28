@@ -91,7 +91,7 @@ module.exports = {
         usageLogs[userId] = Date.now();
         fs.writeFileSync(logPath, JSON.stringify(usageLogs, null, 2));
 
-        await interaction.reply({
+        await interaction.editReply({
             content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${code}\`\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n💎 มูลค่า: **${points}** แต้ม/คน`,
             ephemeral: true 
         });
