@@ -28,7 +28,7 @@ module.exports = {
     async execute(interaction) {
         // 1. เช็คสิทธิ์ Admin
         if (!ADMIN_IDS.includes(interaction.user.id)) {
-            return interaction.reply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้', ephemeral: true });
+            return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้', ephemeral: true });
         }
 
         const targetUser = interaction.options.getUser('target');
@@ -37,7 +37,7 @@ module.exports = {
 
         // เช็คว่าจำนวนถูกต้องไหม (ต้องมากกว่า 0)
         if (amount <= 0) {
-            return interaction.reply({ content: '❌ จำนวนแต้มต้องมากกว่า 0', ephemeral: true });
+            return interaction.editReply({ content: '❌ จำนวนแต้มต้องมากกว่า 0', ephemeral: true });
         }
 
         // 2. โหลดข้อมูล
