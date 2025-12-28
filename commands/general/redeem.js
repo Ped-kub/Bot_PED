@@ -14,6 +14,7 @@ module.exports = {
         const codeInput = interaction.options.getString('code').trim(); // ตัดช่องว่างหน้าหลัง
         const userId = interaction.user.id;
         
+        // ถอย 2 ชั้นถูกต้องแล้ว (ถ้าไฟล์อยู่ใน commands/general/)
         const codesPath = path.join(__dirname, '../../codes.json');
         const usersPath = path.join(__dirname, '../../users.json');
 
@@ -21,26 +22,32 @@ module.exports = {
         let allCodes = [];
         try {
             allCodes = JSON.parse(fs.readFileSync(codesPath, 'utf8'));
-        } catch (e) { return interaction.reply({ content: '❌ ระบบขัดข้อง (ไม่พบฐานข้อมูลโค้ด)', ephemeral: true }); }
+        } catch (e) { 
+            // 🔧 แก้: reply -> editReply
+            return interaction.editReply({ content: '❌ ระบบขัดข้อง (ไม่พบฐานข้อมูลโค้ด)' }); 
+        }
 
         // 2. ค้นหาโค้ด
         const codeIndex = allCodes.findIndex(c => c.code === codeInput);
         if (codeIndex === -1) {
-            return interaction.reply({ content: '❌ **ไม่พบโค้ดนี้** หรือโค้ดไม่ถูกต้อง', ephemeral: true });
+            // 🔧 แก้: reply -> editReply
+            return interaction.editReply({ content: '❌ **ไม่พบโค้ดนี้** หรือโค้ดไม่ถูกต้อง' });
         }
 
         const codeData = allCodes[codeIndex];
 
-        // 3. ตรวจสอบเงื่อนไข (ตามโจทย์: จำกัด 5 คน + ห้ามเติมซ้ำ)
+        // 3. ตรวจสอบเงื่อนไข
         
         // เช็คว่าสิทธิ์เต็มหรือยัง?
         if (codeData.usedBy.length >= codeData.maxUses) {
-            return interaction.reply({ content: '❌ **เสียใจด้วย!** โค้ดนี้มีผู้ใช้สิทธิ์ครบจำนวนแล้ว', ephemeral: true });
+            // 🔧 แก้: reply -> editReply
+            return interaction.editReply({ content: '❌ **เสียใจด้วย!** โค้ดนี้มีผู้ใช้สิทธิ์ครบจำนวนแล้ว' });
         }
 
         // เช็คว่าเคยเติมไปแล้วหรือยัง?
         if (codeData.usedBy.includes(userId)) {
-            return interaction.reply({ content: '⚠️ **คุณเคยใช้โค้ดนี้ไปแล้ว** ไม่สามารถใช้ซ้ำได้อีกครับ', ephemeral: true });
+            // 🔧 แก้: reply -> editReply
+            return interaction.editReply({ content: '⚠️ **คุณเคยใช้โค้ดนี้ไปแล้ว** ไม่สามารถใช้ซ้ำได้อีกครับ' });
         }
 
         // --- ✅ ผ่านทุกเงื่อนไข เริ่มกระบวนการเติมเงิน ---
@@ -65,9 +72,9 @@ module.exports = {
         fs.writeFileSync(codesPath, JSON.stringify(allCodes, null, 2));
 
         // 6. แจ้งเตือน
-        await interaction.reply({
-            content: `🎉 **เติมโค้ดสำเร็จ!**\n💰 คุณได้รับ: **${codeData.points}** แต้ม\n💳 ยอดรวม: **${users[userId].points}** แต้ม\n(สิทธิ์คงเหลือของโค้ดนี้: ${codeData.maxUses - codeData.usedBy.length}/${codeData.maxUses})`,
-            ephemeral: true
+        // 🔧 แก้: reply -> editReply
+        await interaction.editReply({
+            content: `🎉 **เติมโค้ดสำเร็จ!**\n💰 คุณได้รับ: **${codeData.points}** แต้ม\n💳 ยอดรวม: **${users[userId].points}** แต้ม\n(สิทธิ์คงเหลือของโค้ดนี้: ${codeData.maxUses - codeData.usedBy.length}/${codeData.maxUses})`
         });
     },
 };

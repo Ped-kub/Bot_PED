@@ -14,6 +14,8 @@ module.exports = {
         // ถ้ามีการระบุ user ให้ดูของคนนั้น ถ้าไม่มีให้ดูของตัวเอง
         const targetUser = interaction.options.getUser('user') || interaction.user;
         const userId = targetUser.id;
+        
+        // ถอย 2 ชั้นเพื่อไปหน้าแรก (ถูกต้องแล้ว ถ้าไฟล์นี้อยู่ใน commands/general/)
         const usersPath = path.join(__dirname, '../../users.json');
 
         let users = {};
@@ -32,6 +34,7 @@ module.exports = {
             .addFields({ name: 'แต้มสะสม', value: `**${points.toLocaleString()}** แต้ม`, inline: true })
             .setTimestamp();
 
-        await interaction.reply({ embeds: [embed] });
+        // ✅ แก้ไข: เปลี่ยนจาก reply เป็น editReply
+        await interaction.editReply({ embeds: [embed] });
     },
 };
