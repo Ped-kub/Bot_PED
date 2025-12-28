@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const User = require('../../models/User'); // 1. เรียกใช้ Model MongoDB
 
 // 🔒 ใส่ ID ของคุณ (เจ้าของบอท)
-const OWNER_ID = '946050505123456789'; 
+const OWNER_ID = '910909335784288297'; 
 
 module.exports = {
     data: new SlashCommandBuilder()
