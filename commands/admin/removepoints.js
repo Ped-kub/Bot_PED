@@ -60,7 +60,7 @@ module.exports = {
         fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
 
         // 4. แจ้งผล
-        await interaction.reply({
+        await interaction.editReply()({
             content: `🗑️ **ลบแต้มสำเร็จ!**\n👤 จาก: ${targetUser}\n➖ หักออก: **${amount}** แต้ม\n💰 ยอดคงเหลือ: **${newPoints}** แต้ม`
         });
     },

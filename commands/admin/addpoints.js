@@ -56,7 +56,7 @@ module.exports = {
         fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
 
         // 4. แจ้งผล
-        await interaction.reply({
+        await interaction.editReply()({
             content: `✅ **เพิ่มแต้มสำเร็จ!**\n👤 ให้กับ: ${targetUser}\n➕ จำนวน: **${amount}** แต้ม\n💰 ยอดรวมปัจจุบัน: **${users[targetUser.id].points}** แต้ม`
         });
     },
