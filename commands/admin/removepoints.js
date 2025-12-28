@@ -33,7 +33,7 @@ module.exports = {
 
         const targetUser = interaction.options.getUser('target');
         const amount = interaction.options.getInteger('amount');
-        const usersPath = path.join(__dirname, '../../users.json');
+        const usersPath = path.join(__dirname, '../users.json');
 
         if (amount <= 0) {
             return interaction.reply({ content: '❌ จำนวนแต้มต้องมากกว่า 0', ephemeral: true });

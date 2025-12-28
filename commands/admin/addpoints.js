@@ -33,7 +33,7 @@ module.exports = {
 
         const targetUser = interaction.options.getUser('target');
         const amount = interaction.options.getInteger('amount');
-        const usersPath = path.join(__dirname, '../../users.json');
+        const usersPath = path.join(__dirname, '../users.json');
 
         // เช็คว่าจำนวนถูกต้องไหม (ต้องมากกว่า 0)
         if (amount <= 0) {
