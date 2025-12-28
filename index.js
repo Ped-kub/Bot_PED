@@ -124,7 +124,7 @@ client.on('messageCreate', async message => {
         try {
             // เปลี่ยนชื่อห้อง
             await message.channel.setName(`เครดิต-${currentCount}`);
-            await message.react('✅');
+            await message.react('💗');
         } catch (error) {
             // กรณีติด Rate Limit (เปลี่ยนชื่อบ่อยเกินไป)
             console.log(`เปลี่ยนชื่อไม่ทัน (Rate Limit) แต่นับเลขเป็น ${currentCount} แล้ว`);
