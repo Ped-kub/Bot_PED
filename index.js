@@ -150,7 +150,15 @@ client.on('interactionCreate', async interaction => {
 
         try {
             // 1. เรียก deferReply เพื่อจองการตอบกลับ (บรรทัดนี้คือการ acknowledge ครั้งแรก)
-            await interaction.deferReply({ ephemeral: command.ephemeral || false });
+           try {
+    // เช็คก่อนว่าตอบไปแล้วหรือยัง กันพลาด
+    if (!interaction.replied && !interaction.deferred) {
+        await interaction.deferReply();
+    }
+} catch (error) {
+    console.log('Error during deferReply:', error.message);
+    return; // ถ้า defer ไม่ได้ (Token หมดอายุ) ให้จบการทำงานตรงนี้เลย กันบอทดับ
+}
 
             // 2. ส่งไปทำงานในไฟล์คำสั่ง
             await command.execute(interaction);
