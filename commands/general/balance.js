@@ -1,6 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js'); // ใช้ Embed เพื่อความสวยงาม
-const fs = require('node:fs');
-const path = require('node:path');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const User = require('../../models/User'); // 1. เรียกใช้ Model ของ MongoDB
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -14,27 +13,23 @@ module.exports = {
         // ถ้ามีการระบุ user ให้ดูของคนนั้น ถ้าไม่มีให้ดูของตัวเอง
         const targetUser = interaction.options.getUser('user') || interaction.user;
         const userId = targetUser.id;
-        
-        // ถอย 2 ชั้นเพื่อไปหน้าแรก (ถูกต้องแล้ว ถ้าไฟล์นี้อยู่ใน commands/general/)
-        const usersPath = path.join(__dirname, '../../users.json');
 
-        let users = {};
-        try {
-            if (fs.existsSync(usersPath)) users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
-        } catch (e) {}
+        // 2. ดึงข้อมูลจาก MongoDB แทนการอ่านไฟล์
+        // ค้นหา User ที่มี userId ตรงกัน
+        let userData = await User.findOne({ userId: userId });
 
-        // ดึงแต้ม (ถ้าไม่มีให้เป็น 0)
-        const points = users[userId] ? users[userId].points : 0;
+        // 3. ถ้าไม่เจอข้อมูล (ยังไม่เคยมีประวัติ) ให้ถือว่ามี 0 แต้ม
+        const points = userData ? userData.points : 0;
 
         // สร้างการ์ดสวยๆ (Embed)
         const embed = new EmbedBuilder()
             .setColor(0x00FF00) // สีเขียว
-            .setTitle(`💳 กระเป๋าเเต้มของ ${targetUser.username}`)
+            .setTitle(`💳 กระเป๋าแต้มของ ${targetUser.username}`)
             .setDescription(`ยอดแต้มคงเหลือปัจจุบัน`)
             .addFields({ name: 'แต้มสะสม', value: `**${points.toLocaleString()}** แต้ม`, inline: true })
             .setTimestamp();
 
-        // ✅ แก้ไข: เปลี่ยนจาก reply เป็น editReply
+        // ใช้ editReply ตามมาตรฐาน index.js ใหม่
         await interaction.editReply({ embeds: [embed] });
     },
 };

@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
+const User = require('../../models/User'); // 1. เรียกใช้ Model MongoDB
 
 // 🔒 รายชื่อ ID ที่มีสิทธิ์ใช้คำสั่งนี้
 const ADMIN_IDS = [
@@ -33,33 +32,32 @@ module.exports = {
 
         const targetUser = interaction.options.getUser('target');
         const amount = interaction.options.getInteger('amount');
-        
-        // 🔧 แก้ Path: ถอย 2 ชั้นเพื่อไปหน้าแรก (ถ้าไฟล์อยู่ใน commands/admin/)
-        const usersPath = path.join(__dirname, '../../users.json');
 
         // เช็คว่าจำนวนถูกต้องไหม (ต้องมากกว่า 0)
         if (amount <= 0) {
             return interaction.editReply({ content: '❌ จำนวนแต้มต้องมากกว่า 0' });
         }
 
-        // 2. โหลดข้อมูล
-        let users = {};
-        try {
-            if (fs.existsSync(usersPath)) users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
-        } catch (e) {}
+        // 2. ดึงข้อมูลจาก MongoDB
+        let userData = await User.findOne({ userId: targetUser.id });
 
-        // ถ้า User เป้าหมายยังไม่มีข้อมูล ให้สร้างใหม่
-        if (!users[targetUser.id]) {
-            users[targetUser.id] = { points: 0 };
+        // ถ้ายังไม่มี User นี้ในระบบ ให้สร้างใหม่
+        if (!userData) {
+            userData = new User({ 
+                userId: targetUser.id, 
+                points: 0 
+            });
         }
 
         // 3. เพิ่มแต้ม
-        users[targetUser.id].points += amount;
-        fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+        userData.points += amount;
 
-        // 4. แจ้งผล (🔧 แก้ Syntax: ลบวงเล็บที่เกินออก)
+        // 4. บันทึกลง Database
+        await userData.save();
+
+        // 5. แจ้งผล
         await interaction.editReply({
-            content: `✅ **เพิ่มแต้มสำเร็จ!**\n👤 ให้กับ: ${targetUser}\n➕ จำนวน: **${amount}** แต้ม\n💰 ยอดรวมปัจจุบัน: **${users[targetUser.id].points}** แต้ม`
+            content: `✅ **เพิ่มแต้มสำเร็จ!**\n👤 ให้กับ: ${targetUser}\n➕ จำนวน: **${amount}** แต้ม\n💰 ยอดรวมปัจจุบัน: **${userData.points}** แต้ม`
         });
     },
 };

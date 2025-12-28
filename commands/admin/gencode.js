@@ -1,8 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
+const User = require('../../models/User'); // 1. เรียกใช้ Model User (เก็บ Cooldown)
+const Code = require('../../models/Code'); // 2. เรียกใช้ Model Code (เก็บโค้ด)
 
-// 🔥 1. ตั้งค่า: ใครมีสิทธิ์ใช้ และได้แต้มเท่าไหร่
+// 🔥 ตั้งค่า: ใครมีสิทธิ์ใช้ และได้แต้มเท่าไหร่
 const ADMIN_CONFIG = {
     '910909335784288297': 10,  //เป็ด
     '774417760281165835': 5,   // พี่เเอล
@@ -40,61 +40,54 @@ module.exports = {
         
     async execute(interaction) {
         const userId = interaction.user.id;
-        const logPath = path.join(__dirname, '../../usage_logs.json');
-        const dbPath = path.join(__dirname, '../../codes.json');
 
         // 🛑 1. เช็คสิทธิ์ Admin
         if (!ADMIN_CONFIG[userId]) {
-            // ✅ ใช้ editReply ถูกต้อง
             return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้' });
         }
 
-        // 🛑 2. ระบบเช็ค Cooldown รายสัปดาห์
-        let usageLogs = {};
-        try {
-            if (fs.existsSync(logPath)) usageLogs = JSON.parse(fs.readFileSync(logPath, 'utf8'));
-        } catch (e) {}
-
-        const lastMonday = getLastMonday().getTime();
-        const lastUsed = usageLogs[userId] || 0;
-
-        if (lastUsed > lastMonday) {
-            // 🔧 แก้ไขตรงนี้: เปลี่ยน reply เป็น editReply
-            return interaction.editReply({ 
-                content: `⏳ **คุณใช้สิทธิ์ของสัปดาห์นี้ไปแล้ว!**\nรอรีเซ็ตวันจันทร์หน้าครับ`
-            });
+        // 🛑 2. ระบบเช็ค Cooldown (จาก MongoDB)
+        // ค้นหา User ใน Database
+        let userData = await User.findOne({ userId: userId });
+        
+        const lastMonday = getLastMonday(); // เวลาวันจันทร์ล่าสุด (Date Object)
+        
+        // ถ้ามีข้อมูล User และมีประวัติกดใช้ (lastGencode)
+        if (userData && userData.lastGencode) {
+            // เช็คว่ากดไปล่าสุด "หลัง" วันจันทร์หรือยัง
+            if (userData.lastGencode > lastMonday) {
+                return interaction.editReply({ 
+                    content: `⏳ **คุณใช้สิทธิ์ของสัปดาห์นี้ไปแล้ว!**\nรอรีเซ็ตวันจันทร์หน้าครับ`
+                });
+            }
         }
 
-        // --- ✅ เริ่มสร้างโค้ด ---
+        // --- ✅ ผ่านเงื่อนไข เริ่มสร้างโค้ด ---
         const points = ADMIN_CONFIG[userId];
-        const code = generateRandomCode(10);
+        const codeString = generateRandomCode(10);
 
-        // โหลดข้อมูลเก่า
-        let existingCodes = [];
-        try {
-            const fileData = fs.readFileSync(dbPath, 'utf8');
-            existingCodes = JSON.parse(fileData);
-        } catch (err) {}
-
-        // 🔥 3. บันทึกรูปแบบใหม่ รองรับ 5 คน
-        existingCodes.push({
-            code: code,
+        // 🔥 3. สร้างและบันทึกโค้ดลง MongoDB (Model Code)
+        const newCode = new Code({
+            code: codeString,
             points: points,
-            maxUses: MAX_CLAIMS, // กำหนดว่าใช้ได้ 5 คน
-            usedBy: [],          // เก็บ List ID คนที่กดใช้ไปแล้ว (เริ่มจากว่างเปล่า)
-            createdBy: interaction.user.tag,
-            createdAt: new Date().toISOString()
+            maxUses: MAX_CLAIMS,
+            createdBy: interaction.user.tag
         });
 
-        fs.writeFileSync(dbPath, JSON.stringify(existingCodes, null, 2));
+        await newCode.save(); // บันทึกโค้ด
 
-        // อัปเดต Log การใช้งานของ Admin
-        usageLogs[userId] = Date.now();
-        fs.writeFileSync(logPath, JSON.stringify(usageLogs, null, 2));
+        // 🔥 4. บันทึกเวลา Cooldown ลง MongoDB (Model User)
+        // ถ้า User ยังไม่มีในระบบ ให้สร้างใหม่
+        if (!userData) {
+            userData = new User({ userId: userId, points: 0 });
+        }
+        
+        userData.lastGencode = new Date(); // อัปเดตเวลาปัจจุบัน
+        await userData.save(); // บันทึก User
 
-        // ✅ ใช้ editReply ถูกต้อง
+        // ✅ แจ้งผล
         await interaction.editReply({
-            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${code}\`\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n💎 มูลค่า: **${points}** แต้ม/คน`
+            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${codeString}\`\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n💎 มูลค่า: **${points}** แต้ม/คน`
         });
     },
 };

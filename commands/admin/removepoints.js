@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
+const User = require('../../models/User'); // 1. เรียกใช้ Model MongoDB
 
 // 🔒 รายชื่อ ID ที่มีสิทธิ์ใช้คำสั่งนี้
 const ADMIN_IDS = [
@@ -33,36 +32,30 @@ module.exports = {
 
         const targetUser = interaction.options.getUser('target');
         const amount = interaction.options.getInteger('amount');
-        
-        // 🔧 แก้ Path: ถอย 2 ชั้น
-        const usersPath = path.join(__dirname, '../../users.json');
 
         if (amount <= 0) {
             return interaction.editReply({ content: '❌ จำนวนแต้มต้องมากกว่า 0' });
         }
 
-        // 2. โหลดข้อมูล
-        let users = {};
-        try {
-            if (fs.existsSync(usersPath)) users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
-        } catch (e) {}
+        // 2. ดึงข้อมูลจาก MongoDB
+        let userData = await User.findOne({ userId: targetUser.id });
 
-        // ถ้า User ไม่มีข้อมูล หรือแต้มเป็น 0 อยู่แล้ว
-        if (!users[targetUser.id] || users[targetUser.id].points <= 0) {
-            // 🔧 แก้: เปลี่ยน reply เป็น editReply ไม่งั้นบอทจะ Error ว่าตอบซ้ำ
+        // 3. ตรวจสอบว่ามีแต้มให้ลบหรือไม่
+        // ถ้าไม่เจอ User (null) หรือ แต้มเป็น 0 หรือ น้อยกว่า 0
+        if (!userData || userData.points <= 0) {
             return interaction.editReply({ content: `⚠️ **${targetUser.username}** ไม่มีแต้มให้ลบแล้วครับ` });
         }
 
-        // 3. คำนวณการลบ (ไม่ให้ติดลบ)
-        const oldPoints = users[targetUser.id].points;
+        // 4. คำนวณการลบ (ไม่ให้ติดลบ)
+        const oldPoints = userData.points;
         let newPoints = oldPoints - amount;
         if (newPoints < 0) newPoints = 0; // ถ้าลบเกิน ให้เหลือ 0
 
-        // บันทึก
-        users[targetUser.id].points = newPoints;
-        fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+        // 5. บันทึกค่าใหม่ลง MongoDB
+        userData.points = newPoints;
+        await userData.save();
 
-        // 4. แจ้งผล (🔧 แก้ Syntax: ลบวงเล็บ () ที่เกินออก)
+        // 6. แจ้งผล
         await interaction.editReply({
             content: `🗑️ **ลบแต้มสำเร็จ!**\n👤 จาก: ${targetUser}\n➖ หักออก: **${amount}** แต้ม\n💰 ยอดคงเหลือ: **${newPoints}** แต้ม`
         });
