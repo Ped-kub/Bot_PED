@@ -28,15 +28,17 @@ module.exports = {
     async execute(interaction) {
         // 1. เช็คสิทธิ์ Admin
         if (!ADMIN_IDS.includes(interaction.user.id)) {
-            return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้', ephemeral: true });
+            return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้' });
         }
 
         const targetUser = interaction.options.getUser('target');
         const amount = interaction.options.getInteger('amount');
-        const usersPath = path.join(__dirname, '../users.json');
+        
+        // 🔧 แก้ Path: ถอย 2 ชั้น
+        const usersPath = path.join(__dirname, '../../users.json');
 
         if (amount <= 0) {
-            return interaction.editReply({ content: '❌ จำนวนแต้มต้องมากกว่า 0', ephemeral: true });
+            return interaction.editReply({ content: '❌ จำนวนแต้มต้องมากกว่า 0' });
         }
 
         // 2. โหลดข้อมูล
@@ -47,7 +49,8 @@ module.exports = {
 
         // ถ้า User ไม่มีข้อมูล หรือแต้มเป็น 0 อยู่แล้ว
         if (!users[targetUser.id] || users[targetUser.id].points <= 0) {
-            return interaction.reply({ content: `⚠️ **${targetUser.username}** ไม่มีแต้มให้ลบแล้วครับ`, ephemeral: true });
+            // 🔧 แก้: เปลี่ยน reply เป็น editReply ไม่งั้นบอทจะ Error ว่าตอบซ้ำ
+            return interaction.editReply({ content: `⚠️ **${targetUser.username}** ไม่มีแต้มให้ลบแล้วครับ` });
         }
 
         // 3. คำนวณการลบ (ไม่ให้ติดลบ)
@@ -59,8 +62,8 @@ module.exports = {
         users[targetUser.id].points = newPoints;
         fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
 
-        // 4. แจ้งผล
-        await interaction.editReply()({
+        // 4. แจ้งผล (🔧 แก้ Syntax: ลบวงเล็บ () ที่เกินออก)
+        await interaction.editReply({
             content: `🗑️ **ลบแต้มสำเร็จ!**\n👤 จาก: ${targetUser}\n➖ หักออก: **${amount}** แต้ม\n💰 ยอดคงเหลือ: **${newPoints}** แต้ม`
         });
     },

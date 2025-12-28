@@ -10,7 +10,7 @@ const ADMIN_IDS = [
     '1056886143754444840',  //เกโต้
     '926336093253677157',   //โอม
     '1390444294988369971'  //พี่โทจิ
-] 
+];
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,16 +28,18 @@ module.exports = {
     async execute(interaction) {
         // 1. เช็คสิทธิ์ Admin
         if (!ADMIN_IDS.includes(interaction.user.id)) {
-            return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้', ephemeral: true });
+            return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้' });
         }
 
         const targetUser = interaction.options.getUser('target');
         const amount = interaction.options.getInteger('amount');
-        const usersPath = path.join(__dirname, '../users.json');
+        
+        // 🔧 แก้ Path: ถอย 2 ชั้นเพื่อไปหน้าแรก (ถ้าไฟล์อยู่ใน commands/admin/)
+        const usersPath = path.join(__dirname, '../../users.json');
 
         // เช็คว่าจำนวนถูกต้องไหม (ต้องมากกว่า 0)
         if (amount <= 0) {
-            return interaction.editReply({ content: '❌ จำนวนแต้มต้องมากกว่า 0', ephemeral: true });
+            return interaction.editReply({ content: '❌ จำนวนแต้มต้องมากกว่า 0' });
         }
 
         // 2. โหลดข้อมูล
@@ -55,8 +57,8 @@ module.exports = {
         users[targetUser.id].points += amount;
         fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
 
-        // 4. แจ้งผล
-        await interaction.editReply()({
+        // 4. แจ้งผล (🔧 แก้ Syntax: ลบวงเล็บที่เกินออก)
+        await interaction.editReply({
             content: `✅ **เพิ่มแต้มสำเร็จ!**\n👤 ให้กับ: ${targetUser}\n➕ จำนวน: **${amount}** แต้ม\n💰 ยอดรวมปัจจุบัน: **${users[targetUser.id].points}** แต้ม`
         });
     },

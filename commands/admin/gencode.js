@@ -45,7 +45,8 @@ module.exports = {
 
         // 🛑 1. เช็คสิทธิ์ Admin
         if (!ADMIN_CONFIG[userId]) {
-            return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้', ephemeral: true });
+            // ✅ ใช้ editReply ถูกต้อง
+            return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้' });
         }
 
         // 🛑 2. ระบบเช็ค Cooldown รายสัปดาห์
@@ -58,9 +59,9 @@ module.exports = {
         const lastUsed = usageLogs[userId] || 0;
 
         if (lastUsed > lastMonday) {
-            return interaction.reply({ 
-                content: `⏳ **คุณใช้สิทธิ์ของสัปดาห์นี้ไปแล้ว!**\nรอรีเซ็ตวันจันทร์หน้าครับ`, 
-                ephemeral: true 
+            // 🔧 แก้ไขตรงนี้: เปลี่ยน reply เป็น editReply
+            return interaction.editReply({ 
+                content: `⏳ **คุณใช้สิทธิ์ของสัปดาห์นี้ไปแล้ว!**\nรอรีเซ็ตวันจันทร์หน้าครับ`
             });
         }
 
@@ -91,9 +92,9 @@ module.exports = {
         usageLogs[userId] = Date.now();
         fs.writeFileSync(logPath, JSON.stringify(usageLogs, null, 2));
 
+        // ✅ ใช้ editReply ถูกต้อง
         await interaction.editReply({
-            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${code}\`\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n💎 มูลค่า: **${points}** แต้ม/คน`,
-            ephemeral: true 
+            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${code}\`\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n💎 มูลค่า: **${points}** แต้ม/คน`
         });
     },
 };
