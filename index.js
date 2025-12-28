@@ -4,9 +4,6 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
-const session = require('express-session');
-const passport = require('passport');
-const DiscordStrategy = require('passport-discord').Strategy;
 const { 
     Client, GatewayIntentBits, ActivityType, PermissionsBitField, 
     ChannelType, Collection, StringSelectMenuBuilder, EmbedBuilder, 
@@ -21,121 +18,11 @@ const { products, farmPackages } = require('./config.js');
 // ================= 1. ตั้งค่า Server & Database =================
 const app = express();
 const port = process.env.PORT || 10000;
-
-const ADMIN_IDS = [
-    '910909335784288297', 
-    '774417760281165835',  
-    '1056886143754444840',
-    '1319982025557413949',
-    '926336093253677157',
-    '1390444294988369971',
-];
-
+    
 // เชื่อมต่อ MongoDB
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Connected to MongoDB!'))
     .catch((err) => console.error('❌ MongoDB Connection Error:', err));
-
-app.use(session({
-    secret: 'secret-key-cat',
-    resave: false,
-    saveUninitialized: false
-}));
-
-app.set('view engine', 'ejs');
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-// 2. ตั้งค่า Discord Strategy
-passport.use(new DiscordStrategy({
-    clientID: process.env.DISCORD_CLIENT_ID,
-    clientSecret: process.env.DISCORD_CLIENT_SECRET,
-    callbackURL: process.env.DISCORD_CALLBACK_URL,
-    scope: ['identify']
-}, function(accessToken, refreshToken, profile, done) {
-    return done(null, profile);
-}));
-
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((obj, done) => done(null, obj));
-
-// 3. ฟังก์ชันตรวจสอบสิทธิ์ (Middleware)
-function checkAuth(req, res, next) {
-    if (req.isAuthenticated()) {
-        if (ADMIN_IDS.includes(req.user.id)) {
-            return next();
-        } else {
-            return res.send('⛔ คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (ID ของคุณไม่ได้อยู่ในรายการ Admin)');
-        }
-    }
-    res.redirect('/auth/discord');
-}
-
-// --- Web Routes ---
-
-// ปุ่มล็อกอิน
-app.get('/auth/discord', passport.authenticate('discord'));
-
-// ขากลับจาก Discord
-app.get('/auth/discord/callback', passport.authenticate('discord', {
-    failureRedirect: '/'
-}), (req, res) => {
-    res.redirect('/');
-});
-
-// ออกจากระบบ
-app.get('/logout', (req, res) => {
-    req.logout(() => {
-        res.redirect('/');
-    });
-});
-
-// หน้า Dashboard (ต้องผ่าน checkAuth)
-app.get('/', checkAuth, (req, res) => {
-    const botName = client.user ? client.user.username : "กำลังโหลด...";
-    
-    // ✅ ส่ง user: req.user ไปด้วย แก้ Error ได้แน่นอน
-    res.render('dashboard', { 
-        botName: botName, 
-        user: req.user, 
-        message: null, 
-        status: null 
-    });
-});
-
-// ปุ่มเติมแต้ม (ต้องผ่าน checkAuth)
-app.post('/add-points', checkAuth, async (req, res) => {
-    const { targetId, amount } = req.body;
-    const botName = client.user ? client.user.username : "Bot";
-
-    try {
-        let userData = await User.findOne({ userId: targetId });
-        if (!userData) userData = new User({ userId: targetId, points: 0 });
-
-        userData.points += parseInt(amount);
-        await userData.save();
-
-        return res.render('dashboard', { 
-            botName, 
-            user: req.user, // ✅ ส่ง user กลับไปตอนแจ้งผลด้วย
-            message: `✅ เติม ${amount} แต้ม ให้ ID ${targetId} สำเร็จ!`, 
-            status: "success" 
-        });
-    } catch (error) {
-        console.error(error);
-        return res.render('dashboard', { 
-            botName, 
-            user: req.user, // ✅ ส่ง user กลับไปตอนแจ้ง Error ด้วย
-            message: "❌ เกิดข้อผิดพลาดกับ Database", 
-            status: "error" 
-        });
-    }
-});
-
-app.listen(port, '0.0.0.0', () => {
-    console.log(`🌍 Web Dashboard & Bot Server running on port ${port}`);
-});
 
 // ================= 2. ตั้งค่า Discord Bot =================
 const TOKEN = process.env.BOT_TOKEN;
