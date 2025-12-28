@@ -15,11 +15,10 @@ const User = require('./models/User');
 const { products, farmPackages } = require('./config.js');
 
 // ================= 1. ตั้งค่า Server (Dummy Server สำหรับ Render) =================
-// เราต้องมี Express Server เล็กๆ ไว้เพื่อให้ Render ตรวจจับว่า Service ทำงานอยู่ (Health Check)
 const app = express();
 const port = process.env.PORT || 10000;
 
-app.get('/', (req, res) => res.send('🤖 Bot is Online!')); // หน้าเว็บโง่ๆ บอกว่าบอททำงาน
+app.get('/', (req, res) => res.send('🤖 Bot is Online!')); 
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`✅ Dummy Server running on port ${port}`);
@@ -39,8 +38,8 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent, 
         GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildMembers,     // สำคัญสำหรับ Log
-        GatewayIntentBits.GuildModeration   // สำคัญสำหรับ Log
+        GatewayIntentBits.GuildMembers,    
+        GatewayIntentBits.GuildModeration   
     ]
 });
 
@@ -90,7 +89,7 @@ function translatePerms(bitfield) {
     return important.length > 0 ? important.join(', ') : 'สิทธิ์ทั่วไป';
 }
 
-let currentCount = 0; // ตัวแปรเก็บเลขปัจจุบัน
+let currentCount = 0;
 
 // ================= 3. Bot Events =================
 
@@ -128,6 +127,12 @@ client.on('interactionCreate', async interaction => {
             }
             await command.execute(interaction);
         } catch (error) {
+            // 🛑 ดักจับ Error 10062 (Unknown interaction) ที่เกิดจากบอทตื่นสาย
+            if (error.code === 10062 || error.code === 40060) {
+                console.log(`⚠️ Time out: บอทตอบสนองไม่ทัน (${interaction.commandName}) - กรุณากดใหม่`);
+                return; // จบการทำงาน ไม่ต้องพ่น Error ยาวๆ
+            }
+
             console.error("Command Error:", error);
             if (interaction.deferred || interaction.replied) {
                 await interaction.editReply({ content: '❌ เกิดข้อผิดพลาดในการรันคำสั่งนี้!' }).catch(() => {});
@@ -194,7 +199,13 @@ client.on('interactionCreate', async interaction => {
                     );
                 embeds.push(noImageEmbed);
             }
-            return interaction.reply({ embeds: embeds, ephemeral: true });
+            // เพิ่ม try-catch สำหรับการตอบกลับเมนู
+            try {
+                await interaction.reply({ embeds: embeds, ephemeral: true });
+            } catch (err) {
+                if (err.code !== 10062) console.error(err);
+            }
+            return;
         }
         
         // --- 3.2 สร้างห้อง (Room Setup) ---
@@ -264,6 +275,10 @@ client.on('interactionCreate', async interaction => {
                 else if (selectedValue === 'create_farm') guild.roles.cache.get(STAFF_ROLE_ID)?.members?.forEach(m => !m.user.bot && m.send(notifyMsg).catch(() => {}));
 
             } catch (error) {
+                 if (error.code === 10062) {
+                    console.log(`⚠️ Room Setup Timeout: บอทตื่นไม่ทัน`);
+                    return;
+                }
                 console.error("Room Error:", error);
                 if (interaction.deferred) await interaction.editReply('เกิดข้อผิดพลาดในการสร้างห้อง');
             }
@@ -271,7 +286,7 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-// ================= 4. Logging Events (Roles/Bans) =================
+// ================= 4. Logging Events =================
 
 client.on('roleCreate', async (role) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -386,8 +401,6 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 // ================= 5. Start Bot =================
 client.once('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
-    
-    // --- ระบบซิงค์เลขห้องนับเลข (จากชื่อห้อง) ---
     try {
         const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
         const parts = channel.name.split('-');
