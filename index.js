@@ -36,24 +36,76 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Connected to MongoDB!'))
     .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
-// ตั้งค่า Express สำหรับ Web Dashboard
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'secret-key-cat',
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// 2. ตั้งค่า Discord Strategy
+passport.use(new DiscordStrategy({
+    clientID: process.env.DISCORD_CLIENT_ID,
+    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    callbackURL: process.env.DISCORD_CALLBACK_URL,
+    scope: ['identify']
+}, function(accessToken, refreshToken, profile, done) {
+    return done(null, profile);
+}));
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
+
+// 3. ฟังก์ชันตรวจสอบสิทธิ์ (Middleware)
+function checkAuth(req, res, next) {
+    if (req.isAuthenticated()) {
+        if (ADMIN_IDS.includes(req.user.id)) {
+            return next();
+        } else {
+            return res.send('⛔ คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (ID ของคุณไม่ได้อยู่ในรายการ Admin)');
+        }
+    }
+    res.redirect('/auth/discord');
+}
 
 // --- Web Routes ---
-app.get('/', (req, res) => {
-    const botName = client.user ? client.user.username : "กำลังโหลด...";
-    // ส่งข้อมูลไปหน้าเว็บ
-    res.render('dashboard', { botName, message: null, status: null });
+
+// ปุ่มล็อกอิน
+app.get('/auth/discord', passport.authenticate('discord'));
+
+// ขากลับจาก Discord
+app.get('/auth/discord/callback', passport.authenticate('discord', {
+    failureRedirect: '/'
+}), (req, res) => {
+    res.redirect('/');
 });
 
-app.post('/add-points', async (req, res) => {
-    const { adminPass, targetId, amount } = req.body;
-    const botName = client.user ? client.user.username : "Bot";
+// ออกจากระบบ
+app.get('/logout', (req, res) => {
+    req.logout(() => {
+        res.redirect('/');
+    });
+});
 
-    if (adminPass !== WEB_ADMIN_PASSWORD) {
-        return res.render('dashboard', { botName, message: "❌ รหัสผ่านผิด!", status: "error" });
-    }
+// หน้า Dashboard (ต้องผ่าน checkAuth)
+app.get('/', checkAuth, (req, res) => {
+    const botName = client.user ? client.user.username : "กำลังโหลด...";
+    
+    // ✅ ส่ง user: req.user ไปด้วย แก้ Error ได้แน่นอน
+    res.render('dashboard', { 
+        botName: botName, 
+        user: req.user, 
+        message: null, 
+        status: null 
+    });
+});
+
+// ปุ่มเติมแต้ม (ต้องผ่าน checkAuth)
+app.post('/add-points', checkAuth, async (req, res) => {
+    const { targetId, amount } = req.body;
+    const botName = client.user ? client.user.username : "Bot";
 
     try {
         let userData = await User.findOne({ userId: targetId });
@@ -64,12 +116,18 @@ app.post('/add-points', async (req, res) => {
 
         return res.render('dashboard', { 
             botName, 
+            user: req.user, // ✅ ส่ง user กลับไปตอนแจ้งผลด้วย
             message: `✅ เติม ${amount} แต้ม ให้ ID ${targetId} สำเร็จ!`, 
             status: "success" 
         });
     } catch (error) {
         console.error(error);
-        return res.render('dashboard', { botName, message: "❌ เกิดข้อผิดพลาดกับ Database", status: "error" });
+        return res.render('dashboard', { 
+            botName, 
+            user: req.user, // ✅ ส่ง user กลับไปตอนแจ้ง Error ด้วย
+            message: "❌ เกิดข้อผิดพลาดกับ Database", 
+            status: "error" 
+        });
     }
 });
 
@@ -142,15 +200,12 @@ client.on('messageCreate', async message => {
     if (message.channel.id !== TARGET_CHANNEL_ID) return;
 
     if (message.content.trim() === '+1') {
-        currentCount++; // บวกเลขในความจำ
+        currentCount++;
 
         try {
-            // อัปเดตชื่อห้อง (นี่คือ Database ของเราสำหรับระบบนับเลข!)
             await message.channel.setName(`เครดิต-${currentCount}`);
             await message.react('💗');
-        } catch (error) {
-            console.log(`Rate Limit: นับเป็น ${currentCount} แต่เปลี่ยนชื่อห้องไม่ทัน`);
-        }
+        } catch (error) { console.log(`Rate Limit: ${currentCount}`); }
     }
     
     if (message.content.trim() === '!reset') {
@@ -329,33 +384,114 @@ client.on('interactionCreate', async interaction => {
 // (ย่อส่วนนี้ให้สั้นลง แต่ทำงานเหมือนเดิมครับ)
 
 client.on('roleCreate', async (role) => {
-    await new Promise(r => setTimeout(r, 1000));
-    const logs = await role.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.RoleCreate });
-    const log = logs.entries.first();
-    const executor = (log && log.target.id === role.id) ? `<@${log.executor.id}>` : "ไม่ทราบชื่อ";
-    const chan = client.channels.cache.get(ROLE_LOG_CHANNEL_ID);
-    if(chan) chan.send({ embeds: [new EmbedBuilder().setTitle('🆕 สร้างยศใหม่').setColor(role.color).addFields({ name:'คนสร้าง', value: executor }, { name:'ชื่อยศ', value: role.name }).setTimestamp()] }).catch(()=>{});
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+        const fetchedLogs = await role.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.RoleCreate });
+        const roleLog = fetchedLogs.entries.first();
+        let executorTag = (roleLog && roleLog.target.id === role.id) ? `<@${roleLog.executor.id}>` : "ไม่ทราบชื่อ";
+        const logChannel = client.channels.cache.get(ROLE_LOG_CHANNEL_ID);
+        if (!logChannel) return;
+        const embed = new EmbedBuilder().setTitle('🆕 ตรวจพบการสร้างยศใหม่').setColor(role.color || 0x3498db)
+            .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${role.guild.name}**`, inline: true }, { name: '👤 คนสร้าง', value: executorTag, inline: true }, { name: '🏷️ ชื่อยศ', value: `**${role.name}**`, inline: false }, { name: '⏰ เวลาที่สร้าง', value: time(new Date(), 'F'), inline: false });
+        logChannel.send({ embeds: [embed] }).catch(console.error);
+    } catch(e) {}
 });
 
 client.on('roleDelete', async (role) => {
-    await new Promise(r => setTimeout(r, 1000));
-    const logs = await role.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.RoleDelete });
-    const log = logs.entries.first();
-    const executor = (log && log.targetId === role.id) ? `<@${log.executor.id}>` : "ไม่ทราบ";
-    const chan = client.channels.cache.get(ROLE_DELETE_LOG_ID);
-    if(chan) chan.send({ content: `⚠️ ยศ **${role.name}** ถูกลบ`, embeds: [new EmbedBuilder().setTitle('🗑️ ลบยศ').setColor(0xFF0000).addFields({ name:'คนลบ', value: executor }, { name:'ยศที่ลบ', value: role.name }).setTimestamp()] }).catch(()=>{});
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+        const fetchedLogs = await role.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.RoleDelete });
+        const deletionLog = fetchedLogs.entries.first();
+        let executorTag = (deletionLog && deletionLog.targetId === role.id) ? `<@${deletionLog.executor.id}>` : "ไม่ทราบคนลบ";
+        const logChannel = client.channels.cache.get(ROLE_DELETE_LOG_ID);
+        if (!logChannel) return;
+        const embed = new EmbedBuilder().setTitle('🗑️ ตรวจพบการลบยศ').setColor(0xFF0000)
+            .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${role.guild.name}**`, inline: true }, { name: '👤 คนลบ', value: executorTag, inline: true }, { name: '🏷️ ยศที่ถูกลบ', value: `**${role.name}**`, inline: false }, { name: '⏰ เวลาที่ถูกลบ', value: time(new Date(), 'F'), inline: false });
+        logChannel.send({ content: `⚠️ ยศ **${role.name}** ถูกลบ`, embeds: [embed] }).catch(console.error);
+    } catch(e) {}
+});
+
+client.on('guildBanRemove', async (ban) => {
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+        const { guild, user } = ban;
+        const fetchedLogs = await guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.MemberBanRemove });
+        const unbanLog = fetchedLogs.entries.first();
+        let executor = (unbanLog && unbanLog.target.id === user.id) ? `<@${unbanLog.executor.id}>` : "ไม่ทราบคนทำ";
+        const logChannel = client.channels.cache.get(UNBAN_LOG_CHANNEL_ID);
+        if (!logChannel) return;
+        const embed = new EmbedBuilder().setTitle('🔓 ตรวจพบการปลดแบนสมาชิก').setColor(0x00FF00)
+            .addFields({ name: '👤 คนทำ', value: executor, inline: true }, { name: '🎯 คนที่ถูกปลดแบน', value: `**${user.tag}**`, inline: false }).setTimestamp();
+        logChannel.send({ content: `✅ **${user.tag}** ได้รับการปลดแบน`, embeds: [embed] }).catch(console.error);
+    } catch(e) {}
 });
 
 client.on('guildBanAdd', async (ban) => {
-    await new Promise(r => setTimeout(r, 1500));
-    const logs = await ban.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.MemberBanAdd });
-    const log = logs.entries.first();
-    const executor = (log && log.target.id === ban.user.id) ? `<@${log.executor.id}>` : "ไม่ทราบ";
-    const chan = client.channels.cache.get(BAN_LOG_CHANNEL_ID);
-    if(chan) chan.send({ content: `🚨 **${ban.user.tag}** ถูกแบน`, embeds: [new EmbedBuilder().setTitle('🔨 แบนสมาชิก').setColor(0xFF0000).addFields({ name:'คนทำ', value: executor }, { name:'คนโดน', value: ban.user.tag }).setTimestamp()] }).catch(()=>{});
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+        const { guild, user } = ban;
+        const fetchedLogs = await guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.MemberBanAdd });
+        const banLog = fetchedLogs.entries.first();
+        let executor = (banLog && banLog.target.id === user.id) ? `<@${banLog.executor.id}>` : "ไม่ทราบคนทำ";
+        let reason = (banLog && banLog.reason) ? banLog.reason : (ban.reason || "ไม่ระบุ");
+        const logChannel = client.channels.cache.get(BAN_LOG_CHANNEL_ID);
+        if (!logChannel) return;
+        const embed = new EmbedBuilder().setTitle('🔨 ตรวจพบการแบนสมาชิก').setColor(0xFF0000)
+            .addFields({ name: '👤 คนทำ', value: executor, inline: true }, { name: '🎯 คนที่ถูกแบน', value: `**${user.tag}**`, inline: false }, { name: '📄 เหตุผล', value: `\`\`\`${reason}\`\`\`` }).setTimestamp();
+        logChannel.send({ content: `🚨 **${user.tag}** ถูกแบน`, embeds: [embed] }).catch(console.error);
+    } catch(e) {}
 });
-// (Unban, RoleUpdate, MemberUpdate events ใส่ไว้ตามเดิม หรือ copy จากอันเก่ามาแปะเพิ่มได้ครับ)
 
+client.on('roleUpdate', async (oldRole, newRole) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+        const fetchedLogs = await newRole.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.RoleUpdate });
+        const roleLog = fetchedLogs.entries.first();
+        let executor = (roleLog && roleLog.target.id === newRole.id) ? `<@${roleLog.executor.id}>` : "ไม่ทราบคนทำ";
+        const logChannel = client.channels.cache.get(UPDATE_ROLE_LOG_CHANNEL_ID);
+        if (!logChannel) return;
+        const embed = new EmbedBuilder().setTitle('🛠️ ตรวจพบการแก้ไขยศ').setColor(0xFFAA00).setTimestamp()
+            .addFields({ name: '👤 ผู้แก้ไข', value: executor, inline: true }, { name: '🏷️ ยศที่ถูกแก้', value: `**${newRole.name}**`, inline: false });
+        
+        if (oldRole.name !== newRole.name) embed.addFields({ name: '📝 เปลี่ยนชื่อ', value: `\`${oldRole.name}\` ➡️ \`${newRole.name}\`` });
+        if (oldRole.permissions.bitfield !== newRole.permissions.bitfield) {
+            embed.addFields({ name: '🛠️ สิทธิ์เดิม', value: `\`\`\`${translatePerms(oldRole.permissions.bitfield)}\`\`\``, inline: true }, { name: '✅ สิทธิ์ใหม่', value: `\`\`\`${translatePerms(newRole.permissions.bitfield)}\`\`\``, inline: true });
+            embed.setColor(0xFF0000);
+        }
+        if (embed.data.fields.length > 2) logChannel.send({ embeds: [embed] }).catch(console.error);
+    } catch(e) {}
+});
+
+client.on('guildMemberUpdate', async (oldMember, newMember) => {
+    const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
+    const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
+    if (addedRoles.size === 0 && removedRoles.size === 0) return;
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+        const fetchedLogs = await newMember.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.MemberRoleUpdate });
+        const roleLog = fetchedLogs.entries.first();
+        let executorTag = (roleLog && roleLog.target.id === newMember.id) ? `<@${roleLog.executor.id}>` : "ไม่ทราบชื่อ";
+        const logTime = time(new Date(), 'F');
+
+        if (addedRoles.size > 0) {
+            const addChannel = client.channels.cache.get(ADD_ROLE_CHANNEL_ID);
+            if (addChannel) {
+                const addEmbed = new EmbedBuilder().setTitle('➕ มีการเพิ่มยศ').setColor(0x00FF00)
+                    .addFields({ name: '👤 คนทำ', value: executorTag, inline: true }, { name: '🎯 คนที่ถูกใส่ยศ', value: `<@${newMember.id}>`, inline: true }, { name: '🏷️ ยศที่เพิ่ม', value: addedRoles.map(r => r.name).join(', ') }, { name: '⏰ เวลา', value: logTime });
+                addChannel.send({ content: `🔔 เพิ่มยศให้ <@${newMember.id}>`, embeds: [addEmbed] }).catch(console.error);
+            }
+        }
+        if (removedRoles.size > 0) {
+            const removeChannel = client.channels.cache.get(REMOVE_ROLE_CHANNEL_ID);
+            if (removeChannel) {
+                const removeEmbed = new EmbedBuilder().setTitle('➖ มีการถอนยศ').setColor(0xFF0000)
+                    .addFields({ name: '👤 คนทำ', value: executorTag, inline: true }, { name: '🎯 คนโดนลบยศ', value: `<@${newMember.id}>`, inline: true }, { name: '🏷️ ยศที่ลบ', value: removedRoles.map(r => r.name).join(', ') }, { name: '⏰ เวลา', value: logTime });
+                removeChannel.send({ content: `⚠️ ถอนยศจาก <@${newMember.id}>`, embeds: [removeEmbed] }).catch(console.error);
+            }
+        }
+    } catch(e) {}
+});
 
 // ================= 5. Start Bot =================
 client.once('ready', async () => {
