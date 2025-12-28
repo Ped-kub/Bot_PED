@@ -12,20 +12,18 @@ const ADMIN_CONFIG = {
     '1390444294988369971': 1,  //พี่โทจิ
 };
 
-// ฟังก์ชันหา "วันจันทร์ล่าสุด" (เวลา 00:00 น.)
+const MAX_CLAIMS = 5;
+
+// ฟังก์ชันหา "วันจันทร์ล่าสุด"
 function getLastMonday() {
     const d = new Date();
-    const day = d.getDay(); // 0=อาทิตย์, 1=จันทร์, ..., 6=เสาร์
-    
-    // คำนวณถอยหลังไปหาวันจันทร์ (ถ้าวันนี้วันอาทิตย์ ให้ถอย 6 วัน, ถ้าวันอื่นถอย day-1)
+    const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
-    
     const monday = new Date(d.setDate(diff));
-    monday.setHours(0, 0, 0, 0); // เซ็ตเป็นเที่ยงคืนเป๊ะ
+    monday.setHours(0, 0, 0, 0);
     return monday;
 }
 
-// ฟังก์ชันสุ่มตัวอักษร
 function generateRandomCode(length = 8) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -38,67 +36,63 @@ function generateRandomCode(length = 8) {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('gencode')
-        .setDescription('สร้างโค้ดรางวัล (รีเซ็ตทุกวันจันทร์)'),
+        .setDescription(`สร้างโค้ดรางวัล (จำกัด ${MAX_CLAIMS} คน/โค้ด, รีเซ็ตทุกจันทร์)`),
         
     async execute(interaction) {
         const userId = interaction.user.id;
-        const logPath = path.join(__dirname, '../../usage_logs.json'); // ไฟล์เก็บประวัติการกด
-        const dbPath = path.join(__dirname, '../../codes.json');   // ไฟล์เก็บโค้ด
+        const logPath = path.join(__dirname, '../../usage_logs.json');
+        const dbPath = path.join(__dirname, '../../codes.json');
 
         // 🛑 1. เช็คสิทธิ์ Admin
         if (!ADMIN_CONFIG[userId]) {
             return interaction.reply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้', ephemeral: true });
         }
 
-        // 🛑 2. ระบบเช็ค Cooldown (อาทิตย์ละครั้ง รีเซ็ตวันจันทร์)
+        // 🛑 2. ระบบเช็ค Cooldown รายสัปดาห์
         let usageLogs = {};
         try {
-            if (fs.existsSync(logPath)) {
-                usageLogs = JSON.parse(fs.readFileSync(logPath, 'utf8'));
-            }
-        } catch (e) { console.log('สร้างไฟล์ Log ใหม่'); }
+            if (fs.existsSync(logPath)) usageLogs = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+        } catch (e) {}
 
-        const lastMonday = getLastMonday().getTime(); // เวลาของวันจันทร์ล่าสุด (Timestamp)
-        const lastUsed = usageLogs[userId] || 0; // เวลาที่ผู้ใช้กดล่าสุด
+        const lastMonday = getLastMonday().getTime();
+        const lastUsed = usageLogs[userId] || 0;
 
-        // ถ้าเคยกดแล้ว และ เวลานั้นเกิดขึ้น "หลังจาก" วันจันทร์ล่าสุด
         if (lastUsed > lastMonday) {
             return interaction.reply({ 
-                content: `⏳ **คุณใช้สิทธิ์ของสัปดาห์นี้ไปแล้ว!**\nระบบจะรีเซ็ตใหม่ใน **วันจันทร์หน้า** ครับ`, 
+                content: `⏳ **คุณใช้สิทธิ์ของสัปดาห์นี้ไปแล้ว!**\nรอรีเซ็ตวันจันทร์หน้าครับ`, 
                 ephemeral: true 
             });
         }
 
-        // --- ✅ ผ่านเงื่อนไข: เริ่มสร้างโค้ด ---
-
+        // --- ✅ เริ่มสร้างโค้ด ---
         const points = ADMIN_CONFIG[userId];
         const code = generateRandomCode(10);
 
-        // 3. บันทึกโค้ดลง codes.json
+        // โหลดข้อมูลเก่า
         let existingCodes = [];
         try {
             const fileData = fs.readFileSync(dbPath, 'utf8');
             existingCodes = JSON.parse(fileData);
         } catch (err) {}
 
+        // 🔥 3. บันทึกรูปแบบใหม่ รองรับ 5 คน
         existingCodes.push({
             code: code,
             points: points,
+            maxUses: MAX_CLAIMS, // กำหนดว่าใช้ได้ 5 คน
+            usedBy: [],          // เก็บ List ID คนที่กดใช้ไปแล้ว (เริ่มจากว่างเปล่า)
             createdBy: interaction.user.tag,
-            createdById: userId,
-            createdAt: new Date().toISOString(),
-            isRedeemed: false
+            createdAt: new Date().toISOString()
         });
 
         fs.writeFileSync(dbPath, JSON.stringify(existingCodes, null, 2));
 
-        // 4. บันทึกประวัติการกด (Timestamp ปัจจุบัน) ลง usage_logs.json
+        // อัปเดต Log การใช้งานของ Admin
         usageLogs[userId] = Date.now();
         fs.writeFileSync(logPath, JSON.stringify(usageLogs, null, 2));
 
-        // 5. ตอบกลับ
         await interaction.reply({
-            content: `✅ **สร้างโค้ดประจำสัปดาห์สำเร็จ!**\n🎫 รหัส: \`${code}\`\n💎 มูลค่า: **${points}** แต้ม\n(สิทธิ์ครั้งต่อไป: วันจันทร์หน้า)`,
+            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${code}\`\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n💎 มูลค่า: **${points}** แต้ม/คน`,
             ephemeral: true 
         });
     },

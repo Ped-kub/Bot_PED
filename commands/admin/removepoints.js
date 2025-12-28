@@ -1,0 +1,67 @@
+const { SlashCommandBuilder } = require('discord.js');
+const fs = require('node:fs');
+const path = require('node:path');
+
+// 🔒 รายชื่อ ID ที่มีสิทธิ์ใช้คำสั่งนี้
+const ADMIN_IDS = [
+    '910909335784288297',  //เป็ด
+    '774417760281165835',   // พี่เเอล
+    '1319982025557413949',  //คุณมิริม
+    '1056886143754444840',  //เกโต้
+    '926336093253677157',   //โอม
+    '1390444294988369971'  //พี่โทจิ
+];
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('removepoints')
+        .setDescription('ลบแต้มออกจากผู้ใช้ (Admin Only)')
+        .addUserOption(option => 
+            option.setName('target')
+                .setDescription('คนที่จะลบแต้ม')
+                .setRequired(true))
+        .addIntegerOption(option => 
+            option.setName('amount')
+                .setDescription('จำนวนแต้มที่จะลบ')
+                .setRequired(true)),
+                
+    async execute(interaction) {
+        // 1. เช็คสิทธิ์ Admin
+        if (!ADMIN_IDS.includes(interaction.user.id)) {
+            return interaction.reply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้', ephemeral: true });
+        }
+
+        const targetUser = interaction.options.getUser('target');
+        const amount = interaction.options.getInteger('amount');
+        const usersPath = path.join(__dirname, '../../users.json');
+
+        if (amount <= 0) {
+            return interaction.reply({ content: '❌ จำนวนแต้มต้องมากกว่า 0', ephemeral: true });
+        }
+
+        // 2. โหลดข้อมูล
+        let users = {};
+        try {
+            if (fs.existsSync(usersPath)) users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+        } catch (e) {}
+
+        // ถ้า User ไม่มีข้อมูล หรือแต้มเป็น 0 อยู่แล้ว
+        if (!users[targetUser.id] || users[targetUser.id].points <= 0) {
+            return interaction.reply({ content: `⚠️ **${targetUser.username}** ไม่มีแต้มให้ลบแล้วครับ`, ephemeral: true });
+        }
+
+        // 3. คำนวณการลบ (ไม่ให้ติดลบ)
+        const oldPoints = users[targetUser.id].points;
+        let newPoints = oldPoints - amount;
+        if (newPoints < 0) newPoints = 0; // ถ้าลบเกิน ให้เหลือ 0
+
+        // บันทึก
+        users[targetUser.id].points = newPoints;
+        fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+
+        // 4. แจ้งผล
+        await interaction.reply({
+            content: `🗑️ **ลบแต้มสำเร็จ!**\n👤 จาก: ${targetUser}\n➖ หักออก: **${amount}** แต้ม\n💰 ยอดคงเหลือ: **${newPoints}** แต้ม`
+        });
+    },
+};
