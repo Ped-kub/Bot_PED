@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
@@ -11,26 +10,37 @@ const {
     PermissionFlagsBits, ButtonStyle, time, OverwriteType 
 } = require('discord.js');
 
-// เรียกใช้ Model
+// เรียกใช้ Model และ Config
 const User = require('./models/User'); 
 const { products, farmPackages } = require('./config.js');
 
-// ================= 1. ตั้งค่า Server & Database =================
+// ================= 1. ตั้งค่า Server (Dummy Server สำหรับ Render) =================
+// เราต้องมี Express Server เล็กๆ ไว้เพื่อให้ Render ตรวจจับว่า Service ทำงานอยู่ (Health Check)
 const app = express();
 const port = process.env.PORT || 10000;
-    
+
+app.get('/', (req, res) => res.send('🤖 Bot is Online!')); // หน้าเว็บโง่ๆ บอกว่าบอททำงาน
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`✅ Dummy Server running on port ${port}`);
+});
+
 // เชื่อมต่อ MongoDB
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Connected to MongoDB!'))
     .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
+
 // ================= 2. ตั้งค่า Discord Bot =================
 const TOKEN = process.env.BOT_TOKEN;
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildModeration
+        GatewayIntentBits.Guilds, 
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent, 
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMembers,     // สำคัญสำหรับ Log
+        GatewayIntentBits.GuildModeration   // สำคัญสำหรับ Log
     ]
 });
 
@@ -49,7 +59,7 @@ const NOTIFY_ITEM_USERS = ['1390444294988369971'];
 const NOTIFY_TRADE_USERS = ['1056886143754444840'];
 const TARGET_CHANNEL_ID = '1434589377173917697'; 
 
-// --- โหลดคำสั่ง ---
+// --- โหลดคำสั่ง Slash Commands ---
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 if (fs.existsSync(foldersPath)) {
@@ -80,7 +90,7 @@ function translatePerms(bitfield) {
     return important.length > 0 ? important.join(', ') : 'สิทธิ์ทั่วไป';
 }
 
-let currentCount = 0; // ตัวแปรเก็บเลขปัจจุบัน (ใน Memory)
+let currentCount = 0; // ตัวแปรเก็บเลขปัจจุบัน
 
 // ================= 3. Bot Events =================
 
@@ -90,7 +100,6 @@ client.on('messageCreate', async message => {
 
     if (message.content.trim() === '+1') {
         currentCount++;
-
         try {
             await message.channel.setName(`เครดิต-${currentCount}`);
             await message.react('💗');
@@ -114,7 +123,6 @@ client.on('interactionCreate', async interaction => {
         if (!command) return;
 
         try {
-            // Safe Defer: ป้องกัน Error Unknown Interaction
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.deferReply();
             }
@@ -147,12 +155,6 @@ client.on('interactionCreate', async interaction => {
             }, 3000);
         } catch (error) { console.error('ลบห้องผิดพลาด:', error); }
         return;
-    }
-
-    // --- 3. Select Menu: ดูรายละเอียดสินค้า (View Details) ---
-    if (interaction.isStringSelectMenu() && (interaction.customId === 'select_product' || interaction.customId === 'select_farm')) {
-        // ส่วนนี้อาจจะซ้ำกับด้านล่าง แต่เก็บไว้เผื่อ Logic เก่า
-        // (แนะนำให้ใช้ Logic ด้านล่างเป็นหลักเพื่อลดโค้ดซ้ำซ้อน)
     }
 
     /* ================= SELECT PRODUCT / FARM (Main Logic) ================= */
@@ -270,7 +272,6 @@ client.on('interactionCreate', async interaction => {
 });
 
 // ================= 4. Logging Events (Roles/Bans) =================
-// (ย่อส่วนนี้ให้สั้นลง แต่ทำงานเหมือนเดิมครับ)
 
 client.on('roleCreate', async (role) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
