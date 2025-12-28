@@ -123,7 +123,7 @@ client.on('messageCreate', async message => {
 
         try {
             // เปลี่ยนชื่อห้อง
-            await message.channel.setName(`count-${currentCount}`);
+            await message.channel.setName(`เครดิต-${currentCount}`);
             await message.react('✅');
         } catch (error) {
             // กรณีติด Rate Limit (เปลี่ยนชื่อบ่อยเกินไป)
