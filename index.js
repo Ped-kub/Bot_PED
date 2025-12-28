@@ -66,6 +66,25 @@ const client = new Client({
     ]
 });
 
+const TARGET_CHANNEL_ID = '1434589377173917697'; 
+const DATA_FILE = 'count_data.json';
+
+let currentCount = 0;
+
+function loadCount() {
+    if (fs.existsSync(DATA_FILE)) {
+        const data = fs.readFileSync(DATA_FILE);
+        const json = JSON.parse(data);
+        currentCount = json.count;
+        console.log(`โหลดเลขล่าสุดมาแล้ว: ${currentCount}`);
+    }
+}
+
+function saveCount() {
+    const json = JSON.stringify({ count: currentCount });
+    fs.writeFileSync(DATA_FILE, json);
+}
+
 function translatePerms(bitfield) {
     const p = new PermissionsBitField(bitfield);
     const important = [];
@@ -94,6 +113,33 @@ if (fs.existsSync(foldersPath)) {
         }
     }
 }
+
+client.on('messageCreate', async message => {
+    if (message.author.bot) return;
+    if (message.channel.id !== TARGET_CHANNEL_ID) return;
+
+    if (message.content.trim() === '+1') {
+        currentCount++; // บวกเลข
+
+        try {
+            // เปลี่ยนชื่อห้อง
+            await message.channel.setName(`count-${currentCount}`);
+            await message.react('✅');
+        } catch (error) {
+            // กรณีติด Rate Limit (เปลี่ยนชื่อบ่อยเกินไป)
+            console.log(`เปลี่ยนชื่อไม่ทัน (Rate Limit) แต่นับเลขเป็น ${currentCount} แล้ว`);
+            // อาจจะส่งข้อความบอก user นานๆ ที หรือปล่อยผ่านก็ได้ครับ
+        }
+    }
+    
+    // (เสริม) ถ้าอยากให้รีเซ็ตเลข ให้พิมพ์ !reset
+    if (message.content.trim() === '!reset') {
+        currentCount = 0;
+        await message.channel.setName(`count-${currentCount}`);
+        await message.reply('รีเซ็ตเลขเป็น 0 แล้วครับ');
+    }
+});
+
 /* ================= INTERACTION HANDLER ================= */
 client.on('interactionCreate', async interaction => {
     const { guild, user, customId, values } = interaction;
@@ -653,8 +699,35 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
     }
 });
 
-client.once('ready', () => {
+client.once('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
+
+    try {
+        // 1. ดึงข้อมูลห้องจาก ID
+        const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
+        
+        // 2. อ่านชื่อห้องปัจจุบัน (สมมติชื่อ "count-50")
+        const channelName = channel.name;
+        
+        // 3. แยกข้อความด้วยขีด "-" แล้วเอาตัวสุดท้ายมาแปลงเป็นตัวเลข
+        // เช่น "count-50" -> แยกได้ ["count", "50"] -> เอา "50"
+        const parts = channelName.split('-');
+        const lastPart = parts[parts.length - 1];
+        const extractedNumber = parseInt(lastPart);
+
+        // 4. ตรวจสอบว่าเป็นตัวเลขจริงไหม
+        if (!isNaN(extractedNumber)) {
+            currentCount = extractedNumber;
+            console.log(`✅ ซิงค์ข้อมูลสำเร็จ! นับต่อจากเลข: ${currentCount}`);
+        } else {
+            console.log('⚠️ ไม่พบตัวเลขในชื่อห้อง จะเริ่มนับจาก 0');
+            currentCount = 0;
+        }
+
+    } catch (error) {
+        console.error('❌ เกิดข้อผิดพลาดในการดึงข้อมูลห้อง:', error);
+    }
+
     client.user.setActivity('ThapxkornAX', {
         type: ActivityType.Streaming,
         url: 'https://www.twitch.tv/star_ssr'
