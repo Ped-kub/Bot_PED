@@ -1,58 +1,56 @@
 const { SlashCommandBuilder } = require('discord.js');
-const User = require('../../models/User'); // เรียกใช้ Model ผู้ใช้
-const Code = require('../../models/Code'); // เรียกใช้ Model โค้ด
+const User = require('../../models/User');
+const Code = require('../../models/Code');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('redeem')
-        .setDescription('เติมโค้ดรับแต้มรางวัล')
+        .setDescription('เติมโค้ดรับรางวัล')
         .addStringOption(option =>
             option.setName('code')
-                .setDescription('ใส่รหัสโค้ดที่นี่')
+                .setDescription('ใส่รหัสโค้ด')
                 .setRequired(true)),
     async execute(interaction) {
         const codeInput = interaction.options.getString('code').trim();
         const userId = interaction.user.id;
 
-        // 1. ค้นหาโค้ดจาก MongoDB
         const codeData = await Code.findOne({ code: codeInput });
 
-        // ถ้าไม่เจอโค้ด
-        if (!codeData) {
-            return interaction.editReply({ content: '❌ **ไม่พบโค้ดนี้** หรือโค้ดไม่ถูกต้อง' });
+        if (!codeData) return interaction.editReply('❌ **ไม่พบโค้ดนี้** หรือโค้ดไม่ถูกต้อง');
+
+        // --- 🕒 เช็ควันหมดอายุ ---
+        if (codeData.expiresAt) {
+            const now = new Date();
+            if (now > codeData.expiresAt) {
+                return interaction.editReply('❌ **เสียใจด้วย!** โค้ดนี้หมดอายุไปแล้วครับ ⏳');
+            }
         }
 
-        // 2. ตรวจสอบเงื่อนไข
-        
-        // เช็คว่าสิทธิ์เต็มหรือยัง?
-        if (codeData.usedBy.length >= codeData.maxUses) {
-            return interaction.editReply({ content: '❌ **เสียใจด้วย!** โค้ดนี้มีผู้ใช้สิทธิ์ครบจำนวนแล้ว' });
-        }
+        if (codeData.usedBy.length >= codeData.maxUses) return interaction.editReply('❌ **เสียใจด้วย!** โค้ดนี้สิทธิ์เต็มแล้ว');
+        if (codeData.usedBy.includes(userId)) return interaction.editReply('⚠️ **คุณเคยใช้โค้ดนี้ไปแล้ว**');
 
-        // เช็คว่าเคยเติมไปแล้วหรือยัง?
-        if (codeData.usedBy.includes(userId)) {
-            return interaction.editReply({ content: '⚠️ **คุณเคยใช้โค้ดนี้ไปแล้ว** ไม่สามารถใช้ซ้ำได้อีกครับ' });
-        }
-
-        // --- ✅ ผ่านเงื่อนไข เริ่มกระบวนการเติมเงิน ---
-
-        // 3. อัปเดต User (เพิ่มแต้ม)
-        // ค้นหา User ถ้าไม่มีให้สร้างใหม่ (upsert)
+        // ... (ส่วนแจกของ เหมือนเดิมเป๊ะ) ...
         let userData = await User.findOne({ userId: userId });
-        if (!userData) {
-            userData = new User({ userId: userId, points: 0 });
+        if (!userData) userData = new User({ userId: userId, points: 0 });
+
+        let replyMessage = `🎉 **เติมโค้ดสำเร็จ! (` + codeInput + `)**\n`;
+
+        if (codeData.points > 0) {
+            userData.points += codeData.points;
+            replyMessage += `💰 คุณได้รับ: **${codeData.points}** แต้ม\n`;
         }
 
-        userData.points += codeData.points;
-        await userData.save(); // บันทึกข้อมูลผู้ใช้
+        if (codeData.reward) {
+            replyMessage += `🎁 คุณได้รับของรางวัล: **${codeData.reward}**\n*(⚠️ กรุณาแคปภาพแจ้งแอดมิน)*\n`;
+        }
 
-        // 4. อัปเดต Code (บันทึกว่า User นี้ใช้แล้ว)
+        await userData.save();
         codeData.usedBy.push(userId);
-        await codeData.save(); // บันทึกข้อมูลโค้ด
+        await codeData.save();
 
-        // 5. แจ้งเตือน
-        await interaction.editReply({
-            content: `🎉 **เติมโค้ดสำเร็จ!**\n💰 คุณได้รับ: **${codeData.points}** แต้ม\n💳 ยอดรวม: **${userData.points}** แต้ม\n(สิทธิ์คงเหลือของโค้ดนี้: ${codeData.maxUses - codeData.usedBy.length}/${codeData.maxUses})`
-        });
+        replyMessage += `💳 แต้มสะสมรวม: **${userData.points}**\n`;
+        replyMessage += `(สิทธิ์คงเหลือ: ${codeData.maxUses - codeData.usedBy.length}/${codeData.maxUses})`;
+
+        await interaction.editReply({ content: replyMessage });
     },
 };

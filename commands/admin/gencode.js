@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require('discord.js');
-const User = require('../../models/User'); // 1. เรียกใช้ Model User (เก็บ Cooldown)
-const Code = require('../../models/Code'); // 2. เรียกใช้ Model Code (เก็บโค้ด)
+const { SlashCommandBuilder, time } = require('discord.js'); // เพิ่ม time มาใช้แสดงเวลา
+const User = require('../../models/User'); 
+const Code = require('../../models/Code'); 
 
 // 🔥 ตั้งค่า: ใครมีสิทธิ์ใช้ และได้แต้มเท่าไหร่
 const ADMIN_CONFIG = {
@@ -36,7 +36,7 @@ function generateRandomCode(length = 8) {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('gencode')
-        .setDescription(`สร้างโค้ดรางวัล (จำกัด ${MAX_CLAIMS} คน/โค้ด, รีเซ็ตทุกจันทร์)`),
+        .setDescription(`สร้างโค้ดรางวัล (จำกัด ${MAX_CLAIMS} คน/โค้ด, หมดอายุ 7 วัน)`),
         
     async execute(interaction) {
         const userId = interaction.user.id;
@@ -46,15 +46,11 @@ module.exports = {
             return interaction.editReply({ content: '❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้' });
         }
 
-        // 🛑 2. ระบบเช็ค Cooldown (จาก MongoDB)
-        // ค้นหา User ใน Database
+        // 🛑 2. ระบบเช็ค Cooldown
         let userData = await User.findOne({ userId: userId });
+        const lastMonday = getLastMonday();
         
-        const lastMonday = getLastMonday(); // เวลาวันจันทร์ล่าสุด (Date Object)
-        
-        // ถ้ามีข้อมูล User และมีประวัติกดใช้ (lastGencode)
         if (userData && userData.lastGencode) {
-            // เช็คว่ากดไปล่าสุด "หลัง" วันจันทร์หรือยัง
             if (userData.lastGencode > lastMonday) {
                 return interaction.editReply({ 
                     content: `⏳ **คุณใช้สิทธิ์ของสัปดาห์นี้ไปแล้ว!**\nรอรีเซ็ตวันจันทร์หน้าครับ`
@@ -66,28 +62,32 @@ module.exports = {
         const points = ADMIN_CONFIG[userId];
         const codeString = generateRandomCode(10);
 
-        // 🔥 3. สร้างและบันทึกโค้ดลง MongoDB (Model Code)
+        // 🕒 กำหนดวันหมดอายุ (ปัจจุบัน + 7 วัน)
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 7);
+
+        // 🔥 3. สร้างและบันทึกโค้ดลง MongoDB
         const newCode = new Code({
             code: codeString,
             points: points,
             maxUses: MAX_CLAIMS,
+            expiresAt: expirationDate, // 👈 บันทึกวันหมดอายุลงไป
             createdBy: interaction.user.tag
         });
 
-        await newCode.save(); // บันทึกโค้ด
+        await newCode.save();
 
-        // 🔥 4. บันทึกเวลา Cooldown ลง MongoDB (Model User)
-        // ถ้า User ยังไม่มีในระบบ ให้สร้างใหม่
+        // 🔥 4. บันทึกเวลา Cooldown ลง User
         if (!userData) {
             userData = new User({ userId: userId, points: 0 });
         }
         
-        userData.lastGencode = new Date(); // อัปเดตเวลาปัจจุบัน
-        await userData.save(); // บันทึก User
+        userData.lastGencode = new Date();
+        await userData.save();
 
-        // ✅ แจ้งผล
+        // ✅ แจ้งผล (ใช้ time() ของ discord.js เพื่อแสดงเวลานับถอยหลังสวยๆ)
         await interaction.editReply({
-            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${codeString}\`\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n💎 มูลค่า: **${points}** แต้ม/คน`
+            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${codeString}\`\n💎 แจกแต้ม: **${points}** แต้ม\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n⏳ หมดอายุ: ${time(expirationDate, 'R')} (7 วัน)`
         });
     },
 };
