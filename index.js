@@ -626,17 +626,17 @@ client.once('ready', async () => {
 
    const statusOptions = [
         {
-            name: 'ThapxkornAX',
+            name: '𝑻𝒉𝒂𝒑𝒙𝒌𝒐𝒓𝒏𝑨𝑿',
             type: ActivityType.Streaming,
             url: 'https://www.twitch.tv/star_ssr'
         },
         {
-            name: 'P.Pedz', 
+            name: '𝑷.𝑷𝒆𝒅𝒛', 
             type: ActivityType.Streaming,
             url: 'https://www.twitch.tv/star_ssr'
         },
         {
-            name: 'Bot by Ped',
+            name: '𝑩𝒐𝒕 𝒃𝒚 𝑷𝒆𝒅',
             type: ActivityType.Streaming,
             url: 'https://www.twitch.tv/star_ssr'
         }
@@ -644,16 +644,28 @@ client.once('ready', async () => {
 
     let currentIndex = 0;
 
+    const getUptimeString = () => {
+        let totalSeconds = (client.uptime / 1000);
+        let days = Math.floor(totalSeconds / 86400);
+        let hours = Math.floor((totalSeconds % 86400) / 3600);
+        let minutes = Math.floor((totalSeconds % 3600) / 60);
+
+        if (days > 0) return `⏰ ออนมาแล้ว ${days} วัน ${hours} ชม.`;
+        return `⏰ ออนมาแล้ว ${hours} ชม. ${minutes} นาที`;
+    };
+
     // สร้างฟังก์ชันอัปเดตสถานะ
     const updateStatus = () => {
         const status = statusOptions[currentIndex];
+
+        const timeString = getUptimeString();
         
         client.user.setActivity(status.name, { 
             type: status.type, 
-            url: status.url // ถ้าไม่มีจะเป็น undefined อัตโนมัติ ซึ่งไม่ error
+            url: status.url,
+            state: timeString
         });
 
-        // ขยับ index ไปตัวถัดไป
         currentIndex = (currentIndex + 1) % statusOptions.length;
     };
 
