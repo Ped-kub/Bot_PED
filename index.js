@@ -7,7 +7,7 @@ const {
     Client, GatewayIntentBits, ActivityType, PermissionsBitField, 
     ChannelType, Collection, StringSelectMenuBuilder, EmbedBuilder, 
     AuditLogEvent, ActionRowBuilder, MessageFlags, ButtonBuilder, 
-    PermissionFlagsBits, ButtonStyle, time, OverwriteType 
+    PermissionFlagsBits, ButtonStyle, time, ModalBuilder, TextInputBuilder, TextInputStyle, OverwriteType 
 } = require('discord.js');
 
 // เรียกใช้ Model และ Config
@@ -57,6 +57,7 @@ const STAFF_ROLE_ID = '1443797915230539928';
 const NOTIFY_ITEM_USERS = ['1390444294988369971'];
 const NOTIFY_TRADE_USERS = ['1056886143754444840'];
 const TARGET_CHANNEL_ID = '1434589377173917697'; 
+const SUPPORT_LOG_CHANNEL_ID = '1456315702528053451';
 
 // --- โหลดคำสั่ง Slash Commands ---
 client.commands = new Collection();
@@ -141,6 +142,69 @@ client.on('interactionCreate', async interaction => {
             }
         }
         return;
+    }
+
+    if (interaction.isButton() && interaction.customId === 'open_contact_modal') {
+        const modal = new ModalBuilder()
+            .setCustomId('contact_form_submit')
+            .setTitle('📝 แบบฟอร์มติดต่อทีมงาน');
+
+        // ช่องกรอกหัวข้อ
+        const subjectInput = new TextInputBuilder()
+            .setCustomId('contact_subject')
+            .setLabel("หัวข้อเรื่อง")
+            .setPlaceholder("เช่น กดTicketไม่ได้, พบเจอบัค")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        // ช่องกรอกรายละเอียด
+        const detailInput = new TextInputBuilder()
+            .setCustomId('contact_detail')
+            .setLabel("รายละเอียด")
+            .setPlaceholder("อธิบายปัญหาของคุณให้ละเอียด...")
+            .setStyle(TextInputStyle.Paragraph)
+            .setRequired(true);
+
+        const firstRow = new ActionRowBuilder().addComponents(subjectInput);
+        const secondRow = new ActionRowBuilder().addComponents(detailInput);
+
+        modal.addComponents(firstRow, secondRow);
+        await interaction.showModal(modal);
+    }
+
+    // 🟢 2. เช็คเมื่อ User กดส่งฟอร์ม (contact_form_submit)
+    if (interaction.isModalSubmit() && interaction.customId === 'contact_form_submit') {
+        // ดึงข้อมูลที่เขากรอกมา
+        const subject = interaction.fields.getTextInputValue('contact_subject');
+        const detail = interaction.fields.getTextInputValue('contact_detail');
+
+        // ส่งข้อความไปห้อง Log แอดมิน
+        const logChannel = client.channels.cache.get(SUPPORT_LOG_CHANNEL_ID);
+        if (logChannel) {
+            const embed = new EmbedBuilder()
+                .setTitle('📩 มีการติดต่อใหม่ (Support Ticket)')
+                .setColor('#e67e22') // สีส้ม
+                .addFields(
+                    { name: '👤 ผู้ส่ง', value: `<@${interaction.user.id}> (${interaction.user.tag})`, inline: true },
+                    { name: '🆔 User ID', value: interaction.user.id, inline: true },
+                    { name: '📝 หัวข้อ', value: subject, inline: false },
+                    { name: '📄 รายละเอียด', value: detail, inline: false },
+                    { name: '⏰ เวลา', value: time(new Date(), 'F'), inline: false }
+                )
+                .setThumbnail(interaction.user.displayAvatarURL());
+
+            // แท็กแอดมิน หรือ Role Staff ให้รู้ตัว
+            logChannel.send({ 
+                content: `🔔 **Admin Alert:** มีข้อความใหม่จาก <@${interaction.user.id}>`, 
+                embeds: [embed] 
+            });
+        }
+
+        // ตอบกลับ User ว่าได้รับเรื่องแล้ว
+        await interaction.reply({ 
+            content: '✅ **ส่งข้อมูลเรียบร้อย!** ทีมงานจะรีบตรวจสอบและติดต่อกลับโดยเร็วที่สุดครับ', 
+            ephemeral: true // เห็นแค่คนส่ง
+        });
     }
 
     // --- 2. Button: Close Room ---
