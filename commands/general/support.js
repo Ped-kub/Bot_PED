@@ -21,17 +21,19 @@ module.exports = {
 
         // 2. สร้างปุ่ม
         const contactBtn = new ButtonBuilder()
-            .setCustomId('open_contact_modal') // 👈 ID ปุ่ม เอาไปใช้ใน index.js
+            .setCustomId('open_contact_modal') 
             .setLabel('📩 ติดต่อทีมงาน')
-            .setStyle(ButtonStyle.Primary); // ปุ่มสีน้ำเงิน
+            .setStyle(ButtonStyle.Primary); 
 
+        // ⚠️ อย่าลืมใส่ลิงก์ Discord ของคุณตรงนี้
         const linkBtn = new ButtonBuilder()
-            .setLabel('🔗 เข้า Discord หลัก')
+            .setLabel('🔗 เข้า Discord')
             .setStyle(ButtonStyle.Link)
-            .setURL('https://discord.gg/ใส่ลิงก์ดิสคอร์ดของคุณ'); // 👈 อย่าลืมเปลี่ยนลิงก์
+            .setURL('https://discord.gg/TYKMjukwGT'); 
 
         const row = new ActionRowBuilder().addComponents(contactBtn, linkBtn);
 
-        await interaction.reply({ embeds: [embed], components: [row] });
+        // 👇 แก้ตรงนี้ครับ: เปลี่ยนจาก reply เป็น editReply
+        await interaction.editReply({ embeds: [embed], components: [row] });
     },
 };
