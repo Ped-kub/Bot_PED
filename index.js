@@ -18,7 +18,47 @@ const { products, farmPackages } = require('./config.js');
 const app = express();
 const port = process.env.PORT || 10000;
 
-app.get('/', (req, res) => res.send('🤖 Bot is Online!')); 
+app.use(express.json());
+
+// 🟢 [เพิ่มตรงนี้ 2] กำหนดรหัสลับ (ควรตรงกับเว็บควบคุม)
+const API_SECRET = process.env.API_SECRET || "MY_SUPER_SECRET_KEY_1234"; 
+
+app.get('/', (req, res) => res.send('🤖 Bot is Online!'));
+
+app.post('/api/control', async (req, res) => {
+    const { secret, type, channelId, message, userId } = req.body;
+
+    // เช็ครหัสผ่านก่อน
+    if (secret !== API_SECRET) {
+        return res.status(403).json({ error: "❌ รหัสผ่านไม่ถูกต้อง!" });
+    }
+
+    try {
+        // กรณีสั่งส่งข้อความ
+        if (type === 'send_message') {
+            const channel = await client.channels.fetch(channelId);
+            if (!channel) return res.status(404).json({ error: "หาห้องไม่เจอ" });
+            
+            await channel.send(message);
+            return res.json({ success: true, msg: "ส่งข้อความสำเร็จ" });
+        }
+        
+        // กรณีสั่งให้ DM หา user (ตัวอย่างเพิ่มเติม)
+        if (type === 'dm_user') {
+            const user = await client.users.fetch(userId);
+            if (!user) return res.status(404).json({ error: "หาคนไม่เจอ" });
+            
+            await user.send(message);
+            return res.json({ success: true, msg: "DM สำเร็จ" });
+        }
+
+        res.status(400).json({ error: "ไม่รู้จักคำสั่งนี้" });
+
+    } catch (error) {
+        console.error("API Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`✅ Dummy Server running on port ${port}`);
