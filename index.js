@@ -415,7 +415,43 @@ client.once('ready', async () => {
         }
     } catch (error) { console.error('❌ ดึงข้อมูลห้องผิดพลาด:', error); }
 
-    client.user.setActivity('ThapxkornAX', { type: ActivityType.Streaming, url: 'https://www.twitch.tv/star_ssr' });
-});
+   const statusOptions = [
+        {
+            name: 'ThapxkornAX',
+            type: ActivityType.Streaming,
+            url: 'https://www.twitch.tv/star_ssr'
+        },
+        {
+            name: 'P.Pedz', 
+            type: ActivityType.Streaming,
+            url: 'https://www.twitch.tv/star_ssr'
+        },
+        {
+            name: 'Bot by Ped',
+            type: ActivityType.Streaming,
+            url: 'https://www.twitch.tv/star_ssr'
+        }
+    ];
 
+    let currentIndex = 0;
+
+    // สร้างฟังก์ชันอัปเดตสถานะ
+    const updateStatus = () => {
+        const status = statusOptions[currentIndex];
+        
+        client.user.setActivity(status.name, { 
+            type: status.type, 
+            url: status.url // ถ้าไม่มีจะเป็น undefined อัตโนมัติ ซึ่งไม่ error
+        });
+
+        // ขยับ index ไปตัวถัดไป
+        currentIndex = (currentIndex + 1) % statusOptions.length;
+    };
+
+    // เรียกครั้งแรกทันที (ไม่ต้องรอ 10 วิ)
+    updateStatus();
+
+    // ตั้งเวลาให้วนลูปทุก 10 วินาที
+    setInterval(updateStatus, 10000);
+});
 client.login(TOKEN);
