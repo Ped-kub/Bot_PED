@@ -21,7 +21,7 @@ const port = process.env.PORT || 10000;
 app.use(express.json());
 
 // 🟢 [เพิ่มตรงนี้ 2] กำหนดรหัสลับ (ควรตรงกับเว็บควบคุม)
-const API_SECRET = process.env.API_SECRET || "MY_SUPER_SECRET_KEY_1234"; 
+const API_SECRET = process.env.API_SECRET || "P.Pedz"; 
 
 app.get('/', (req, res) => res.send('🤖 Bot is Online!'));
 
@@ -58,6 +58,28 @@ app.post('/api/control', async (req, res) => {
         console.error("API Error:", error);
         res.status(500).json({ error: error.message });
     }
+});
+
+app.get('/api/stats', (req, res) => {
+    // เช็ค Secret Key เพื่อความปลอดภัย
+    const secret = req.headers['authorization'] || req.query.secret;
+    if (secret !== API_SECRET) {
+        return res.status(403).json({ error: "Access Denied" });
+    }
+
+    // คำนวณ Uptime
+    const uptimeSeconds = process.uptime();
+    const hours = Math.floor(uptimeSeconds / 3600);
+    const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+
+    // ส่งข้อมูลกลับไป
+    res.json({
+        servers: client.guilds.cache.size,
+        users: client.users.cache.size, // หรือจะนับรวมทั้งหมด
+        ping: client.ws.ping,
+        uptime: `${hours} ชม. ${minutes} นาที`,
+        status: client.user ? 'Online' : 'Offline'
+    });
 });
 
 app.listen(port, '0.0.0.0', () => {
