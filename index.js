@@ -58,6 +58,14 @@ const NOTIFY_ITEM_USERS = ['1390444294988369971'];
 const NOTIFY_TRADE_USERS = ['1056886143754444840'];
 const TARGET_CHANNEL_ID = '1434589377173917697'; 
 const SUPPORT_LOG_CHANNEL_ID = '1456315702528053451';
+const BYPASS_ROLES = [
+    '1393129924671307796', 
+    '1443797915230539928',
+    '1393122803871387738'  
+];
+const IGNORE_CHANNELS = ['1449796031800672318'];
+const BAD_WORDS = ['คำหยาบ1', 'คำหยาบ2', 'ควย', 'สัส', 'เหี้ย', 'เย็ด', 'มึง', 'กู'];
+const AUTOMOD_LOG_CHANNEL = '1456317915312947344';
 
 // --- โหลดคำสั่ง Slash Commands ---
 client.commands = new Collection();
@@ -110,6 +118,81 @@ client.on('messageCreate', async message => {
         currentCount = 0;
         await message.channel.setName(`count-${currentCount}`);
         await message.reply('รีเซ็ตเลขเป็น 0 แล้วครับ');
+    }
+});
+
+client.on('messageCreate', async message => {
+    // 1. เงื่อนไขข้าม: ไม่ตรวจสอบบอท / ห้องที่ยกเว้น / แชทส่วนตัว (DM)
+    if (message.author.bot) return;
+    if (!message.guild) return; 
+    if (IGNORE_CHANNELS.includes(message.channel.id)) return;
+
+    // 2. เงื่อนไขข้าม: เช็คว่าคนพิมพ์มียศกันลบไหม? (Staff/Admin)
+    const isStaff = message.member.roles.cache.some(role => BYPASS_ROLES.includes(role.id));
+    if (isStaff) return;
+
+    const content = message.content.toLowerCase().replace(/\s+/g, ''); // ลบช่องว่างออกเพื่อให้เช็คแม่นขึ้น (เช่น "ค ว ย")
+
+    // --- 🚨 ฟังก์ชันที่ 1: กรองคำหยาบ ---
+    const foundBadWord = BAD_WORDS.find(word => content.includes(word));
+    
+    if (foundBadWord) {
+        try {
+            await message.delete(); // 🗑️ ลบข้อความทันที
+            
+            // ⚠️ ส่งข้อความเตือนในห้อง (ลบออกเองใน 5 วิ)
+            const warningMsg = await message.channel.send({ 
+                content: `⚠️ <@${message.author.id}> **กรุณาใช้คำสุภาพครับ!** (ห้ามพิมพ์คำหยาบ)` 
+            });
+            setTimeout(() => warningMsg.delete().catch(() => {}), 5000);
+
+            // 📝 ส่งหลักฐานเข้าห้อง Log แอดมิน
+            const logChannel = client.channels.cache.get(AUTOMOD_LOG_CHANNEL);
+            if (logChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setTitle('🛡️ AutoMod: ตรวจพบคำหยาบ')
+                    .setColor('#e74c3c') // สีแดง
+                    .addFields(
+                        { name: '👤 ผู้กระทำผิด', value: `<@${message.author.id}> (${message.author.tag})`, inline: true },
+                        { name: '📺 ห้อง', value: `<#${message.channel.id}>`, inline: true },
+                        { name: '💬 ข้อความที่ลบ', value: `||${message.content}||` } // ใส่ Spoiler ปิดไว้
+                    )
+                    .setTimestamp();
+                logChannel.send({ embeds: [logEmbed] });
+            }
+            return; // จบการทำงาน (เพื่อไม่ให้ทำงานซ้ำซ้อนกับกันลิงก์)
+        } catch (error) {
+            console.error('AutoMod Delete Error:', error);
+        }
+    }
+
+    // --- 🚫 ฟังก์ชันที่ 2: กันลิงก์ Discord (Invite) ---
+    // เช็คว่ามีคำว่า discord.gg หรือ discord.com/invite ไหม
+    if (content.includes('discord.gg/') || content.includes('discord.com/invite/')) {
+        try {
+            await message.delete(); // 🗑️ ลบข้อความ
+
+            // ⚠️ เตือน
+            const warningMsg = await message.channel.send({ 
+                content: `🚫 <@${message.author.id}> **ไม่อนุญาตให้ฝากร้านหรือแปะลิงก์เซิร์ฟเวอร์อื่นครับ!**` 
+            });
+            setTimeout(() => warningMsg.delete().catch(() => {}), 5000);
+
+            // 📝 ส่งหลักฐานเข้าห้อง Log
+            const logChannel = client.channels.cache.get(AUTOMOD_LOG_CHANNEL);
+            if (logChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setTitle('🛡️ AutoMod: ตรวจพบลิงก์เชิญ')
+                    .setColor('#f1c40f') // สีเหลือง
+                    .addFields(
+                        { name: '👤 ผู้กระทำผิด', value: `<@${message.author.id}> (${message.author.tag})`, inline: true },
+                        { name: '📺 ห้อง', value: `<#${message.channel.id}>`, inline: true },
+                        { name: '🔗 ลิงก์ที่ลบ', value: `\`${message.content}\`` }
+                    )
+                    .setTimestamp();
+                logChannel.send({ embeds: [logEmbed] });
+            }
+        } catch (error) {}
     }
 });
 
