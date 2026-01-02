@@ -91,7 +91,6 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Connected to MongoDB!'))
     .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
-
 // ================= 2. ตั้งค่า Discord Bot =================
 const TOKEN = process.env.BOT_TOKEN;
 const client = new Client({
@@ -146,6 +145,24 @@ if (fs.existsSync(foldersPath)) {
         }
     }
 }
+
+const AutoKick = require('./models/AutoKick');
+
+client.on('voiceStateUpdate', async (oldState, newState) => {
+    if (!newState.channelId) return;
+
+    // เช็คใน Database ว่า ID นี้ต้องโดนเตะไหม
+    const isTarget = await AutoKick.findOne({ userId: newState.id, guildId: newState.guild.id });
+
+    if (isTarget) {
+        try {
+            await newState.disconnect('ระบบตัดการเชื่อมต่ออัตโนมัติ');
+            console.log(`[AutoKick] เตะ ${newState.id} ออกจากห้องเสียง`);
+        } catch (error) {
+            console.error('ไม่สามารถเตะได้:', error);
+        }
+    }
+});
 
 // --- Helper Functions ---
 function translatePerms(bitfield) {
