@@ -506,7 +506,7 @@ client.on('roleCreate', async (role) => {
         const logChannel = client.channels.cache.get(ROLE_LOG_CHANNEL_ID);
         if (!logChannel) return;
         const embed = new EmbedBuilder().setTitle('🆕 ตรวจพบการสร้างยศใหม่').setColor(role.color || 0x3498db)
-            .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${role.guild.name}**`, inline: true }, { name: '👤 คนสร้าง', value: executorTag, inline: true }, { name: '🏷️ ชื่อยศ', value: `**${role.name}**`, inline: false }, { name: '⏰ เวลาที่สร้าง', value: time(new Date(), 'F'), inline: false });
+            .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${role.guild.name}**`, inline: true },  { name: '👤 คนสร้าง', value: executorTag, inline: true }, { name: '🏷️ ชื่อยศ', value: `**${role.name}**`, inline: false },{ name: '🆔 ID ยศ', value: `\`${role.id}\``, inline: true }, { name: '⏰ เวลาที่สร้าง', value: time(new Date(), 'F'), inline: false }).setThumbnail(user.displayAvatarURL({ dynamic: true })).setTimestamp();
         logChannel.send({ embeds: [embed] }).catch(console.error);
     } catch(e) {}
 });
@@ -520,7 +520,7 @@ client.on('roleDelete', async (role) => {
         const logChannel = client.channels.cache.get(ROLE_DELETE_LOG_ID);
         if (!logChannel) return;
         const embed = new EmbedBuilder().setTitle('🗑️ ตรวจพบการลบยศ').setColor(0xFF0000)
-            .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${role.guild.name}**`, inline: true }, { name: '👤 คนลบ', value: executorTag, inline: true }, { name: '🏷️ ยศที่ถูกลบ', value: `**${role.name}**`, inline: false }, { name: '⏰ เวลาที่ถูกลบ', value: time(new Date(), 'F'), inline: false });
+            .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${role.guild.name}**`, inline: true }, { name: '👤 คนลบ', value: executorTag, inline: true }, { name: '🏷️ ยศที่ถูกลบ', value: `**${role.name}**`, inline: false }, { name: '🎨 สีเดิมของยศ', value: `\`${role.hexColor}\``, inline: true }, { name: '🆔 ID ยศเดิม', value: `\`${role.id}\``, inline: true }, { name: '⏰ เวลาที่ถูกลบ', value: time(new Date(), 'F'), inline: false }).setThumbnail(user.displayAvatarURL({ dynamic: true })).setTimestamp();
         logChannel.send({ content: `⚠️ ยศ **${role.name}** ถูกลบ`, embeds: [embed] }).catch(console.error);
     } catch(e) {}
 });
@@ -535,7 +535,7 @@ client.on('guildBanRemove', async (ban) => {
         const logChannel = client.channels.cache.get(UNBAN_LOG_CHANNEL_ID);
         if (!logChannel) return;
         const embed = new EmbedBuilder().setTitle('🔓 ตรวจพบการปลดแบนสมาชิก').setColor(0x00FF00)
-            .addFields({ name: '👤 คนทำ', value: executor, inline: true }, { name: '🎯 คนที่ถูกปลดแบน', value: `**${user.tag}**`, inline: false }).setTimestamp();
+            .addFields( { name: '🌐 เซิร์ฟเวอร์', value: `**${newMember.guild.name}**`, inline: true }, { name: '👤 คนทำ', value: executor, inline: true }, { name: '🎯 คนที่ถูกปลดแบน', value: `**${user.tag}**\n(ID: ${user.id})`, inline: false }, { name: '⏰ เวลาที่โดนปลด', value: time(new Date(), 'F') }).setThumbnail(user.displayAvatarURL({ dynamic: true })).setTimestamp();
         logChannel.send({ content: `✅ **${user.tag}** ได้รับการปลดแบน`, embeds: [embed] }).catch(console.error);
     } catch(e) {}
 });
@@ -551,7 +551,7 @@ client.on('guildBanAdd', async (ban) => {
         const logChannel = client.channels.cache.get(BAN_LOG_CHANNEL_ID);
         if (!logChannel) return;
         const embed = new EmbedBuilder().setTitle('🔨 ตรวจพบการแบนสมาชิก').setColor(0xFF0000)
-            .addFields({ name: '👤 คนทำ', value: executor, inline: true }, { name: '🎯 คนที่ถูกแบน', value: `**${user.tag}**`, inline: false }, { name: '📄 เหตุผล', value: `\`\`\`${reason}\`\`\`` }).setTimestamp();
+            .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${guild.name}**`, inline: true }, { name: '👤 คนทำ', value: executor, inline: true }, { name: '🎯 คนที่ถูกแบน', value: `**${user.tag}**\n(ID: ${user.id})`, inline: false }, { name: '📄 เหตุผล', value: `\`\`\`${reason}\`\`\`` }, { name: '⏰ เวลาที่เเบน', value: time(new Date(), 'F') }).setThumbnail(user.displayAvatarURL({ dynamic: true })).setTimestamp();
         logChannel.send({ content: `🚨 **${user.tag}** ถูกแบน`, embeds: [embed] }).catch(console.error);
     } catch(e) {}
 });
@@ -568,10 +568,14 @@ client.on('roleUpdate', async (oldRole, newRole) => {
             .addFields({ name: '👤 ผู้แก้ไข', value: executor, inline: true }, { name: '🏷️ ยศที่ถูกแก้', value: `**${newRole.name}**`, inline: false });
         
         if (oldRole.name !== newRole.name) embed.addFields({ name: '📝 เปลี่ยนชื่อ', value: `\`${oldRole.name}\` ➡️ \`${newRole.name}\`` });
+        if (oldRole.hexColor !== newRole.hexColor) embed.addFields({ name: '🎨 เปลี่ยนสี', value: `\`${oldRole.hexColor}\` ➡️ \`${newRole.hexColor}\`` });
         if (oldRole.permissions.bitfield !== newRole.permissions.bitfield) {
-            embed.addFields({ name: '🛠️ สิทธิ์เดิม', value: `\`\`\`${translatePerms(oldRole.permissions.bitfield)}\`\`\``, inline: true }, { name: '✅ สิทธิ์ใหม่', value: `\`\`\`${translatePerms(newRole.permissions.bitfield)}\`\`\``, inline: true });
-            embed.setColor(0xFF0000);
-        }
+        embed.addFields(
+            { name: '🛠️ สิทธิ์เดิม', value: `\`\`\`${translatePerms(oldRole.permissions.bitfield)}\`\`\``, inline: true },
+            { name: '✅ สิทธิ์ใหม่', value: `\`\`\`${translatePerms(newRole.permissions.bitfield)}\`\`\``, inline: true }
+        );
+        embed.setColor(0xFF0000); // เปลี่ยนเป็นสีแดงถ้ามีการแก้สิทธิ์
+    }
         if (embed.data.fields.length > 2) logChannel.send({ embeds: [embed] }).catch(console.error);
     } catch(e) {}
 });
@@ -592,7 +596,7 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
             const addChannel = client.channels.cache.get(ADD_ROLE_CHANNEL_ID);
             if (addChannel) {
                 const addEmbed = new EmbedBuilder().setTitle('➕ มีการเพิ่มยศ').setColor(0x00FF00)
-                    .addFields({ name: '👤 คนทำ', value: executorTag, inline: true }, { name: '🎯 คนที่ถูกใส่ยศ', value: `<@${newMember.id}>`, inline: true }, { name: '🏷️ ยศที่เพิ่ม', value: addedRoles.map(r => r.name).join(', ') }, { name: '⏰ เวลา', value: logTime });
+                    .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${newMember.guild.name}**`, inline: true }, { name: '👤 คนทำ', value: executorTag, inline: true }, { name: '🎯 คนที่ถูกใส่ยศ', value: `<@${newMember.id}>`, inline: true }, { name: '🏷️ ยศที่เพิ่ม', value: addedRoles.map(r => r.name).join(', ') }, { name: '⏰ เวลา', value: logTime }).setThumbnail(user.displayAvatarURL({ dynamic: true })).setTimestamp();
                 addChannel.send({ content: `🔔 เพิ่มยศให้ <@${newMember.id}>`, embeds: [addEmbed] }).catch(console.error);
             }
         }
@@ -600,7 +604,7 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
             const removeChannel = client.channels.cache.get(REMOVE_ROLE_CHANNEL_ID);
             if (removeChannel) {
                 const removeEmbed = new EmbedBuilder().setTitle('➖ มีการถอนยศ').setColor(0xFF0000)
-                    .addFields({ name: '👤 คนทำ', value: executorTag, inline: true }, { name: '🎯 คนโดนลบยศ', value: `<@${newMember.id}>`, inline: true }, { name: '🏷️ ยศที่ลบ', value: removedRoles.map(r => r.name).join(', ') }, { name: '⏰ เวลา', value: logTime });
+                    .addFields({ name: '🌐 เซิร์ฟเวอร์', value: `**${newMember.guild.name}**`, inline: true }, { name: '👤 คนทำ', value: executorTag, inline: true }, { name: '🎯 คนโดนลบยศ', value: `<@${newMember.id}>`, inline: true }, { name: '🏷️ ยศที่ลบ', value: removedRoles.map(r => r.name).join(', ') }, { name: '⏰ เวลา', value: logTime }).setThumbnail(user.displayAvatarURL({ dynamic: true })).setTimestamp();
                 removeChannel.send({ content: `⚠️ ถอนยศจาก <@${newMember.id}>`, embeds: [removeEmbed] }).catch(console.error);
             }
         }

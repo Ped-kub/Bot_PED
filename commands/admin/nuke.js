@@ -3,15 +3,17 @@ const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('disc
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('nuke')
-        .setDescription('ลบข้อความทั้งหมดในห้อง (แอดมินเท่านั้น)')
-        // ชั้นที่ 1: ล็อกสิทธิ์ในระดับ Discord API (คำสั่งจะไม่ขึ้นให้คนอื่นเห็น หรือกดไม่ได้)
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+        .setDescription('ลบข้อความทั้งหมด (เฉพาะยศที่กำหนด)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
     async execute(interaction) {
-        // ชั้นที่ 2: ตรวจสอบสิทธิ์ในโค้ดอีกครั้งเพื่อความชัวร์
-        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+        // 1. ตรวจสอบยศ (ตัวอย่างใช้ชื่อยศ)
+        const allowedRoles = ['Admin', 'Moderator']; 
+        const hasRole = interaction.member.roles.cache.some(role => allowedRoles.includes(role.name));
+
+        if (!hasRole) {
             return interaction.reply({ 
-                content: '❌ เฉพาะผู้ที่มีสิทธิ์ **Administrator** เท่านั้นที่สามารถใช้คำสั่งนี้ได้!', 
+                content: '❌ คุณไม่มีสิทธิ์ใช้งานคำสั่งนี้!', 
                 ephemeral: true 
             });
         }
@@ -19,34 +21,35 @@ module.exports = {
         const channel = interaction.channel;
 
         try {
-            // แจ้งเตือนก่อนเริ่ม
-            await interaction.reply({ content: 'กำลังเริ่มกระบวนการ Nuke...', ephemeral: true });
+            // 2. ใช้ deferReply เพื่อบอก Discord ว่าบอทกำลังประมวลผล (ป้องกัน Interaction Expired)
+            await interaction.deferReply({ ephemeral: true });
 
-            // สร้างห้องใหม่โดย Copy สิทธิ์และการตั้งค่าเดิมมาทั้งหมด
+            // 3. เริ่มทำการ Clone และ Delete
             const newChannel = await channel.clone({
-                reason: `Nuke โดย Admin: ${interaction.user.tag}`
+                reason: `Nuke โดย ${interaction.user.tag}`
             });
-
-            // ย้ายห้องใหม่ไปตำแหน่งเดิม
+            
             await newChannel.setPosition(channel.position);
+            await channel.delete();
 
-            // ลบห้องเก่า
-            await channel.delete(`Nuke โดย Admin: ${interaction.user.tag}`);
-
-            // ส่ง Embed แจ้งเตือนในห้องใหม่
+            // 4. ส่งข้อความในห้องใหม่ (ใช้ newChannel แทน interaction เพราะห้องเก่าตายไปแล้ว)
             const nukeEmbed = new EmbedBuilder()
                 .setColor(0xFF0000)
                 .setTitle('☢️ Room Nuked!')
-                .setDescription(`ข้อความทั้งหมดในห้องนี้ถูกล้างโดยแอดมิน ${interaction.user}`)
-                .setImage('https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2I0YjFkN2Y0YjFkN2Y0YjFkN2Y0YjFkN2Y0YjFkN2Y0YjFkN2Y0JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/HhTXt43pk1I1W/giphy.gif') // รูปประกอบระเบิด
+                .setDescription(`ห้องถูกล้างข้อมูลเรียบร้อยโดย: ${interaction.user}`)
                 .setTimestamp();
 
             await newChannel.send({ embeds: [nukeEmbed] });
 
         } catch (error) {
             console.error('Nuke Error:', error);
-            if (!interaction.replied) {
-                await interaction.reply({ content: 'เกิดข้อผิดพลาด: บอทอาจจะไม่มีสิทธิ์จัดการห้อง (Manage Channels)', ephemeral: true });
+            
+            // 5. การเช็คเพื่อป้องกัน Error ซ้ำซ้อน
+            if (interaction.deferred || interaction.replied) {
+                // ถ้าบอทเคยตอบไปแล้ว ให้ใช้ editReply แทน
+                await interaction.editReply({ content: 'เกิดข้อผิดพลาดในการ Nuke ห้องนี้ บอทอาจขาดสิทธิ์ Manage Channels' });
+            } else {
+                await interaction.reply({ content: 'เกิดข้อผิดพลาดในการรันคำสั่ง', ephemeral: true });
             }
         }
     },
