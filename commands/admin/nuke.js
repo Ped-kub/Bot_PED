@@ -7,50 +7,41 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
     async execute(interaction) {
-        // 1. เช็คยศด้วย ID (แม่นยำกว่าชื่อ)
-        // วิธีเอา ID: คลิกขวาที่ยศใน Discord > Copy Role ID
-        const allowedRoleIDs = ['1393122803871387738']; // <--- ใส่ Role ID ของแอดมินตรงนี้
+        // 1. ตรวจสอบยศก่อนอันดับแรก
+        const allowedRoleIDs = ['1393122803871387738']; // เปลี่ยนเป็น ID ของคุณ
         const hasRole = interaction.member.roles.cache.hasAny(...allowedRoleIDs);
-        
-        // ถ้าไม่มีสิทธิ์ยศ และไม่ใช่ Administrator ของเซิร์ฟเวอร์
-        if (!hasRole && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '❌ คุณไม่มีสิทธิ์ใช้งานคำสั่งนี้!', ephemeral: true });
+        const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+
+        if (!hasRole && !isAdmin) {
+            return interaction.reply({ content: '❌ คุณไม่มีสิทธิ์ใช้งาน!', ephemeral: true });
         }
 
-        // 2. แจ้ง Discord ว่ากำลังประมวลผล (ป้องกัน Timeout)
-        await interaction.deferReply({ ephemeral: true });
+        // 2. ถ้าผ่านเงื่อนไข ให้เช็คว่าเคยตอบหรือยังก่อนสั่ง defer
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.deferReply({ ephemeral: true });
+        } else {
+            return; // ป้องกันการรันซ้ำ
+        }
 
         try {
             const channel = interaction.channel;
 
-            // 3. เช็คว่าบอทมีสิทธิ์ลบห้องไหม
-            if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ManageChannels)) {
-                return interaction.editReply({ content: '❌ บอทไม่มีสิทธิ์ **Manage Channels** (จัดการห้อง) กรุณาตรวจสอบสิทธิ์ของบอทครับ' });
-            }
-
-            // 4. เริ่มขั้นตอนการ Nuke
-            const newChannel = await channel.clone({
-                reason: `Nuke โดย ${interaction.user.tag}`
-            });
-
+            // 3. เริ่มทำงาน
+            const newChannel = await channel.clone();
             await newChannel.setPosition(channel.position);
-            await channel.delete(`Nuke โดย ${interaction.user.tag}`);
+            await channel.delete();
 
-            // 5. ส่ง Embed ในห้องใหม่
-            const nukeEmbed = new EmbedBuilder()
+            // 4. ส่งข้อความในห้องใหม่
+            const embed = new EmbedBuilder()
                 .setColor(0xFF0000)
                 .setTitle('☢️ Room Nuked!')
-                .setDescription(`ห้องถูกล้างข้อมูลเรียบร้อยโดย: ${interaction.user}`)
                 .setTimestamp();
 
-            await newChannel.send({ embeds: [nukeEmbed] });
+            await newChannel.send({ embeds: [embed] });
 
         } catch (error) {
-            console.error('Nuke Error:', error);
-            // ถ้าลบห้องไปแล้ว interaction จะตาย ให้ใช้ console log ดู error แทน
-            if (interaction.channel) {
-                await interaction.editReply({ content: `เกิดข้อผิดพลาด: ${error.message}` });
-            }
+            console.error('Nuke Execute Error:', error);
+            // ไม่ต้องสั่ง reply ซ้ำในนี้ เพราะห้องอาจถูกลบไปแล้ว หรือตอบไปแล้ว
         }
     },
 };
