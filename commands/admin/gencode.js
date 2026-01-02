@@ -1,6 +1,9 @@
-const { SlashCommandBuilder, time } = require('discord.js'); // เพิ่ม time มาใช้แสดงเวลา
+const { SlashCommandBuilder, time } = require('discord.js');
 const User = require('../../models/User'); 
 const Code = require('../../models/Code'); 
+
+// 👇 ใส่ ID ห้องที่ต้องการให้บอทส่งประกาศโค้ดที่นี่
+const ANNOUNCE_CHANNEL_ID = '1434019573484617801'; 
 
 // 🔥 ตั้งค่า: ใครมีสิทธิ์ใช้ และได้แต้มเท่าไหร่
 const ADMIN_CONFIG = {
@@ -39,6 +42,9 @@ module.exports = {
         .setDescription(`สร้างโค้ดรางวัล (จำกัด ${MAX_CLAIMS} คน/โค้ด, หมดอายุ 7 วัน)`),
         
     async execute(interaction) {
+        // แนะนำให้ deferReply เป็น ephemeral เพื่อไม่ให้คนอื่นเห็นตอนเรากดสร้าง (ถ้าต้องการ)
+        // await interaction.deferReply({ ephemeral: true }); 
+
         const userId = interaction.user.id;
 
         // 🛑 1. เช็คสิทธิ์ Admin
@@ -71,7 +77,7 @@ module.exports = {
             code: codeString,
             points: points,
             maxUses: MAX_CLAIMS,
-            expiresAt: expirationDate, // 👈 บันทึกวันหมดอายุลงไป
+            expiresAt: expirationDate,
             createdBy: interaction.user.tag
         });
 
@@ -85,9 +91,30 @@ module.exports = {
         userData.lastGencode = new Date();
         await userData.save();
 
-        // ✅ แจ้งผล (ใช้ time() ของ discord.js เพื่อแสดงเวลานับถอยหลังสวยๆ)
-        await interaction.editReply({
-            content: `✅ **สร้างโค้ดสำเร็จ!**\n🎫 รหัส: \`${codeString}\`\n💎 แจกแต้ม: **${points}** แต้ม\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n⏳ หมดอายุ: ${time(expirationDate, 'R')} (7 วัน)`
-        });
+        // 🔥 5. ส่งไปที่ห้องที่กำหนด พร้อมแท็ก @everyone
+        const channel = interaction.guild.channels.cache.get(ANNOUNCE_CHANNEL_ID);
+
+        if (channel) {
+            try {
+                await channel.send({
+                    content: `@everyone 🎉 **แจกโค้ดจ้า!**\n\n🎫 Code: \`${codeString}\`\n💎 จำนวนแต้ม: **${points}** แต้ม\n👥 จำนวนสิทธิ์: **${MAX_CLAIMS} คน**\n⏳ หมดอายุ: ${time(expirationDate, 'R')} (7 วัน)\n\n*รีบเติมก่อนสิทธิ์เต็มนะ!*`
+                });
+
+                // ✅ แจ้งผลกลับมาที่คนกดคำสั่งว่าส่งแล้ว
+                await interaction.editReply({
+                    content: `✅ **สร้างและประกาศโค้ดเรียบร้อย!**\nส่งไปที่ห้อง: <#${ANNOUNCE_CHANNEL_ID}>\nรหัสคือ: \`${codeString}\``
+                });
+
+            } catch (error) {
+                console.error(error);
+                await interaction.editReply({
+                    content: `⚠️ **สร้างโค้ดสำเร็จ** แต่บอทส่งข้อความไปที่ห้อง <#${ANNOUNCE_CHANNEL_ID}> ไม่ได้ (อาจจะไม่มีสิทธิ์)`
+                });
+            }
+        } else {
+            await interaction.editReply({
+                content: `⚠️ **สร้างโค้ดสำเร็จ** แต่ไม่เจอห้อง ID: \`${ANNOUNCE_CHANNEL_ID}\` กรุณาเช็คการตั้งค่า`
+            });
+        }
     },
 };
