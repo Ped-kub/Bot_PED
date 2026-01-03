@@ -17,14 +17,14 @@ module.exports = {
         },
         'helos': { 
             name: 'ตระกูล Helos', 
-            price: ' 850  บาท', 
+            price: ' 900  บาท', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1451502311640924241/image.png?ex=6946685e&is=694516de&hm=8621d0aaf958b607699b4b114b9e95587671ef5262fb1538f14f6898df667f5f&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k'
         },
         'fritz': { 
             name: 'ตระกูล Fritz', 
-            price: ' 450  บาท', 
+            price: ' 550  บาท', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1434280912140632267/IMG_4246.png?ex=694660f1&is=69450f71&hm=e4f6b903f845a5f92d8c82f5e533dbbb680bdda064efcd08f40d3f8807daf970&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k'
@@ -211,7 +211,7 @@ module.exports = {
         },
         'spear_wing': { 
             name: 'หอกปีก', 
-            price: '200฿', 
+            price: '250฿', 
             images: [
         'https://media.discordapp.net/attachments/1427818804783616191/1435756973885755484/IMG_5079.png?ex=694873e1&is=69472261&hm=10178137fe0221d5fba78b7c10cb38884688b04ebbb1b5bede57915bc5c22c6f&=&format=webp&quality=lossless', 
         'https://media.discordapp.net/attachments/1427818804783616191/1435756973621645343/IMG_5078.png?ex=694873e1&is=69472261&hm=7cb43af2cdff7e0efd562a0bc7cf5b25370a4bce3ee851fc8c6a4705bc4f9725&=&format=webp&quality=lossless'
@@ -300,6 +300,20 @@ module.exports = {
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1446638734043906100/IMG_4666.png?ex=69487d4f&is=69472bcf&hm=0be2950bd6e64556abc3da6296940acf7a7fbe6fa3f78104be4e7c7bc84cead5&=&format=webp&quality=lossless'], 
             description: 'ภาษี 5000',
             emoji: '🛡️'
+        },
+        'black_wing': { 
+            name: 'ปีกดำ', 
+            price: '3000฿', 
+            images: ['https://media.discordapp.net/attachments/1133947298628517970/1457107586456489984/ebd870c4-ae85-4781-a7cd-49f103d86f6a.png?ex=695accb0&is=69597b30&hm=5be00747805794183059985fd6aba2376ff6a6a3cc925655688c191d4456f46e&=&format=webp&quality=lossless'], 
+            description: 'สอบถามเพิ่มเติมได้ครับ',
+            emoji: '🪽'
+        },
+        'red_wing': { 
+            name: 'ปีกเเดง', 
+            price: '3200฿', 
+            images: ['https://media.discordapp.net/attachments/1133947298628517970/1457107511487369269/c4461a06-179f-434a-b742-aeadd47eb88d.png?ex=695acc9e&is=69597b1e&hm=07b834ac341d24d033cf8ff3cfcfd785bec5b56ed0085562d31cba764400bacd&=&format=webp&quality=lossless'], 
+            description: 'สอบถามเพิ่มเติมได้ครับ',
+            emoji: '🪽'
         },
     },
 
