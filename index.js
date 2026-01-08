@@ -147,20 +147,36 @@ if (fs.existsSync(foldersPath)) {
 }
 
 const AutoKick = require('./models/AutoKick');
+const AutoMove = require('./models/AutoMove');
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
+    // 1. ถ้าเป็นการกดออกจากห้องเสียง (disconnect) ให้หยุดทำงานทันที
     if (!newState.channelId) return;
 
-    // เช็คใน Database ว่า ID นี้ต้องโดนเตะไหม
-    const isTarget = await AutoKick.findOne({ userId: newState.id, guildId: newState.guild.id });
+    const userId = newState.id;
+    const guildId = newState.guild.id;
 
-    if (isTarget) {
-        try {
+    try {
+        // --- ส่วนที่ 1: ระบบ Auto Kick (เตะออก) ---
+        // เราควรเช็คการเตะก่อน เพราะถ้าต้องเตะ ก็ไม่จำเป็นต้องย้ายห้อง
+        const isTargetKick = await AutoKick.findOne({ userId, guildId });
+        if (isTargetKick) {
             await newState.disconnect('ระบบตัดการเชื่อมต่ออัตโนมัติ');
-            console.log(`[AutoKick] เตะ ${newState.id} ออกจากห้องเสียง`);
-        } catch (error) {
-            console.error('ไม่สามารถเตะได้:', error);
+            console.log(`[AutoKick] เตะ ${userId} เรียบร้อย`);
+            return; // จบการทำงานสำหรับคนนี้ทันที
         }
+
+        // --- ส่วนที่ 2: ระบบ Auto Move (ย้ายห้อง) ---
+        const moveTask = await AutoMove.findOne({ userId, guildId });
+        if (moveTask) {
+            // เช็คว่าปัจจุบัน "ไม่ได้" อยู่ในห้องเป้าหมาย
+            if (newState.channelId !== moveTask.targetChannelId) {
+                await newState.setChannel(moveTask.targetChannelId, 'ระบบย้ายห้องอัตโนมัติ');
+                console.log(`[AutoMove] ย้าย ${userId} ไปยังห้อง ${moveTask.targetChannelId}`);
+            }
+        }
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในระบบ Voice Update:', error);
     }
 });
 
