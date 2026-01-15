@@ -17,7 +17,7 @@ module.exports = {
         },
         'helos': { 
             name: 'ตระกูล Helos', 
-            price: ' 950  บาท', 
+            price: ' 1000  บาท', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1451502311640924241/image.png?ex=6946685e&is=694516de&hm=8621d0aaf958b607699b4b114b9e95587671ef5262fb1538f14f6898df667f5f&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k'
