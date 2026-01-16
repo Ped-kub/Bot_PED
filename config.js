@@ -140,7 +140,7 @@ module.exports = {
         },
         'item_sclye': { 
             name: 'เคียว', 
-            price: '95 ฿', 
+            price: '120 ฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721174741052/IMG_5060.png?ex=69467965&is=694527e5&hm=ff38cd0e7a9c31852ea7feacc8263da47ec5d82b259422c4d41c812fdc9efecf&=&format=webp&quality=lossless'], 
             emoji: '👿'
         },
@@ -152,19 +152,19 @@ module.exports = {
         },
         'titan_black_annie': { 
             name: 'แอนนี่ดำ', 
-            price: '50฿', 
+            price: '60฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756722185699378/IMG_5077.png?ex=69467965&is=694527e5&hm=afed5615a30c8105df6a1fae78e35ff698fe9d3958775a27e648a99e691d99bf&=&format=webp&quality=lossless'], 
             emoji: '⬛'
         },
         'titan_maid_annie': { 
             name: 'แอนนี่เมจ ', 
-            price: '100฿', 
+            price: '120฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721413951548/IMG_5057.png?ex=69467965&is=694527e5&hm=85b440ca5997e7088265b41fb95e80979a41c3201dea7166b565b1e1ca39d9ee&=&format=webp&quality=lossless'], 
             emoji: '🐈‍⬛'
         },
         'titan_green_armor': { 
             name: 'เกาะเขียว ', 
-            price: '50฿', 
+            price: '60฿', 
             images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451525048421580842/1000.png?ex=69467d8b&is=69452c0b&hm=72b189274647ac19c2e63a523f50a783d816e9b881da206a01d21ff5e7dacbf8&'], 
             emoji: '🗿'
         },
@@ -182,7 +182,7 @@ module.exports = {
         },
         'skin_sword_dragon': { 
             name: 'เซ็ตดาบมังกร', 
-            price: '150฿', 
+            price: '170฿', 
             images: [
         'https://media.discordapp.net/attachments/1427818804783616191/1435756910400770148/IMG_5065.png?ex=6945d0d2&is=69447f52&hm=3176e462784c530f3e9962273369ced94b767ae35d1c1447eb82c31122a14eff&=&format=webp&quality=lossless', 
         'https://media.discordapp.net/attachments/1427818804783616191/1435756911382495382/IMG_5066.png?ex=69467992&is=69452812&hm=c2d271888860926a59d640a1fe26d98c22b8226b0131d8708242f5972976d465&=&format=webp&quality=lossless', 
@@ -192,7 +192,7 @@ module.exports = {
         },
         'skin_sword_oni': { 
             name: 'เซ็ตดาบโอนิ', 
-            price: '60฿', 
+            price: '70฿', 
             images: [
         'https://media.discordapp.net/attachments/1427818804783616191/1435756912791781456/IMG_5068.png?ex=694873d3&is=69472253&hm=6eb701c201417b4e82499524c903775ff53a17b8ca16707e8d89e9e67d59ac6e&=&format=webp&quality=lossless', 
         'https://media.discordapp.net/attachments/1427818804783616191/1435756913311879199/IMG_5069.png?ex=694873d3&is=69472253&hm=464d981fd746569ad9ac81820aabb3d5bbe8ceb4bca9d54134421f25c5362048&=&format=webp&quality=lossless', 
@@ -220,7 +220,7 @@ module.exports = {
         },
         'spear_oni': { 
             name: 'หอกโอนิ', 
-            price: '55฿', 
+            price: '60฿', 
             images: [
         'https://media.discordapp.net/attachments/1427818804783616191/1435756972195709019/IMG_5061.png?ex=694873e1&is=69472261&hm=7b54585a912b547d1c66827326d3e29f457fc6a50b38dfa9f81d4525c6061feb&=&format=webp&quality=lossless', 
         'https://media.discordapp.net/attachments/1427818804783616191/1435756972514480168/IMG_5062.png?ex=694873e1&is=69472261&hm=1c51dea10e331ee61c1f002d9566dcaada355020c9aec2f0cd909bd543b9d4c7&=&format=webp&quality=lossless'
@@ -303,14 +303,14 @@ module.exports = {
         },
         'black_wing': { 
             name: 'ปีกดำ', 
-            price: '3000฿', 
+            price: '3300฿', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1457107586456489984/ebd870c4-ae85-4781-a7cd-49f103d86f6a.png?ex=695accb0&is=69597b30&hm=5be00747805794183059985fd6aba2376ff6a6a3cc925655688c191d4456f46e&=&format=webp&quality=lossless'], 
             description: 'สอบถามเพิ่มเติมได้ครับ',
             emoji: '🪽'
         },
         'red_wing': { 
             name: 'ปีกเเดง', 
-            price: '3200฿', 
+            price: '3500฿', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1457107511487369269/c4461a06-179f-434a-b742-aeadd47eb88d.png?ex=695acc9e&is=69597b1e&hm=07b834ac341d24d033cf8ff3cfcfd785bec5b56ed0085562d31cba764400bacd&=&format=webp&quality=lossless'], 
             description: 'สอบถามเพิ่มเติมได้ครับ',
             emoji: '🪽'
