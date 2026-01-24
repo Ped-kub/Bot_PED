@@ -117,6 +117,7 @@ const TARGET_CATEGORY_ID = '1428682337952206848';
 const STAFF_ROLE_ID = '1443797915230539928';
 const NOTIFY_ITEM_USERS = ['1390444294988369971'];
 const NOTIFY_TRADE_USERS = ['1056886143754444840'];
+const NOTIFY_TRADE_1_USERS = ['926336093253677157'];
 const TARGET_CHANNEL_ID = '1434589377173917697'; 
 const SUPPORT_LOG_CHANNEL_ID = '1456315702528053451';
 const BYPASS_ROLES = [
@@ -503,6 +504,12 @@ client.on('interactionCreate', async interaction => {
                     welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับ พิมพ์รายละเอียดที่ต้องการติดต่อทิ้งไว้ได้เลยครับ');
                     NOTIFY_TRADE_USERS.forEach(id => { if (id) overwrites.push({ id: id, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }); });
                 }
+                else if (selectedValue === 'create_trade_1') {
+                    typeName = "🤝 ติดต่อพ่อค้า AOTRohm";
+                    channelName = `🤝-ติดต่อAOTRohm-${user.username}`;
+                    welcomeEmbed.setTitle('🤝 ติดต่อพ่อค้า').setDescription('สวัสดีครับ พิมพ์รายละเอียดที่ต้องการติดต่อทิ้งไว้ได้เลยครับ');
+                    NOTIFY_TRADE_1_USERS.forEach(id => { if (id) overwrites.push({ id: id, type: 1, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }); });
+                }
 
                 components.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('close_room').setLabel('ปิดห้อง').setStyle(ButtonStyle.Danger)));
 
@@ -516,6 +523,7 @@ client.on('interactionCreate', async interaction => {
                 if (selectedValue === 'create_item') NOTIFY_ITEM_USERS.forEach(async id => (await guild.members.fetch(id).catch(() => null))?.send(notifyMsg).catch(() => {}));
                 else if (selectedValue === 'create_trade') NOTIFY_TRADE_USERS.forEach(async id => (await guild.members.fetch(id).catch(() => null))?.send(notifyMsg).catch(() => {}));
                 else if (selectedValue === 'create_farm') guild.roles.cache.get(STAFF_ROLE_ID)?.members?.forEach(m => !m.user.bot && m.send(notifyMsg).catch(() => {}));
+                else if (selectedValue === 'create_trade_1') NOTIFY_TRADE_1_USERS.forEach(async id => (await guild.members.fetch(id).catch(() => null))?.send(notifyMsg).catch(() => {}));
 
             } catch (error) {
                  if (error.code === 10062) {

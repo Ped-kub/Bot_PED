@@ -34,6 +34,10 @@ const createMenuDropdown = () => {
         .setLabel('พ่อค้าโตโต้เด็กเย็ดโม้')
         .setDescription('พ่อค้า โตโต้เด็กเย็ดโม้')
         .setValue('Trade_1'),
+        new StringSelectMenuOptionBuilder()
+        .setLabel('พ่อค้า AOTRohm')
+        .setDescription('พ่อค้า AOTRohm')
+        .setValue('Trade_2'),
     );
 
   const actionRow = new ActionRowBuilder()
