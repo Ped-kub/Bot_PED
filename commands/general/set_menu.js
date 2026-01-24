@@ -43,7 +43,7 @@ module.exports = {
                     .setDescription('ติดต่อพ่อค้าโตโต้เด็กเย็ดโม้')
                     .setEmoji('🙆‍♂️')
                     .setValue('create_trade'),
-                    new StringSelectMenuOptionBuilder()
+                new StringSelectMenuOptionBuilder()
                     .setLabel('พ่อค้า AOTRohm')
                     .setDescription('ติดต่อพ่อค้า AOTRohm')
                     .setEmoji('🤓')
