@@ -17,14 +17,14 @@ module.exports = {
         },
         'helos': { 
             name: 'ตระกูล Helos', 
-            price: ' 1000  บาท', 
+            price: ' 900  บาท', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1451502311640924241/image.png?ex=6946685e&is=694516de&hm=8621d0aaf958b607699b4b114b9e95587671ef5262fb1538f14f6898df667f5f&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k'
         },
         'fritz': { 
             name: 'ตระกูล Fritz', 
-            price: ' 600  บาท', 
+            price: ' 550  บาท', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1434280912140632267/IMG_4246.png?ex=694660f1&is=69450f71&hm=e4f6b903f845a5f92d8c82f5e533dbbb680bdda064efcd08f40d3f8807daf970&=&format=webp&quality=lossless'], 
             emoji: '💎', 
             description: 'ใช้เพชรเทรด  50 k'
@@ -122,13 +122,13 @@ module.exports = {
         },
         'item_mask': { 
             name: 'หน้ากากอิจิโกะ', 
-            price: '100฿', 
+            price: '120฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756720377823242/IMG_5101.png?ex=694527e5&is=6943d665&hm=d878ef372d9220552f7093c2c70697d97d43ef674416f68dd6125e56ae444127&format=webp&quality=lossless&'], 
             emoji: '🎭'
         },
         'item_shirt': { 
             name: 'ชุดกัปตันขาว', 
-            price: '450฿', 
+            price: '500฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756720667365468/IMG_5059.png?ex=69467965&is=694527e5&hm=cb4d50252db9bc81da321e1eb4642b957432f5b14397a3f7cb50ebcc5cfc0cd5&=&format=webp&quality=lossless'], 
             emoji: '👚'
         },
@@ -140,7 +140,7 @@ module.exports = {
         },
         'item_sclye': { 
             name: 'เคียว', 
-            price: '120 ฿', 
+            price: '150 ฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1435756721174741052/IMG_5060.png?ex=69467965&is=694527e5&hm=ff38cd0e7a9c31852ea7feacc8263da47ec5d82b259422c4d41c812fdc9efecf&=&format=webp&quality=lossless'], 
             emoji: '👿'
         },
@@ -289,28 +289,28 @@ module.exports = {
         },
         'aren_ject': { 
             name: 'เข็มเอเรน', 
-            price: '55฿', 
+            price: '25฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1446638733771411516/IMG_4667.png?ex=69487d4f&is=69472bcf&hm=03d9607ad5d28b1040f58cc063c982c4d8e64e268c2d6d0489e9cc854c66830e&=&format=webp&quality=lossless'], 
             description: 'ภาษี 5000',
             emoji: '👦'
         },
         'armor_ject': { 
             name: 'เข็มไททั่นเกราะ', 
-            price: '55฿', 
+            price: '25฿', 
             images: ['https://media.discordapp.net/attachments/1427818804783616191/1446638734043906100/IMG_4666.png?ex=69487d4f&is=69472bcf&hm=0be2950bd6e64556abc3da6296940acf7a7fbe6fa3f78104be4e7c7bc84cead5&=&format=webp&quality=lossless'], 
             description: 'ภาษี 5000',
             emoji: '🛡️'
         },
         'black_wing': { 
             name: 'ปีกดำ', 
-            price: '3300฿', 
+            price: '3900฿', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1457107586456489984/ebd870c4-ae85-4781-a7cd-49f103d86f6a.png?ex=695accb0&is=69597b30&hm=5be00747805794183059985fd6aba2376ff6a6a3cc925655688c191d4456f46e&=&format=webp&quality=lossless'], 
             description: 'สอบถามเพิ่มเติมได้ครับ',
             emoji: '🪽'
         },
         'red_wing': { 
             name: 'ปีกเเดง', 
-            price: '3500฿', 
+            price: '4000฿', 
             images: ['https://media.discordapp.net/attachments/1133947298628517970/1457107511487369269/c4461a06-179f-434a-b742-aeadd47eb88d.png?ex=695acc9e&is=69597b1e&hm=07b834ac341d24d033cf8ff3cfcfd785bec5b56ed0085562d31cba764400bacd&=&format=webp&quality=lossless'], 
             description: 'สอบถามเพิ่มเติมได้ครับ',
             emoji: '🪽'
@@ -361,7 +361,7 @@ module.exports = {
         },
         'farm_Max': { 
             name: 'เหมาจุติ 0-4',
-            price: '500 บาท', 
+            price: '550 บาท', 
             images: ['https://cdn.discordapp.com/attachments/1133947298628517970/1451303094267805796/LEVEL_UP_.png?ex=6945aed5&is=69445d55&hm=0c0781e195a28bed51a489095c0b35336fbeb57777f40757f537311f317ce26d&'], 
             emoji: '🆙',
             description: 'บริการฟาร์มเลเวล ตั้งแต่เลเวล 1 ในจุติ 1 ถึง เลเวล 200 ในจุติ 4 ',
