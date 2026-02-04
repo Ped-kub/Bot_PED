@@ -1158,4 +1158,15 @@ client.once('ready', async () => {
     // ตั้งเวลาให้วนลูปทุก 10 วินาที
     setInterval(updateStatus, 10000);
 });
+
+if (!TOKEN) {
+    console.error("❌ ERROR: TOKEN IS UNDEFINED! เช็คที่เมนู Environment ใน Render อีกครั้งครับ");
+} else {
+    console.log(`📡 พยายามเชื่อมต่อด้วย Token: ${TOKEN.substring(0, 10)}...`);
+}
+
+client.login(TOKEN).catch(err => {
+    console.error("❌ DISCORD LOGIN ERROR:");
+    console.error(err); 
+});
 client.login(TOKEN);
