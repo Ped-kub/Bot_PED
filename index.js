@@ -1153,7 +1153,6 @@ client.once('ready', async () => {
         currentIndex = (currentIndex + 1) % statusOptions.length;
     };
 
-    // เรียกครั้งแรกทันที (ไม่ต้องรอ 10 วิ)
     updateStatus();
 
     // ตั้งเวลาให้วนลูปทุก 10 วินาที
