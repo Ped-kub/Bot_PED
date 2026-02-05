@@ -1108,6 +1108,24 @@ client.once('ready', async () => {
         }
     } catch (error) { console.error('❌ ดึงข้อมูลห้องผิดพลาด:', error); }
 
+   const statusOptions = [
+        {
+            name: '𝑻𝒉𝒂𝒑𝒙𝒌𝒐𝒓𝒏𝑨𝑿',
+            type: ActivityType.Streaming,
+            url: 'https://www.twitch.tv/star_ssr'
+        },
+        {
+            name: '𝑷.𝑷𝒆𝒅𝒛', 
+            type: ActivityType.Streaming,
+            url: 'https://www.twitch.tv/star_ssr'
+        },
+        {
+            name: '𝑩𝒐𝒕 𝒃𝒚 𝑷𝒆𝒅',
+            type: ActivityType.Streaming,
+            url: 'https://www.twitch.tv/star_ssr'
+        }
+    ];
+
     let currentIndex = 0;
 
     const getUptimeString = () => {
@@ -1121,13 +1139,23 @@ client.once('ready', async () => {
     };
 
     // สร้างฟังก์ชันอัปเดตสถานะ
-   client.user.setPresence({
-        activities: [{
-        name: '𝑷.𝑷𝒆𝒅𝒛', 
-        type: ActivityType.Streaming,
-        url: 'https://www.twitch.tv/star_ssr'
-        }],
-        status: 'Streaming',
-    });
+    const updateStatus = () => {
+        const status = statusOptions[currentIndex];
+
+        const timeString = getUptimeString();
+        
+        client.user.setActivity(status.name, { 
+            type: status.type, 
+            url: status.url,
+            state: timeString
+        });
+
+        currentIndex = (currentIndex + 1) % statusOptions.length;
+    };
+
+    updateStatus();
+
+    // ตั้งเวลาให้วนลูปทุก 10 วินาที
+    setInterval(updateStatus, 10000);
 });
 client.login(TOKEN);
