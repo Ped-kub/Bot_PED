@@ -1,4 +1,5 @@
 require('dotenv').config();
+const TOKEN = process.env.BOT_TOKEN;
 const express = require('express');
 const mongoose = require('mongoose');
 const fs = require('fs');
@@ -92,7 +93,6 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
 // ================= 2. ตั้งค่า Discord Bot =================
-const TOKEN = process.env.BOT_TOKEN;
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds, 
