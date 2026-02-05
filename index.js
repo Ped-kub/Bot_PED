@@ -9,6 +9,35 @@ const {
     AuditLogEvent, ActionRowBuilder, MessageFlags, ButtonBuilder, 
     PermissionFlagsBits, ButtonStyle, time, ModalBuilder, TextInputBuilder, TextInputStyle, OverwriteType 
 } = require('discord.js');
+const TOKEN = process.env.BOT_TOKEN;
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds, 
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent, 
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMembers,    
+        GatewayIntentBits.GuildModeration   
+    ]
+});
+
+async function startBot() {
+    try {
+        // ต่อ MongoDB
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log('✅ Connected to MongoDB!');
+
+        // สั่ง Login ทันที
+        await client.login(process.env.BOT_TOKEN);
+        console.log('🚀 Sending Login request to Discord...');
+
+    } catch (error) {
+        console.error('❌ Start Error:', error);
+    }
+}
+
+// 3. รันฟังก์ชัน
+startBot();
 
 // เรียกใช้ Model และ Config
 const User = require('./models/User'); 
@@ -86,23 +115,7 @@ app.listen(port, '0.0.0.0', () => {
     console.log(`✅ Dummy Server running on port ${port}`);
 });
 
-// เชื่อมต่อ MongoDB
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ Connected to MongoDB!'))
-    .catch((err) => console.error('❌ MongoDB Connection Error:', err));
-
 // ================= 2. ตั้งค่า Discord Bot =================
-const TOKEN = process.env.BOT_TOKEN;
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds, 
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent, 
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildMembers,    
-        GatewayIntentBits.GuildModeration   
-    ]
-});
 
 // --- Config Channels & IDs ---
 const ADD_ROLE_CHANNEL_ID = '1450456011352572087'; 
@@ -1092,11 +1105,6 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 
 
 // ================= 5. Start Bot =================
-client.login(TOKEN).catch(err => {
-    console.error("❌ บอท Login ไม่ได้เพราะ:");
-    console.error(err);
-});
-
 client.once('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
     try {
