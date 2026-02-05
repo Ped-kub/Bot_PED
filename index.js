@@ -1,5 +1,4 @@
 require('dotenv').config();
-const TOKEN = process.env.BOT_TOKEN;
 const express = require('express');
 const mongoose = require('mongoose');
 const fs = require('fs');
@@ -93,6 +92,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
 // ================= 2. ตั้งค่า Discord Bot =================
+const TOKEN = process.env.BOT_TOKEN;
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds, 
@@ -1157,16 +1157,5 @@ client.once('ready', async () => {
 
     // ตั้งเวลาให้วนลูปทุก 10 วินาที
     setInterval(updateStatus, 10000);
-});
-
-if (!TOKEN) {
-    console.error("❌ ERROR: TOKEN IS UNDEFINED! เช็คที่เมนู Environment ใน Render อีกครั้งครับ");
-} else {
-    console.log(`📡 พยายามเชื่อมต่อด้วย Token: ${TOKEN.substring(0, 10)}...`);
-}
-
-client.login(TOKEN).catch(err => {
-    console.error("❌ DISCORD LOGIN ERROR:");
-    console.error(err); 
 });
 client.login(TOKEN);
