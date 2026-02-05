@@ -1092,6 +1092,11 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 
 
 // ================= 5. Start Bot =================
+client.login(TOKEN).catch(err => {
+    console.error("❌ บอท Login ไม่ได้เพราะ:");
+    console.error(err);
+});
+
 client.once('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
     try {
